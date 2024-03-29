@@ -1,0 +1,57 @@
+version: '3.7'
+
+services:
+  jupyter:
+    image: jupyter/datascience-notebook:latest
+    container_name: jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - MLFLOW_TRACKING_URI=http://mlflow:2244
+      - JUPYTER_TOKEN=""
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    container_name: mlflow
+    ports:
+      - "2244:2244"
+    volumes:
+      - ./mlflow:/mlflow
+    environment:
+      - MLFLOW_BACKEND_STORE_URI=mysql+pymysql://mlflow:mlflow@mysql/mlflow
+      - MLFLOW_TRACKING_URI=http://mlflow:2244
+      - AWS_ACCESS_KEY_ID=minio
+      - AWS_SECRET_ACCESS_KEY=minio123
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:1234
+      - MLFLOW_S3_IGNORE_TLS=true
+    depends_on:
+      - mysql
+      - minio
+    entrypoint: /bin/sh -c "pip install pymysql && mlflow server --backend-store-uri mysql+pymysql://mlflow:mlflow@mysql/mlflow --default-artifact-root s3://mlflow --host 0.0.0.0 --port 2244"
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "1234:9000"
+    volumes:
+      - ./minio-data:/data
+    environment:
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=minio123
+    command: server /data
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=mlflow
+      - MYSQL_USER=mlflow
+      - MYSQL_PASSWORD=mlflow
