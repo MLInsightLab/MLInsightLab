@@ -7,7 +7,7 @@ services:
     ports:
       - "8888:8888"
     volumes:
-      - ./notebooks:/home/jovyan/work
+      - notebooks:/home/jovyan/work
     environment:
       - JUPYTER_ENABLE_LAB=yes
       - MLFLOW_TRACKING_URI=http://mlflow:2244
@@ -19,7 +19,7 @@ services:
     ports:
       - "2244:2244"
     volumes:
-      - ./mlflow:/mlflow
+      - mlflow:/mlflow
     environment:
       - MLFLOW_BACKEND_STORE_URI=mysql+pymysql://mlflow:mlflow@mysql/mlflow
       - MLFLOW_TRACKING_URI=http://mlflow:2244
@@ -37,7 +37,7 @@ services:
     ports:
       - "1234:9000"
     volumes:
-      - ./minio-data:/data
+      - minio-data:/data
     environment:
       - MINIO_ROOT_USER=minio
       - MINIO_ROOT_PASSWORD=minio123
@@ -49,9 +49,19 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./mysql-data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=root_password
       - MYSQL_DATABASE=mlflow
       - MYSQL_USER=mlflow
       - MYSQL_PASSWORD=mlflow
+
+volumes:
+    minio-data:
+        external: false
+    mysql-data:
+        external: false
+    notebooks:
+        external: false
+    mlflow:
+        external: false
