@@ -30,7 +30,8 @@ services:
     depends_on:
       - mysql
       - minio
-    entrypoint: /bin/sh -c "pip install pymysql && mlflow server --backend-store-uri mysql+pymysql://mlflow:mlflow@mysql/mlflow --default-artifact-root s3://mlflow --host 0.0.0.0 --port 2244"
+    entrypoint: /bin/sh -c "pip install pymysql && mlflow server --backend-store-uri mysql+pymysql://mlflow:mlflow@mysql/mlflow  --host 0.0.0.0 --port 2244"
+  
   minio:
     image: minio/minio
     container_name: minio
