@@ -1,6 +1,26 @@
 version: '3.7'
 
 services:
+
+  spark-master:
+    image: bitnami/spark:latest
+    container_name: spark-master
+    ports:
+      - "8080:8080"  # Spark UI
+      - "7077:7077"  # Spark Master
+    environment:
+      - SPARK_MODE=master
+
+  spark-worker:
+    image: bitnami/spark:latest
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    deploy:
+      replicas: 4
+  
   jupyter:
     restart: always
     build: ./jupyterhub

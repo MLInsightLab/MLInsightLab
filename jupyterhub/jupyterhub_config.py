@@ -171,11 +171,11 @@ c.JupyterHub.allow_named_servers = True
 #  
 #  Currently installed: 
 #    - default: jupyterhub.auth.PAMAuthenticator
-#    - dummy: jupyterhub.auth.DummyAuthenticator
+#    - dummy: jupyterhub.auth.DummyAthenticator
 #    - null: jupyterhub.auth.NullAuthenticator
 #    - pam: jupyterhub.auth.PAMAuthenticator
 #  Default: 'jupyterhub.auth.PAMAuthenticator'
-# c.JupyterHub.authenticator_class = 'jupyterhub.auth.PAMAuthenticator'
+c.JupyterHub.authenticator_class = 'jupyterhub.auth.DummyAuthenticator'
 
 ## The base URL of the entire application.
 #  

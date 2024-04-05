@@ -1,13 +1,16 @@
 # Use Anaconda as the base image
 FROM quay.io/jupyterhub/jupyterhub:latest
 
+# Update software
 RUN apt update && apt upgrade -y && apt autoremove -y
-RUN apt install git emacs htop -y
+RUN apt install git emacs htop default-jre default-jdk -y
 
 # Copy and install requirements.txt
 COPY requirements.txt /tmp/requirements.txt
-
 RUN pip install --upgrade -r /tmp/requirements.txt
+
+# Add user "admin"
+RUN adduser --disabled-password --gecos "" admin
 
 # Set the working directory
 WORKDIR /srv/jupyterhub

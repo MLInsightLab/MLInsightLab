@@ -1,3 +1,7 @@
 jupyterlab
 jupyter
+pyspark
 mlflow
+scikit-learn
+tensorflow
+torch
