@@ -10,6 +10,8 @@ services:
       - "7077:7077"  # Spark Master
     environment:
       - SPARK_MODE=master
+    volumes:
+      - notebooks:/home
 
   spark-worker:
     image: bitnami/spark:latest
@@ -20,6 +22,8 @@ services:
       - SPARK_MASTER_URL=spark://spark-master:7077
     deploy:
       replicas: 4
+    volumes:
+      - notebooks:/home
   
   jupyter:
     restart: always
