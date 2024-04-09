@@ -1,3 +1,5 @@
+dockerspawner
+jupyterhub
 jupyterlab
 jupyter
 pyspark

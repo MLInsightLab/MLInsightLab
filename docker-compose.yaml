@@ -3,18 +3,16 @@ version: '3.7'
 services:
 
   spark-master:
-    image: bitnami/spark:latest
+    image: bitnami/spark@sha256:a5e3feb9397675e9153bdfc748ff3118f333b5b2addf1e7ab19a82128438d4ca
     container_name: spark-master
     ports:
       - "8080:8080"  # Spark UI
       - "7077:7077"  # Spark Master
     environment:
       - SPARK_MODE=master
-    volumes:
-      - notebooks:/home
 
   spark-worker:
-    image: bitnami/spark:latest
+    image: bitnami/spark@sha256:a5e3feb9397675e9153bdfc748ff3118f333b5b2addf1e7ab19a82128438d4ca
     depends_on:
       - spark-master
     environment:
@@ -22,8 +20,6 @@ services:
       - SPARK_MASTER_URL=spark://spark-master:7077
     deploy:
       replicas: 4
-    volumes:
-      - notebooks:/home
   
   jupyter:
     restart: always
@@ -32,9 +28,13 @@ services:
     container_name: jupyter
     ports:
       - "8000:8000"
+      - "8081:8081"
     volumes:
       - notebooks:/home
       - jh_db:/jh_db
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:2244
 

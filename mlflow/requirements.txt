@@ -1,4 +1,4 @@
 mlflow[extras]
-psycopg2
 pymysql
+psutil
 pyodbc

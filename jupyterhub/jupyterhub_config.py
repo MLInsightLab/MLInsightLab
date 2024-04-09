@@ -797,7 +797,8 @@ c.JupyterHub.hub_ip = '0.0.0.0'
 #    - localprocess: jupyterhub.spawner.LocalProcessSpawner
 #    - simple: jupyterhub.spawner.SimpleLocalProcessSpawner
 #  Default: 'jupyterhub.spawner.LocalProcessSpawner'
-# c.JupyterHub.spawner_class = 'jupyterhub.spawner.LocalProcessSpawner'
+c.JupyterHub.spawner_class = 'jupyterhub.spawner.LocalProcessSpawner'
+# c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 
 ## Path to SSL certificate file for the public facing interface of the proxy
 #  
