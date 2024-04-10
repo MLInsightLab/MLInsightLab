@@ -1165,7 +1165,7 @@ c.Spawner.default_url = '/lab'
 #  Note that this does *not* prevent users from accessing files outside of this
 #  path! They can do so with many other means.
 #  Default: ''
-c.Spawner.notebook_dir = '/home/{username}'
+c.Spawner.notebook_dir = '/home'
 
 ## Allowed scopes for oauth tokens issued by this server's oauth client.
 #  

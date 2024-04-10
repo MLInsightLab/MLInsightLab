@@ -35,6 +35,13 @@ services:
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:2244
 
@@ -54,8 +61,23 @@ services:
       - MLFLOW_TRACKING_ARTIFACT_STORE=file:///artifact_store
     entrypoint: /bin/sh -c "mlflow server --artifacts-destination file:///artifact_store --host 0.0.0.0 --port 2244"
 
+  minio:
+    restart: always
+    image: minio/minio:latest
+    container_name: minio
+    command: server /data --console-address ":10000"
+    ports:
+      - "9000:9000"
+      - "10000:10000"
+    environment:
+      MINIO_ACCESS_KEY: minio123
+      MINIO_SECRET_KEY: minio123
+    volumes:
+      - minio_data:/data
+
 volumes:
     mlflow_backend_storage:
     mlflow_artifact_storage:
+    minio_data:
     notebooks:
     jh_db:
