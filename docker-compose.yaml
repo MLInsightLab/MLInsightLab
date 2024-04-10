@@ -35,13 +35,14 @@ services:
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+    # Uncomment these lines to enable GPU support
+    #deploy:
+      #resources:
+        #reservations:
+          #devices:
+            #- driver: nvidia
+              #count: all
+              #capabilities: [gpu]
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:2244
 
