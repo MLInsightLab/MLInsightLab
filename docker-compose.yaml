@@ -10,6 +10,8 @@ services:
       - "7077:7077"  # Spark Master
     environment:
       - SPARK_MODE=master
+    networks:
+      - network
 
   spark-worker:
     image: bitnami/spark@sha256:a5e3feb9397675e9153bdfc748ff3118f333b5b2addf1e7ab19a82128438d4ca
@@ -20,6 +22,8 @@ services:
       - SPARK_MASTER_URL=spark://spark-master:7077
     deploy:
       replicas: 4
+    networks:
+      - network
   
   jupyter:
     restart: always
@@ -45,6 +49,8 @@ services:
               #capabilities: [gpu]
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:2244
+    networks:
+      - network
 
   mlflow:
     restart: always
@@ -61,6 +67,9 @@ services:
       - MLFLOW_TRACKING_URI=http://mlflow:2244
       - MLFLOW_TRACKING_ARTIFACT_STORE=file:///artifact_store
     entrypoint: /bin/sh -c "mlflow server --artifacts-destination file:///artifact_store --host 0.0.0.0 --port 2244"
+    networks:
+      - network
+
 
   minio:
     restart: always
@@ -75,6 +84,17 @@ services:
       MINIO_SECRET_KEY: minio123
     volumes:
       - minio_data:/data
+    networks:
+      - network
+
+  webapp:
+    restart: always
+    build: ./webapp
+    container_name: webapp
+    ports:
+      - "80:80"
+    networks:
+      - network
 
 volumes:
     mlflow_backend_storage:
@@ -82,3 +102,6 @@ volumes:
     minio_data:
     notebooks:
     jh_db:
+
+networks:
+  network:
