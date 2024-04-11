@@ -2,28 +2,56 @@ version: '3'
 
 services:
 
-  spark-master:
-    image: bitnami/spark@sha256:a5e3feb9397675e9153bdfc748ff3118f333b5b2addf1e7ab19a82128438d4ca
-    container_name: spark-master
+  dask-scheduler:
+    restart: always
+    image: ghcr.io/dask/dask:latest
+    container_name: dask-scheduler
     ports:
-      - "8080:8080"  # Spark UI
-      - "7077:7077"  # Spark Master
-    environment:
-      - SPARK_MODE=master
+      - "8786:8786"
+      - "8787:8787"
+    command: dask-scheduler
+    volumes:
+      - notebooks:/home
     networks:
       - network
 
-  spark-worker:
-    image: bitnami/spark@sha256:a5e3feb9397675e9153bdfc748ff3118f333b5b2addf1e7ab19a82128438d4ca
+  dask-worker:
+    restart: always
+    image: ghcr.io/dask/dask:latest
     depends_on:
-      - spark-master
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-master:7077
+      - dask-scheduler
+    command: dask-worker tcp://dask-scheduler:8786
     deploy:
       replicas: 4
     networks:
       - network
+
+  #spark-master:
+    #restart: always
+    #image: bitnami/spark@sha256:a5e3feb9397675e9153bdfc748ff3118f333b5b2addf1e7ab19a82128438d4ca
+    #container_name: spark-master
+    #ports:
+      #- "8080:8080"  # Spark UI
+      #- "7077:7077"  # Spark Master
+    #volumes:
+      #- notebooks:/home
+    #environment:
+      #- SPARK_MODE=master
+    #networks:
+      #- network
+
+  #spark-worker:
+    #restart: always
+    #image: bitnami/spark@sha256:a5e3feb9397675e9153bdfc748ff3118f333b5b2addf1e7ab19a82128438d4ca
+    #depends_on:
+      #- spark-master
+    #environment:
+      #- SPARK_MODE=worker
+      #- SPARK_MASTER_URL=spark://spark-master:7077
+    #deploy:
+      #replicas: 4
+    #networks:
+      #- network
   
   jupyter:
     restart: always
@@ -36,9 +64,6 @@ services:
     volumes:
       - notebooks:/home
       - jh_db:/jh_db
-      - type: bind
-        source: /var/run/docker.sock
-        target: /var/run/docker.sock
     # Uncomment these lines to enable GPU support
     #deploy:
       #resources:
@@ -49,6 +74,7 @@ services:
               #capabilities: [gpu]
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:2244
+      - DASK_SCHEDULER_ADDRESS=tcp://dask-scheduler:8786
     networks:
       - network
 
@@ -67,23 +93,6 @@ services:
       - MLFLOW_TRACKING_URI=http://mlflow:2244
       - MLFLOW_TRACKING_ARTIFACT_STORE=file:///artifact_store
     entrypoint: /bin/sh -c "mlflow server --artifacts-destination file:///artifact_store --host 0.0.0.0 --port 2244"
-    networks:
-      - network
-
-
-  minio:
-    restart: always
-    image: minio/minio:latest
-    container_name: minio
-    command: server /data --console-address ":10000"
-    ports:
-      - "9000:9000"
-      - "10000:10000"
-    environment:
-      MINIO_ACCESS_KEY: minio123
-      MINIO_SECRET_KEY: minio123
-    volumes:
-      - minio_data:/data
     networks:
       - network
 

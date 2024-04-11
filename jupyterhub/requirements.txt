@@ -1,9 +1,18 @@
-dockerspawner
+# Jupyter packages
 jupyterhub
 jupyterlab
 jupyter
+
+# MLFlow
+mlflow[extras]
+
+# Spark
 pyspark
-mlflow
+
+# Dask
+dask[complete]
+
+# Machine learning packages
 scikit-learn
-tensorflow
-torch
+#tensorflow
+#torch
