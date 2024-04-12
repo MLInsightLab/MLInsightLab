@@ -7,8 +7,8 @@ services:
     image: ghcr.io/dask/dask:latest
     container_name: dask-scheduler
     ports:
-      - "8786:8786"
-      - "8787:8787"
+      - "8786:8786" # Scheduler
+      - "8787:8787" # UI
     command: dask-scheduler
     volumes:
       - notebooks:/home
@@ -55,12 +55,10 @@ services:
   
   jupyter:
     restart: always
-    build: ./jupyterhub
+    build: ./jupyter
     image: jupyter
-    container_name: jupyter
     ports:
-      - "8000:8000"
-      - "8081:8081"
+      - "8888-8888:8888"
     volumes:
       - notebooks:/home
       - jh_db:/jh_db

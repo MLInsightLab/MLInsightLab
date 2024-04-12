@@ -1,5 +1,4 @@
 # Jupyter packages
-jupyterhub
 jupyterlab
 jupyter
 

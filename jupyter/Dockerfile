@@ -1,6 +1,5 @@
-# Use quay.io/jupyterhub as the base image
-# FROM continuumio/anaconda
-FROM quay.io/jupyterhub/jupyterhub:latest
+# FROM quay.io/jupyterhub/jupyterhub:latest
+FROM python:latest
 
 # Update software
 RUN apt update && apt upgrade -y && apt autoremove -y
@@ -28,17 +27,14 @@ COPY requirements.txt /tmp/requirements.txt
 RUN pip install --upgrade -r /tmp/requirements.txt
 
 # Add user "admin"
-RUN adduser --disabled-password --gecos "" admin
+#RUN adduser --disabled-password --gecos "" admin
 
-# Set the working directory
-WORKDIR /srv/jupyterhub
-
-# Copy your configuration files to the container
-# If you have a custom configuration file, you can copy it to the appropriate location
-COPY jupyterhub_config.py /srv/jupyterhub/jupyterhub_config.py
-
-# Expose the port jupyterhub runs on
+# Expose the port jupyterlab runs on
 EXPOSE 8000
 
-# Set the command to run JupyterHub
-CMD ["jupyterhub", "-f", "/srv/jupyterhub/jupyterhub_config.py", "--ip", "0.0.0.0"]
+# When using jupyterhub
+# COPY jupyterhub_config.py /srv/jupyterhub/jupyterhub_config.py
+
+# Set the command to run JupyterLab
+# CMD ["jupyterhub", "-f", "/srv/jupyterhub/jupyterhub_config.py", "--ip", "0.0.0.0"]
+CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8000", "--allow-root", "--notebook-dir=/home", "--NotebookApp.token=''", "--NotebookApp.password=''"]
