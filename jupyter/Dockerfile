@@ -29,12 +29,12 @@ RUN pip install --upgrade -r /tmp/requirements.txt
 # Add user "admin"
 #RUN adduser --disabled-password --gecos "" admin
 
-# Expose the port jupyterlab runs on
+# Expose the port jupyter runs on
 EXPOSE 8000
 
 # When using jupyterhub
 # COPY jupyterhub_config.py /srv/jupyterhub/jupyterhub_config.py
 
-# Set the command to run JupyterLab
+# Set the command to run jupyter
 # CMD ["jupyterhub", "-f", "/srv/jupyterhub/jupyterhub_config.py", "--ip", "0.0.0.0"]
 CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8000", "--allow-root", "--notebook-dir=/home", "--NotebookApp.token=''", "--NotebookApp.password=''"]
