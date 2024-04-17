@@ -4,14 +4,6 @@ FROM quay.io/jupyterhub/jupyterhub:latest
 RUN apt update && apt upgrade -y && apt autoremove -y
 RUN apt install git emacs htop sudo -y
 
-# Add user "odsp" and give them sudo access
-RUN adduser --disabled-password --gecos "" odsp
-RUN adduser odsp sudo
-
-# Allow root and odsp users to run sudo commands without password
-RUN echo "root ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/root
-RUN echo "odsp ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/odsp
-
 # For spark
 #RUN apt install python3.11 git emacs htop default-jre default-jdk -y
 #RUN ln -sf /usr/bin/python3.11 /usr/bin/python3
