@@ -63,6 +63,7 @@ services:
     volumes:
       - notebooks:/home
       - jh_db:/jh_db
+      - /var/run/docker.sock:/var/run/docker.sock
     # Uncomment these lines to enable GPU support
     #deploy:
       #resources:
