@@ -1,9 +1,18 @@
-# FROM quay.io/jupyterhub/jupyterhub:latest
-FROM python:latest
+FROM quay.io/jupyterhub/jupyterhub:latest
 
 # Update software
 RUN apt update && apt upgrade -y && apt autoremove -y
-RUN apt install git emacs htop -y
+RUN apt install git emacs htop sudo -y
+
+# Add user "odsp" and give them sudo access
+RUN adduser --disabled-password --gecos "" odsp
+RUN adduser odsp sudo
+
+# Allow root and odsp users to run sudo commands without password
+RUN echo "root ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/root
+RUN echo "odsp ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/odsp
+
+# For spark
 #RUN apt install python3.11 git emacs htop default-jre default-jdk -y
 #RUN ln -sf /usr/bin/python3.11 /usr/bin/python3
 
@@ -26,15 +35,16 @@ RUN apt install git emacs htop -y
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --upgrade -r /tmp/requirements.txt
 
-# Add user "admin"
-#RUN adduser --disabled-password --gecos "" admin
-
 # Expose the port jupyter runs on
 EXPOSE 8000
 
 # When using jupyterhub
-# COPY jupyterhub_config.py /srv/jupyterhub/jupyterhub_config.py
+COPY jupyterhub_config.py /srv/jupyterhub/jupyterhub_config.py
+
+WORKDIR /home
+COPY launch.sh /jupyter/launch.sh
+CMD ["bash", "/jupyter/launch.sh"]
 
 # Set the command to run jupyter
 # CMD ["jupyterhub", "-f", "/srv/jupyterhub/jupyterhub_config.py", "--ip", "0.0.0.0"]
-CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8000", "--allow-root", "--notebook-dir=/home", "--NotebookApp.token=''", "--NotebookApp.password=''"]
+# CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8000", "--allow-root", "--notebook-dir=/home", "--NotebookApp.token=''", "--NotebookApp.password=''"]

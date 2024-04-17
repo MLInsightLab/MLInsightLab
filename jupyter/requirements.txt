@@ -7,7 +7,7 @@ jupyter
 mlflow[extras]
 
 # Spark
-pyspark
+# pyspark
 
 # Dask
 dask[complete]

@@ -277,7 +277,8 @@ c.JupyterHub.authenticator_class = 'jupyterhub.auth.DummyAuthenticator'
 
 ## File in which to store the cookie secret.
 #  Default: 'jupyterhub_cookie_secret'
-# c.JupyterHub.cookie_secret_file = 'jupyterhub_cookie_secret'
+c.JupyterHub.cookie_secret_file = '/srv/jupyterhub/jupyterhub_cookie_secret'
+c.ConfigurableHTTPProxy.pid_file = "/srv/jupyterhub/jupyterhub-proxy.pid"
 
 ## Custom scopes to define.
 #  
@@ -1353,7 +1354,7 @@ c.Spawner.notebook_dir = '/home'
 #  
 #  Defaults to an empty set, in which case no user has admin access.
 #  Default: set()
-c.Authenticator.admin_users = {'admin'}
+c.Authenticator.admin_users = {'odsp'}
 
 ## Set of usernames that are allowed to log in.
 #  
