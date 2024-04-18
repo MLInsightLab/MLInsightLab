@@ -6,13 +6,10 @@ jupyter
 # MLFlow
 mlflow[extras]
 
-# Spark
-# pyspark
-
 # Dask
 dask[complete]
 
 # Machine learning packages
 scikit-learn
-#tensorflow
-#torch
+tensorflow
+torch

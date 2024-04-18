@@ -25,33 +25,6 @@ services:
       replicas: 4
     networks:
       - network
-
-  #spark-master:
-    #restart: always
-    #image: bitnami/spark@sha256:a5e3feb9397675e9153bdfc748ff3118f333b5b2addf1e7ab19a82128438d4ca
-    #container_name: spark-master
-    #ports:
-      #- "8080:8080"  # Spark UI
-      #- "7077:7077"  # Spark Master
-    #volumes:
-      #- notebooks:/home
-    #environment:
-      #- SPARK_MODE=master
-    #networks:
-      #- network
-
-  #spark-worker:
-    #restart: always
-    #image: bitnami/spark@sha256:a5e3feb9397675e9153bdfc748ff3118f333b5b2addf1e7ab19a82128438d4ca
-    #depends_on:
-      #- spark-master
-    #environment:
-      #- SPARK_MODE=worker
-      #- SPARK_MASTER_URL=spark://spark-master:7077
-    #deploy:
-      #replicas: 4
-    #networks:
-      #- network
   
   jupyter:
     restart: always
