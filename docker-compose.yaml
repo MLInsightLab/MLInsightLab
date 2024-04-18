@@ -40,13 +40,13 @@ services:
       - jh_db:/jh_db
       - /var/run/docker.sock:/var/run/docker.sock
     # Uncomment these lines to enable GPU support
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+    #deploy:
+      #resources:
+        #reservations:
+          #devices:
+            #- driver: nvidia
+              #count: all
+              #capabilities: [gpu]
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:2244
       - DASK_SCHEDULER_ADDRESS=tcp://dask-scheduler:8786
