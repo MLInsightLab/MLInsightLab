@@ -18,8 +18,12 @@ elif [ "$JUPYTER_ENV" = "jupyterhub" ]; then
     adduser odsp sudo
     
     # Allow root and odsp users to run sudo commands without password
-    RUN echo "root ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/root
-    RUN echo "odsp ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/odsp
+    echo "root ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/root
+    echo "odsp ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/odsp
+    
+    # Add MLFLOW_TRACKING_URI and DASK_SCHEDULER_ADDRESS to odsp user
+    echo "export MLFLOW_TRACKING_URI=http://mlflow:2244" >> /home/odsp/.bashrc
+    echo "export DASK_SCHEDULER_ADDRESS=http://dask-scheduler:8786" >> /home/odsp/.bashrc
     
     jupyterhub -f /srv/jupyterhub/jupyterhub_config.py --ip 0.0.0.0
 
