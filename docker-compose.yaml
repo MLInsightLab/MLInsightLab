@@ -72,6 +72,17 @@ services:
     networks:
       - network
 
+  model-server:
+    restart: always
+    build: ./model_server
+    container_name: model_server
+    ports:
+      - "4488:4488"
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:2244
+    networks:
+      - network
+
   webapp:
     restart: always
     build: ./webapp
