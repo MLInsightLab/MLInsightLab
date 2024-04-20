@@ -43,7 +43,7 @@ def predict(body : PredictRequest):
             results = model.predict(to_predict).tolist()
         except Exception:
             try:
-                results = model.predict(to_predict.reshape(-1, 1)).tolist()
+                results = model.predict(to_predict.reshape(1, -1)).tolist()
             except Exception:
                 raise HTTPException(400, 'There was an issue running `predict` with the provided data')
     
@@ -52,7 +52,7 @@ def predict(body : PredictRequest):
             results = model.predict_proba(to_predict).tolist()
         except Exception:
             try:
-                results = model.predict_proba(to_predict.reshape(-1, 1)).tolist()
+                results = model.predict_proba(to_predict.reshape(1, -1)).tolist()
             except Exception:
                 raise HTTPException(400, 'There was an issue running `predict_proba` with the provided data')
             
