@@ -23,7 +23,7 @@ if [ "$JUPYTER_ENV" = "jupyterlab" ]; then
     echo "JUPYTER_ENV is set to jupyterlab"
 
     # Run JupyterLab as odsp user
-    sudo -u odsp bash -c "source /home/odsdp/.bashrc && jupyter-lab --ip 0.0.0.0 --port 8000 --allow-root --notebook-dir=/home --ServerApp.token='' --ServerApp.password=''"
+    sudo -u odsp bash -c "source /home/odsp/.bashrc && jupyter-lab --ip 0.0.0.0 --port 8000 --allow-root --notebook-dir=/home --ServerApp.token='' --ServerApp.password=''"
 
 # Check if the value of JUPYTER_ENV is "jupyterhub"
 elif [ "$JUPYTER_ENV" = "jupyterhub" ]; then
