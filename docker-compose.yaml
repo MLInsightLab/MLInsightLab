@@ -37,7 +37,6 @@ services:
       - "8000:8000"
     volumes:
       - notebooks:/home
-      - jh_db:/jh_db
       - /var/run/docker.sock:/var/run/docker.sock
     # Uncomment these lines to enable GPU support
     #deploy:
@@ -94,9 +93,7 @@ services:
 volumes:
     mlflow_backend_storage:
     mlflow_artifact_storage:
-    minio_data:
     notebooks:
-    jh_db:
 
 networks:
   network:
