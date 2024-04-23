@@ -27,16 +27,21 @@ RUN apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docke
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --upgrade -r /tmp/requirements.txt
 
+# Create odsp user
+RUN adduser --disabled-password --gecos "" odsp
+RUN adduser odsp sudo
+
+# Add odsp and root users to not require password for sudo
+RUN echo "root ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/root
+RUN echo "odsp ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/odsp
+
+# Add environment variables
+RUN echo "export MLFLOW_TRACKING_URI=http://mlflow:2244" >> /home/odsp/.bashrc
+RUN echo "export DASK_SCHEDULER_ADDRESS=http://dask-scheduler:8786" >> /home/odsp/.bashrc
+
 # Expose the port jupyter runs on
 EXPOSE 8000
 
-# When using jupyterhub
-COPY jupyterhub_config.py /srv/jupyterhub/jupyterhub_config.py
-
+USER odsp
 WORKDIR /home
-COPY launch.sh /jupyter/launch.sh
-CMD ["bash", "/jupyter/launch.sh"]
-
-# Set the command to run jupyter
-# CMD ["jupyterhub", "-f", "/srv/jupyterhub/jupyterhub_config.py", "--ip", "0.0.0.0"]
-# CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8000", "--allow-root", "--notebook-dir=/home", "--NotebookApp.token=''", "--NotebookApp.password=''"]
+CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8000", "--notebook-dir=/home", "--ServerApp.token=''", "--ServerApp.password=''"]

@@ -50,7 +50,6 @@ services:
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:2244
       - DASK_SCHEDULER_ADDRESS=tcp://dask-scheduler:8786
-      - JUPYTER_ENV=jupyterlab
     networks:
       - network
 
