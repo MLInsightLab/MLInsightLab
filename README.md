@@ -3,27 +3,32 @@ The Open Data Science Platform is a comprehensive setup for a scalable data scie
 
 # Components
 1. Dask Scheduler and Workers
+
 Dask is used for parallel computing. The Dask scheduler coordinates the execution of tasks, while workers perform the computations. The number of workers can be scaled according to workload.
 
 - dask-scheduler: Runs the Dask scheduler.
 - dask-worker: Dask workers that connect to the scheduler.
 
 2. Jupyter Notebook Server
+
 Jupyter provides an interactive computing environment for data science tasks. It is accessible via a web browser and allows users to create and share documents containing live code, equations, visualizations, and narrative text.
 
 - jupyter: Jupyter Notebook server.
 
 3. MLflow Tracking Server
+
 MLflow is an open-source platform for managing the end-to-end machine learning lifecycle. The tracking server logs and tracks experiments, parameters, and metrics.
 
 - mlflow: MLflow tracking server.
 
 4. Model Serving API
+
 A simple API for serving machine learning models.
 
 - model-server: Model serving API.
 
 5. Web Application
+
 A web application that interacts with the deployed models.
 
 - webapp: Web application.
