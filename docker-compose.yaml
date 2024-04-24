@@ -85,6 +85,10 @@ services:
     restart: always
     build: ./webapp
     container_name: webapp
+    depends_on:
+      - jupyter
+      - mlflow
+      - dask-scheduler
     ports:
       - "80:80"
     networks:
