@@ -37,11 +37,11 @@ RUN echo "odsp ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/odsp
 
 # Add environment variables
 RUN echo "export MLFLOW_TRACKING_URI=http://mlflow:2244" >> /home/odsp/.bashrc
-RUN echo "export DASK_SCHEDULER_ADDRESS=http://dask-scheduler:8786" >> /home/odsp/.bashrc
+RUN echo "export DASK_SCHEDULER_ADDRESS=tcp://dask-scheduler:8786" >> /home/odsp/.bashrc
 
 # Expose the port jupyter runs on
 EXPOSE 8000
 
 USER odsp
 WORKDIR /home
-CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8000", "--notebook-dir=/home", "--ServerApp.token=''", "--ServerApp.password=''"]
+CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8000", "--notebook-dir=/home", "--ServerApp.token=''", "--ServerApp.password=''", "--allow_origin='*'", "--allow_remote_access=True"]

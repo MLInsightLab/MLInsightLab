@@ -6,9 +6,9 @@ services:
     restart: always
     image: ghcr.io/dask/dask:latest
     container_name: dask-scheduler
-    ports:
-      - "8786:8786" # Scheduler
-      - "8787:8787" # UI
+    #ports:
+      #- "8786:8786" # Scheduler
+      #- "8787:8787" # UI
     command: dask-scheduler
     volumes:
       - notebooks:/home
@@ -33,19 +33,13 @@ services:
     build: ./jupyter
     image: jupyter
     container_name: jupyter
-    ports:
-      - "8000:8000"
+    depends_on:
+      - dask-worker
+    #ports:
+      #- "8000:8000"
     volumes:
       - notebooks:/home
       - /var/run/docker.sock:/var/run/docker.sock
-    # Uncomment these lines to enable GPU support
-    #deploy:
-      #resources:
-        #reservations:
-          #devices:
-            #- driver: nvidia
-              #count: all
-              #capabilities: [gpu]
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:2244
       - DASK_SCHEDULER_ADDRESS=tcp://dask-scheduler:8786
@@ -57,8 +51,8 @@ services:
     build: ./mlflow
     image: mlflow
     container_name: mlflow
-    ports:
-      - "2244:2244"
+    #ports:
+      #- "2244:2244"
     volumes:
       - mlflow_backend_storage:/backend_uri
       - mlflow_artifact_storage:/artifact_store
@@ -74,21 +68,23 @@ services:
     restart: always
     build: ./model_server
     container_name: model_server
-    ports:
-      - "4488:4488"
+    depends_on:
+      - mlflow
+    #ports:
+      #- "4488:4488"
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:2244
     networks:
       - network
 
-  webapp:
+  nginx:
     restart: always
-    build: ./webapp
-    container_name: webapp
+    build: ./nginx
+    container_name: nginx
     depends_on:
       - jupyter
       - mlflow
-      - dask-scheduler
+    command: nginx -g 'daemon off;'
     ports:
       - "80:80"
     networks:
