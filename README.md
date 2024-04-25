@@ -1,66 +1,49 @@
 # Open Data Science Platform
-The Open Data Science Platform is a comprehensive setup for a scalable data science and machine learning environment using Docker Compose. It includes components for distributed computing, Jupyter notebooks, MLflow tracking and model management, a model serving API, and a web application.
 
-# Components
-1. Dask Scheduler and Workers
+The Open Data Science Platform is a Docker-compose based project that aims to provide a scalable and integrated environment for data science tasks including distributed computing, machine learning experimentation, model deployment, and more.
 
-Dask is used for parallel computing. The Dask scheduler coordinates the execution of tasks, while workers perform the computations. The number of workers can be scaled according to workload.
+## Components
 
-- dask-scheduler: Runs the Dask scheduler.
-- dask-worker: Dask workers that connect to the scheduler.
+The platform consists of the following services:
 
-2. Jupyter Notebook Server
-
-Jupyter provides an interactive computing environment for data science tasks. It is accessible via a web browser and allows users to create and share documents containing live code, equations, visualizations, and narrative text.
-
-- jupyter: Jupyter Notebook server.
-
-3. MLflow Tracking Server
-
-MLflow is an open-source platform for managing the end-to-end machine learning lifecycle. The tracking server logs and tracks experiments, parameters, and metrics.
-
-- mlflow: MLflow tracking server.
-
-4. Model Serving API
-
-A simple API for serving machine learning models.
-
-- model-server: Model serving API.
-
-5. Web Application
-
-A web application that interacts with the deployed models.
-
-- webapp: Web application.
-
-# Setup Instructions
-## Prerequisites
-- Docker Engine
-- Docker Compose
+- **Dask Scheduler and Workers**: Provides distributed computing capabilities using Dask, allowing parallel computation on large datasets.
+- **Jupyter Notebook Server**: Offers an interactive environment for data exploration, analysis, and visualization, with integration with Dask for distributed computing.
+- **MLflow Tracking Server**: Enables experiment tracking and management, allowing data scientists to log parameters, metrics, and artifacts during model training.
+- **Model Server**: Hosts machine learning models for inference, providing a RESTful API for predictions.
 
 ## Installation
+
+To set up the Open Data Science Platform on your local machine, follow these steps:
+
 1. Clone this repository:
+
 ```bash
-git clone https://github.com/jacobrenn/OpenDataSciencePlatform.git
+git clone https://github.com/jacobrenn/OpenDataSciencePlatform
+```
+
+2. Navigate to the project directory:
+
+```bash
 cd OpenDataSciencePlatform
 ```
 
-2. Run Docker Compose:
+
+3. Make sure you have Docker and Docker Compose installed on your machine.
+
+4. Run the following command to start the services:
+
 ```bash
-docker compose build
-docker compose up -d
+docker compose up
 ```
 
-3. Access services:
-- Jupyter Notebook: http://localhost:8000
-- MLflow Tracking: http://localhost:2244
-- Model Server API: http://localhost:4488
-- Web Application: http://localhost
+## Accessing Services
 
-## Additional Configuration
-- GPU Support: Uncomment the GPU-related lines in the docker-compose.yaml file to enable GPU support.
-- Volume Configuration: Volume mounts are used for persistence. Customize volume paths as needed in the docker-compose.yaml file.
+Once the services are up and running, you can access them as follows:
 
-# Notes
-Make sure ports 8000, 2244, 4488, and 80 are available and not in use by other services on your system.
-For detailed configuration options and advanced usage, refer to the official documentation of each component.
+- **Jupyter Notebook Server**: Open your web browser and go to `http://localhost`.
+- **MLflow Tracking Server**: Access MLflow UI by navigating to `http://localhost/mlflow` in your web browser.
+- **Model Server**: Once MLflow Tracking Server is up and running, models deployed using MLflow can be accessed through the Model Server. Example endpoint: `http://localhost/model-server/docs`.
+
+## Additional Notes
+
+- Make sure to shut down the services when not in use to conserve resources:
