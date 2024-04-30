@@ -86,9 +86,12 @@ services:
     depends_on:
       - jupyter
       - mlflow
-    command: nginx -g 'daemon off;'
     ports:
       - "80:80"
+    environment:
+      - AUTH_USERNAME=odsp
+      - AUTH_PASSWORD=odsp
+    command: bash /code/setup.sh
     networks:
       - network
 
