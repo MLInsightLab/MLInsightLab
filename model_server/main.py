@@ -4,21 +4,19 @@ import numpy as np
 import mlflow
 
 class PredictRequest(BaseModel):
-    model_name : str
-    model_version : str | int
     data : list
     predict_function : str = 'predict'
     model_flavor : str = 'pyfunc'
 
 app = FastAPI()
 
-@app.post('/predict')
-def predict(body : PredictRequest):
+@app.post('/{model_name}/{model_version}')
+def predict(model_name : str, model_version : str | int, body : PredictRequest):
     try:
         if body.model_flavor == 'pyfunc':
-            model = mlflow.pyfunc.load_model(f'models:/{body.model_name}/{body.model_version}')
+            model = mlflow.pyfunc.load_model(f'models:/{model_name}/{model_version}')
         elif body.model_flavor == 'sklearn':
-            model = mlflow.sklearn.load_model(f'models:/{body.model_name}/{body.model_version}')
+            model = mlflow.sklearn.load_model(f'models:/{model_name}/{model_version}')
         else:
             raise HTTPException(
                 400,
