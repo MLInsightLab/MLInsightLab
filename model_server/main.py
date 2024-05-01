@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Body, HTTPException
+from fastapi.responses import RedirectResponse
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import numpy as np
 import mlflow
@@ -9,6 +10,10 @@ class PredictRequest(BaseModel):
     model_flavor : str = 'pyfunc'
 
 app = FastAPI()
+
+@app.get('/', include_in_schema = False)
+def redirect_docs():
+    return RedirectResponse(url = '/inference/docs')
 
 @app.post('/{model_name}/{model_version}')
 def predict(model_name : str, model_version : str | int, body : PredictRequest):
