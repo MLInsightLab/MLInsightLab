@@ -4,8 +4,8 @@ services:
 
   dask-scheduler:
     restart: always
-    image: ghcr.io/dask/dask:latest
-    container_name: dask-scheduler
+    image: jwrenn4/opendatascienceplatform-dask
+    #build: ./dask
     #ports:
       #- "8786:8786" # Scheduler
       #- "8787:8787" # UI
@@ -17,7 +17,8 @@ services:
 
   dask-worker:
     restart: always
-    image: ghcr.io/dask/dask:latest
+    image: jwrenn4/opendatascienceplatform-dask
+    #build: ./dask
     depends_on:
       - dask-scheduler
     command: dask-worker tcp://dask-scheduler:8786
@@ -30,8 +31,8 @@ services:
   
   jupyter:
     restart: always
-    build: ./jupyter
-    image: jupyter
+    image: jwrenn4/opendatascienceplatform-jupyter
+    #build: ./jupyter
     container_name: jupyter
     depends_on:
       - dask-worker
@@ -48,8 +49,8 @@ services:
 
   mlflow:
     restart: always
-    build: ./mlflow
-    image: mlflow
+    image: jwrenn4/opendatascienceplatform-mlflow
+    #build: ./mlflow
     container_name: mlflow
     #ports:
       #- "2244:2244"
@@ -66,8 +67,8 @@ services:
 
   model-server:
     restart: always
-    build: ./model_server
-    #container_name: model_server
+    image: jwrenn4/opendatascienceplatform-model-server
+    #build: ./model_server
     depends_on:
       - mlflow
     #ports:
@@ -81,8 +82,8 @@ services:
 
   nginx:
     restart: always
-    build: ./nginx
-    container_name: nginx
+    image: jwrenn4/opendatascienceplatform-nginx
+    #build: ./nginx
     depends_on:
       - jupyter
       - mlflow
