@@ -4,10 +4,6 @@ FROM quay.io/jupyterhub/jupyterhub:latest
 RUN apt update && apt upgrade -y && apt autoremove -y
 RUN apt install git emacs htop sudo -y
 
-# For spark
-#RUN apt install python3.11 git emacs htop default-jre default-jdk -y
-#RUN ln -sf /usr/bin/python3.11 /usr/bin/python3
-
 # Add Docker's official GPG key:
 RUN apt-get update
 RUN apt-get install ca-certificates curl
@@ -44,4 +40,4 @@ EXPOSE 8000
 
 USER odsp
 WORKDIR /home
-CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8000", "--notebook-dir=/home", "--ServerApp.token=''", "--ServerApp.password=''", "--allow_origin='*'", "--allow_remote_access=True"]
+CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8000", "--notebook-dir=/home", "--ServerApp.token=''", "--ServerApp.password=''", "--allow_origin='*'", "--allow_remote_access=True", "--no-browser"]
