@@ -23,21 +23,25 @@ RUN apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docke
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --upgrade -r /tmp/requirements.txt
 
+ARG MLFLOW_TRACKING_URI=http://mlflow:2244
+ARG DASK_SCHEDULER_ADDRESS=tcp://dask-scheduler:8786
+ARG USER=odsp
+
 # Create odsp user
-RUN adduser --disabled-password --gecos "" odsp
-RUN adduser odsp sudo
+RUN adduser --disabled-password --gecos "" ${USER}
+RUN adduser ${USER} sudo
 
 # Add odsp and root users to not require password for sudo
 RUN echo "root ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/root
-RUN echo "odsp ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/odsp
+RUN echo "odsp ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/${USER}
 
 # Add environment variables
-RUN echo "export MLFLOW_TRACKING_URI=http://mlflow:2244" >> /home/odsp/.bashrc
-RUN echo "export DASK_SCHEDULER_ADDRESS=tcp://dask-scheduler:8786" >> /home/odsp/.bashrc
+RUN echo "export MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}" >> /home/${USER}/.bashrc
+RUN echo "export DASK_SCHEDULER_ADDRESS=${DASK_SCHEDULER_ADDRESS}" >> /home/${USER}/.bashrc
 
 # Expose the port jupyter runs on
 EXPOSE 8000
 
-USER odsp
-WORKDIR /home
-CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8000", "--notebook-dir=/home", "--ServerApp.token=''", "--ServerApp.password=''", "--allow_origin='*'", "--allow_remote_access=True", "--no-browser"]
+USER ${USER}
+WORKDIR /home/${USER}
+CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8000", "--notebook-dir=/home/", "--ServerApp.token=''", "--ServerApp.password=''", "--allow_origin='*'", "--allow_remote_access=True", "--no-browser"]
