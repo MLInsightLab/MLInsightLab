@@ -33,7 +33,7 @@ services:
     restart: always
     image: jwrenn4/opendatascienceplatform-jupyter
     #build: ./jupyter
-    container_name: jupyter
+    #container_name: jupyter
     depends_on:
       - dask-worker
     #ports:
