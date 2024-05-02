@@ -5,10 +5,6 @@ services:
   dask-scheduler:
     restart: always
     image: jwrenn4/opendatascienceplatform-dask
-    #build: ./dask
-    #ports:
-      #- "8786:8786" # Scheduler
-      #- "8787:8787" # UI
     command: dask-scheduler
     volumes:
       - notebooks:/home
@@ -18,7 +14,6 @@ services:
   dask-worker:
     restart: always
     image: jwrenn4/opendatascienceplatform-dask
-    #build: ./dask
     depends_on:
       - dask-scheduler
     command: dask-worker tcp://dask-scheduler:8786
@@ -28,16 +23,16 @@ services:
       replicas: 4
     networks:
       - network
+    #devices:
+      #- driver: nvidia
+        #count: all
+        #capabilities: [gpu]
   
   jupyter:
     restart: always
     image: jwrenn4/opendatascienceplatform-jupyter
-    #build: ./jupyter
-    #container_name: jupyter
     depends_on:
       - dask-worker
-    #ports:
-      #- "8000:8000"
     volumes:
       - notebooks:/home
       - /var/run/docker.sock:/var/run/docker.sock
@@ -50,10 +45,7 @@ services:
   mlflow:
     restart: always
     image: jwrenn4/opendatascienceplatform-mlflow
-    #build: ./mlflow
     container_name: mlflow
-    #ports:
-      #- "2244:2244"
     volumes:
       - mlflow_backend_storage:/backend_uri
       - mlflow_artifact_storage:/artifact_store
@@ -68,11 +60,8 @@ services:
   model-server:
     restart: always
     image: jwrenn4/opendatascienceplatform-model-server
-    #build: ./model_server
     depends_on:
       - mlflow
-    #ports:
-      #- "4488:4488"
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:2244
     deploy:
@@ -83,7 +72,6 @@ services:
   nginx:
     restart: always
     image: jwrenn4/opendatascienceplatform-nginx
-    #build: ./nginx
     depends_on:
       - jupyter
       - mlflow
