@@ -24,19 +24,23 @@ RUN apt install git emacs htop sudo -y
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --upgrade -r /tmp/requirements.txt
 
-ARG USER=odsp
+#ARG USER=odsp
 
 # Create odsp user
-RUN adduser --disabled-password --gecos "" ${USER}
-RUN adduser ${USER} sudo
+#RUN adduser --disabled-password --gecos "" ${USER}
+#RUN adduser ${USER} sudo
 
-# Add odsp and root users to not require password for sudo
+# Add root user to not require password for sudo
 RUN echo "root ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/root
-RUN echo "odsp ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/${USER}
+#RUN echo "odsp ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/${USER}
 
 # Expose the port jupyter runs on
 EXPOSE 8000
 
-USER ${USER}
-WORKDIR /home/${USER}
-CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8000", "--notebook-dir=/home/", "--ServerApp.token=''", "--ServerApp.password=''", "--allow_origin='*'", "--allow_remote_access=True", "--no-browser"]
+COPY start_jupyter.sh /code/start_jupyter.sh
+RUN chmod +x /code/start_jupyter.sh
+
+#USER ${USER}
+#WORKDIR /home/${USER}
+#CMD ["jupyter-lab", "--ip", "0.0.0.0", "--port", "8000", "--notebook-dir=/home/", "--ServerApp.token=''", "--ServerApp.password=''", "--allow_origin='*'", "--allow_remote_access=True", "--no-browser"]
+CMD [ "/code/start_jupyter.sh" ]
