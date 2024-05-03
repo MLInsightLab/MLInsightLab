@@ -1,3 +1,3 @@
-FROM ghcr.io/dask/dask:latest
+FROM python:latest
 
-RUN pip install --upgrade dask msgpack toolz
+RUN pip install --upgrade dask[complete] msgpack toolz

@@ -5,9 +5,14 @@
 
 # Create user if not exists
 id -u $NB_USER &>/dev/null || useradd -m -s /bin/bash $NB_USER
+adduser $NB_USER sudo
 
 # Add user to sudoers
-echo "${NB_USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+echo "$NB_USER ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/$NB_USER
 
-# Start Jupyter Lab
-sudo -E -u $NB_USER jupyter lab --ip=0.0.0.0 --allow-root --port 8000 --notebook-dir /home
+# Add environment variables
+echo "MLFLOW_TRACKING_URI=$MLFLOW_TRACKING_URI" >> /etc/environment
+echo "DASK_SCHEDULER_ADDRESS=$DASK_SCHEDULER_ADDRESS" >> /etc/environment
+
+# Start Jupyter Lab under the NB_USER
+/bin/su --login -c "jupyter lab --notebook-dir=/home --ip=0.0.0.0 --port 8000 --no-browser --ServerApp.token='' --ServerApp.password='' --allow-root" $NB_USER

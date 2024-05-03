@@ -1,5 +1,3 @@
-version: '3'
-
 services:
 
   dask-scheduler:
@@ -23,10 +21,6 @@ services:
       replicas: 4
     networks:
       - network
-    #devices:
-      #- driver: nvidia
-        #count: all
-        #capabilities: [gpu]
   
   jupyter:
     restart: always
@@ -39,8 +33,13 @@ services:
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:2244
       - DASK_SCHEDULER_ADDRESS=tcp://dask-scheduler:8786
+      - NB_USER=odsp
     networks:
       - network
+    #devices:
+      #- driver: nvidia
+        #count: all
+        #capabilities: [gpu]
 
   mlflow:
     restart: always
