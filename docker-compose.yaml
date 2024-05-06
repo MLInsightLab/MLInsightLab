@@ -44,7 +44,6 @@ services:
   mlflow:
     restart: always
     image: jwrenn4/opendatascienceplatform-mlflow
-    container_name: mlflow
     volumes:
       - mlflow_backend_storage:/backend_uri
       - mlflow_artifact_storage:/artifact_store
