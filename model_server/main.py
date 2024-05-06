@@ -8,6 +8,7 @@ class PredictRequest(BaseModel):
     data : list
     predict_function : str = 'predict'
     model_flavor : str = 'pyfunc'
+    dtype : str = None
 
 app = FastAPI()
 
@@ -35,6 +36,8 @@ def predict(model_name : str, model_version : str | int, body : PredictRequest):
     
     try:
         to_predict = np.array(body.data)
+        if body.dtype:
+            to_predict = to_predict.astype(body.dtype)
     except Exception:
         raise HTTPException(
             400,

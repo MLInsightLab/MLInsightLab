@@ -1,5 +1,7 @@
-mlflow[extras]
 tensorflow
 pydantic
 uvicorn
 fastapi
+mlflow
+psutil
+lz4
