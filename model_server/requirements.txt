@@ -1,7 +1,10 @@
+transformers
+torchvision
 tensorflow
 pydantic
 uvicorn
 fastapi
 mlflow
 psutil
+torch
 lz4
