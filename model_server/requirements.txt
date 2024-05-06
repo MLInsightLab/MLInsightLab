@@ -1,4 +1,5 @@
 mlflow[extras]
+tensorflow
 pydantic
 uvicorn
 fastapi
