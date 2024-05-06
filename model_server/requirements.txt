@@ -1,4 +1,4 @@
+mlflow[extras]
 pydantic
 uvicorn
 fastapi
-mlflow
