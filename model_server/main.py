@@ -9,6 +9,7 @@ class PredictRequest(BaseModel):
     predict_function : str = 'predict'
     model_flavor : str = 'pyfunc'
     dtype : str = None
+    params : dict = None
 
 app = FastAPI()
 
@@ -18,6 +19,9 @@ def redirect_docs():
 
 @app.post('/{model_name}/{model_version}')
 def predict(model_name : str, model_version : str | int, body : PredictRequest):
+
+    # Load the model
+    # NOTE: "transformer" should also be supported here, but there are unknowns with running inference directly
     try:
         if body.model_flavor == 'pyfunc':
             model = mlflow.pyfunc.load_model(f'models:/{model_name}/{model_version}')
@@ -34,6 +38,7 @@ def predict(model_name : str, model_version : str | int, body : PredictRequest):
             'Model ID not found'
         )
     
+    # Grab the data to predict on from the input body
     try:
         to_predict = np.array(body.data)
         if body.dtype:
@@ -44,21 +49,26 @@ def predict(model_name : str, model_version : str | int, body : PredictRequest):
             'Data malformed and could not be processed'
         )
     
+    # If predict_function is "predict"
     if body.predict_function == 'predict':
         try:
-            results = model.predict(to_predict).tolist()
+            if body.model_flavor != 'sklearn':
+                results = model.predict(to_predict, params = body.params)
+            else:
+                results = model.predict(to_predict)
         except Exception:
             try:
-                results = model.predict(to_predict.reshape(1, -1)).tolist()
+                results = model.predict(to_predict.reshape(1, -1))
             except Exception:
                 raise HTTPException(400, 'There was an issue running `predict` with the provided data')
     
+    # Else if the predict function is "predict_proba"
     elif body.predict_function == 'predict_proba':
         try:
-            results = model.predict_proba(to_predict).tolist()
+            results = model.predict_proba(to_predict)
         except Exception:
             try:
-                results = model.predict_proba(to_predict.reshape(1, -1)).tolist()
+                results = model.predict_proba(to_predict.reshape(1, -1))
             except Exception:
                 raise HTTPException(400, 'There was an issue running `predict_proba` with the provided data')
             
@@ -68,6 +78,10 @@ def predict(model_name : str, model_version : str | int, body : PredictRequest):
             f'Only `predict` and `predict_proba` are supported predict functions, got {body.predict_function}'
         )
     
+    # Convert results to list if they are an array
+    if isinstance(results, np.ndarray):
+        results = results.tolist()
+
     return {
         'prediction' : results
     }
