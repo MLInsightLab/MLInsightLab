@@ -33,7 +33,7 @@ cd OpenDataSciencePlatform
 4. Run the following command to start the services:
 
 ```bash
-docker compose up
+docker compose up -d
 ```
 
 ## Accessing Services
@@ -42,8 +42,8 @@ Once the services are up and running, you can access them as follows:
 
 - **Jupyter Notebook Server**: Open your web browser and go to `http://localhost`.
 - **MLflow Tracking Server**: Access MLflow UI by navigating to `http://localhost/mlflow` in your web browser.
-- **Model Server**: Once MLflow Tracking Server is up and running, models deployed using MLflow can be accessed through the Model Server. Example endpoint: `http://localhost/model-server/docs`.
+- **Model Server**: Once MLflow Tracking Server is up and running, models deployed using MLflow can be accessed through the Model Server. Example endpoint: `http://localhost/inference`.
 
 ## Additional Notes
 
-- Make sure to shut down the services when not in use to conserve resources:
+- Make sure to shut down the services when not in use to conserve resources
