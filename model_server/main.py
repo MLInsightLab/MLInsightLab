@@ -12,8 +12,68 @@ class PredictRequest(BaseModel):
     params : dict = None
 
 # Load_model function that allows to load model from either alias or version
+def load_model(model_name, model_flavor, model_version = None, model_alias = None):
+    
+    if not (model_version or model_alias):
+        raise ValueError('Model version or model alias must be provided')
+    
+    # NOTE: "transformer" should also be supported here, but there are unknowns with running inference directly
+    if model_flavor not in ['pyfunc', 'sklearn']:
+        raise ValueError(f'Only "pyfunc" and "sklearn" model flavors supported, got {model_flavor}')
+    
+    try:
+        
+        if model_flavor == 'pyfunc':
+            if model_version:
+                model = mlflow.pyfunc.load_model(f'models:/{model_name}/{model_version}')
+            elif model_alias:
+                model = mlflow.pyfunc.load_model(f'models:/{model_name}@{model_alias}')
 
-# Predict model function that allows to predict
+        elif model_flavor == 'sklearn':
+            if model_version:
+                model = mlflow.sklearn.load_model(f'models:/{model_name}/{model_version}')
+            elif model_alias:
+                model = mlflow.sklearn.load_model(f'models:/{model_name}@{model_alias}')
+        
+        return model
+    
+    except Exception as e:
+        raise mlflow.MlflowException('Could not load model')
+
+# Predict_model function that runs prediction
+def predict_model(model, to_predict, model_flavor, predict_function, params):
+
+    if predict_function == 'predict':
+        try:
+            if model_flavor != 'sklearn':
+                results = model.predict(to_predict, params = params)
+            else:
+                results = model.predict(to_predict)
+        except Exception:
+            try:
+                results = model.predict(to_predict.reshape(-1, 1))
+            except Exception:
+                raise ValueError('There was an issue running `predict`')
+    
+    elif predict_function == 'predict_proba':
+        try:
+            results = model.predict_proba(to_predict)
+        except Exception:
+            try:
+                results = model.predict_proba(to_predict.reshape(-1, 1))
+            except Exception:
+                raise ValueError('There was an issue running `predict_proba`')
+    
+    else:
+        raise ValueError('Only `predict` and `predict_proba` are supported predict functions')
+    
+    if isinstance(results, np.ndarray):
+        results = results.tolist()
+
+    return {
+        'prediction' : results
+    }
+
 
 app = FastAPI()
 
@@ -25,22 +85,13 @@ def redirect_docs():
 def predict(model_name : str, model_version : str | int, body : PredictRequest):
 
     # Load the model
-    # NOTE: "transformer" should also be supported here, but there are unknowns with running inference directly
     try:
-        if body.model_flavor == 'pyfunc':
-            model = mlflow.pyfunc.load_model(f'models:/{model_name}/{model_version}')
-        elif body.model_flavor == 'sklearn':
-            model = mlflow.sklearn.load_model(f'models:/{model_name}/{model_version}')
+        model = load_model(model_name, body.model_flavor, model_version)
+    except Exception as e:
+        if isinstance(e, mlflow.MlflowException):
+            raise HTTPException(404, e.message)
         else:
-            raise HTTPException(
-                400,
-                f'Only "pyfunc" and "sklearn" model flavors are currently supported, got {body.model_flavor}'
-            )
-    except Exception:
-        raise HTTPException(
-            404,
-            'Model ID not found'
-        )
+            raise HTTPException(400, e.message)
     
     # Grab the data to predict on from the input body
     try:
@@ -53,63 +104,22 @@ def predict(model_name : str, model_version : str | int, body : PredictRequest):
             'Data malformed and could not be processed'
         )
     
-    # If predict_function is "predict"
-    if body.predict_function == 'predict':
-        try:
-            if body.model_flavor != 'sklearn':
-                results = model.predict(to_predict, params = body.params)
-            else:
-                results = model.predict(to_predict)
-        except Exception:
-            try:
-                results = model.predict(to_predict.reshape(1, -1))
-            except Exception:
-                raise HTTPException(400, 'There was an issue running `predict` with the provided data')
-    
-    # Else if the predict function is "predict_proba"
-    elif body.predict_function == 'predict_proba':
-        try:
-            results = model.predict_proba(to_predict)
-        except Exception:
-            try:
-                results = model.predict_proba(to_predict.reshape(1, -1))
-            except Exception:
-                raise HTTPException(400, 'There was an issue running `predict_proba` with the provided data')
-            
-    else:
-        raise HTTPException(
-            400,
-            f'Only `predict` and `predict_proba` are supported predict functions, got {body.predict_function}'
+    try:
+        return predict_model(
+            model,
+            to_predict,
+            body.model_flavor,
+            body.predict_function,
+            body.params
         )
-    
-    # Convert results to list if they are an array
-    if isinstance(results, np.ndarray):
-        results = results.tolist()
-
-    return {
-        'prediction' : results
-    }
+    except Exception as e:
+        raise HTTPException(400, e.message)
 
 @app.post('/{model_name}/alias/{model_alias}')
 def predict_alias(model_name : str, model_alias : str | int, body : PredictRequest):
 
     # Load the model
-    # NOTE: "transformer" should also be supported here, but there are unknowns with running inference directly
-    try:
-        if body.model_flavor == 'pyfunc':
-            model = mlflow.pyfunc.load_model(f'models:/{model_name}@{model_alias}')
-        elif body.model_flavor == 'sklearn':
-            model = mlflow.sklearn.load_model(f'models:/{model_name}@{model_alias}')
-        else:
-            raise HTTPException(
-                400,
-                f'Only "pyfunc" and "sklearn" model flavors are currently supported, got {body.model_flavor}'
-            )
-    except Exception:
-        raise HTTPException(
-            404,
-            'Model ID not found'
-        )
+    model = load_model(model_name, body.model_flavor, model_alias = model_alias)
     
     # Grab the data to predict on from the input body
     try:
@@ -122,39 +132,14 @@ def predict_alias(model_name : str, model_alias : str | int, body : PredictReque
             'Data malformed and could not be processed'
         )
     
-    # If predict_function is "predict"
-    if body.predict_function == 'predict':
-        try:
-            if body.model_flavor != 'sklearn':
-                results = model.predict(to_predict, params = body.params)
-            else:
-                results = model.predict(to_predict)
-        except Exception:
-            try:
-                results = model.predict(to_predict.reshape(1, -1))
-            except Exception:
-                raise HTTPException(400, 'There was an issue running `predict` with the provided data')
-    
-    # Else if the predict function is "predict_proba"
-    elif body.predict_function == 'predict_proba':
-        try:
-            results = model.predict_proba(to_predict)
-        except Exception:
-            try:
-                results = model.predict_proba(to_predict.reshape(1, -1))
-            except Exception:
-                raise HTTPException(400, 'There was an issue running `predict_proba` with the provided data')
-            
-    else:
-        raise HTTPException(
-            400,
-            f'Only `predict` and `predict_proba` are supported predict functions, got {body.predict_function}'
+    # Run prediction
+    try:
+        return predict_model(
+            model,
+            to_predict,
+            body.model_flavor,
+            body.predict_function,
+            body.params
         )
-    
-    # Convert results to list if they are an array
-    if isinstance(results, np.ndarray):
-        results = results.tolist()
-
-    return {
-        'prediction' : results
-    }
+    except Exception as e:
+        raise HTTPException(400, e.message)
