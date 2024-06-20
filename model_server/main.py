@@ -2,7 +2,28 @@ from fastapi.responses import RedirectResponse
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import numpy as np
+import subprocess
 import mlflow
+
+# Global variables for model flavors
+# NOTE: "transformer" should also be supported here, but there are unknowns with running inference directly
+ALLOWED_MODEL_FLAVORS = [
+    'pyfunc',
+    'sklearn'
+]
+PYFUNC_FLAVOR = ALLOWED_MODEL_FLAVORS[0]
+SKLEARN_FLAVOR = ALLOWED_MODEL_FLAVORS[1]
+
+# Global variables for prediction functions
+ALLOWED_PREDICT_FUNCTIONS = [
+    'predict',
+    'predict_proba'
+]
+PREDICT = ALLOWED_PREDICT_FUNCTIONS[0]
+PREDICT_PROBA = ALLOWED_PREDICT_FUNCTIONS[1]
+
+# Global variable for already loaded models
+LOADED_MODELS = dict()
 
 class PredictRequest(BaseModel):
     data : list
@@ -13,27 +34,64 @@ class PredictRequest(BaseModel):
 
 # Load_model function that allows to load model from either alias or version
 def load_model(model_name, model_flavor, model_version = None, model_alias = None):
+    f"""
+    Load a model from the MLFlow server
+
+    Parameters
+    ----------
+    model_name : str
+        The name of the model
+    model_flavor : str
+        The flavor of the model, must be one of {ALLOWED_MODEL_FLAVORS}
+    model_version : int or None (default None)
+        The version of the model
+    model_alias : str or None (default None)
+        The alias of the model, without the `@` character
+
+    Notes
+    -----
+    - One of either `model_version` or `model_alias` must be provided
+
+    Returns
+    -------
+    model : mlflow Model
+        The model, in the flavor specified
+
+    Raises
+    ------
+    - MlflowException, when the model cannot be loaded
+    """
     
     if not (model_version or model_alias):
         raise ValueError('Model version or model alias must be provided')
     
-    # NOTE: "transformer" should also be supported here, but there are unknowns with running inference directly
-    if model_flavor not in ['pyfunc', 'sklearn']:
+    if model_flavor not in ALLOWED_MODEL_FLAVORS:
         raise ValueError(f'Only "pyfunc" and "sklearn" model flavors supported, got {model_flavor}')
     
     try:
         
-        if model_flavor == 'pyfunc':
-            if model_version:
-                model = mlflow.pyfunc.load_model(f'models:/{model_name}/{model_version}')
-            elif model_alias:
-                model = mlflow.pyfunc.load_model(f'models:/{model_name}@{model_alias}')
+        if model_version:
+            model_uri = f'models:/{model_name}/{model_version}'
+        elif model_alias:
+            model_uri = f'models:/{model_name}@{model_alias}'
 
-        elif model_flavor == 'sklearn':
-            if model_version:
-                model = mlflow.sklearn.load_model(f'models:/{model_name}/{model_version}')
-            elif model_alias:
-                model = mlflow.sklearn.load_model(f'models:/{model_name}@{model_alias}')
+        # Install dependencies for the model
+        subprocess.run(
+            [
+                'pip',
+                'install',
+                '-r',
+                mlflow.pyfunc.get_model_dependencies(model_uri)
+            ]
+        )
+        
+        # Load the model if it is requested to be a pyfunc model
+        if model_flavor == PYFUNC_FLAVOR:
+            model = mlflow.pyfunc.load_model(model_uri)
+
+        # Load the model if it is requested to be a sklearn model
+        elif model_flavor == SKLEARN_FLAVOR:
+            model = mlflow.sklearn.load_model(model_uri)
         
         return model
     
@@ -84,14 +142,27 @@ def redirect_docs():
 @app.post('/{model_name}/version/{model_version}')
 def predict(model_name : str, model_version : str | int, body : PredictRequest):
 
-    # Load the model
+    # Try to load the model, assuming it has been loaded before
     try:
-        model = load_model(model_name, body.model_flavor, model_version)
+        model = LOADED_MODELS[model_name][body.model_flavor][model_version]
     except Exception as e:
-        if isinstance(e, mlflow.MlflowException):
-            raise HTTPException(404, e.message)
-        else:
-            raise HTTPException(400, e.message)
+
+        # Model has not been loaded before
+        model = load_model(model_name, body.model_flavor, model_version)
+          
+        # Place the model in the right location in the model in-memory storage
+        if not LOADED_MODELS.get(model_name):
+            LOADED_MODELS[model_name] = {
+                body.model_flavor : {
+                    model_version : model
+                }
+            }
+        elif not LOADED_MODELS[model_name].get(body.model_flavor):
+            LOADED_MODELS[model_name][body.model_flavor] = {
+                model_version : model
+            }
+        elif not LOADED_MODELS[model_name][body.model_flavor].get(model_version):
+            LOADED_MODELS[model_name][body.model_flavor][model_version] = model
     
     # Grab the data to predict on from the input body
     try:
