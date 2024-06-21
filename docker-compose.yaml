@@ -65,6 +65,10 @@ services:
       replicas: ${MODEL_SERVER_REPLICAS}
     networks:
       - network
+    #devices:
+      #- driver: nvidia
+        #count: all
+        #capabilities: [gpu]
 
   nginx:
     restart: always
