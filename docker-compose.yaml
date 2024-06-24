@@ -11,7 +11,7 @@ services:
 
   dask-worker:
     restart: always
-    image: jwrenn4/opendatascienceplatform-dask
+    image: ${DASK_IMAGE}
     depends_on:
       - dask-scheduler
     command: dask-worker ${DASK_SCHEDULER_ADDRESS}
@@ -61,8 +61,6 @@ services:
       - mlflow
     environment:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
-    deploy:
-      replicas: ${MODEL_SERVER_REPLICAS}
     networks:
       - network
     #devices:
