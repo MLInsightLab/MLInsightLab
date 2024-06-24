@@ -179,8 +179,14 @@ def list_models():
         to_return = []
         for model_name in LOADED_MODELS.keys():
             for model_flavor in LOADED_MODELS[model_name]:
-                for model_version in LOADED_MODELS[model_name][model_flavor].keys():
-                    to_return.append(f'{model_name}_{model_flavor}_{model_version}')
+                for model_version_or_alias in LOADED_MODELS[model_name][model_flavor].keys():
+                    to_return.append(
+                        dict(
+                            model_name = model_name,
+                            model_flavor = model_flavor,
+                            model_version_or_alias = model_version_or_alias
+                        )
+                    )
         return to_return
 
 # Delete a loaded model
@@ -193,80 +199,38 @@ def unload_model(model_name : str, model_flavor : str, model_version_or_alias : 
         }
     except Exception:
         raise HTTPException(404, 'Model not found')
-    
-# Predict using model version
-@app.post('/{model_name}/version/{model_version}')
-def predict_version(model_name : str, model_version : str | int, body : PredictRequest):
 
-    # Try to load the model, assuming it has been loaded before
-    try:
-        model = LOADED_MODELS[model_name][body.model_flavor][model_version]
-    except Exception as e:
+# Predict using a model version or alias
+@app.post('/{model_name}/{model_version_or_alias}')
+def predict(model_name : str, model_version_or_alias : str | int, body : PredictRequest):
 
-        # Model has not been loaded before
-        model = load_model(model_name, body.model_flavor, model_version)
-          
-        # Place the model in the right location in the model in-memory storage
-        if not LOADED_MODELS.get(model_name):
-            LOADED_MODELS[model_name] = {
-                body.model_flavor : {
-                    model_version : model
-                }
-            }
-        elif not LOADED_MODELS[model_name].get(body.model_flavor):
-            LOADED_MODELS[model_name][body.model_flavor] = {
-                model_version : model
-            }
-        elif not LOADED_MODELS[model_name][body.model_flavor].get(model_version):
-            LOADED_MODELS[model_name][body.model_flavor][model_version] = model
-    
-    # Grab the data to predict on from the input body
+    # Try to load the model, assuming it has already been loaded
     try:
-        to_predict = np.array(body.data)
-        if body.dtype:
-            to_predict = to_predict.astype(body.dtype)
+        model = LOADED_MODELS[model_name][body.model_flavor][model_version_or_alias]
     except Exception:
-        raise HTTPException(
-            400,
-            'Data malformed and could not be processed'
-        )
+
+        # Model has not been loaded before, so first try to load the model using version, then alias
+        try:
+            model = load_model(model_name, body.model_flavor, model_version_or_alias)
+        except Exception:
+            try:
+                model = load_model(model_name, body.model_flavor, model_alias = model_version_or_alias)
+            except Exception:
+                raise HTTPException(404, 'Model with that combination of name and version or alias not found')
     
-    try:
-        return predict_model(
-            model,
-            to_predict,
-            body.model_flavor,
-            body.predict_function,
-            body.params
-        )
-    except Exception as e:
-        raise HTTPException(400, e.message)
-
-# Predict using model alias
-@app.post('/{model_name}/alias/{model_alias}')
-def predict_alias(model_name : str, model_alias : str | int, body : PredictRequest):
-
-    # Try to load the model, assuming it hasn't been loaded before
-    try:
-        model = LOADED_MODELS[model_name][body.model_flavor][model_alias]
-    except Exception as e:
-
-        # Model has not been loaded before
-        model = load_model(model_name, body.model_flavor, model_alias = model_alias)
-
-        # Place the model in the right location in the model in-memory storage
-        if not LOADED_MODELS.get(model_name):
-            LOADED_MODELS[model_name] = {
-                body.model_flavor : {
-                    model_alias : model
-                }
+    # Place the model in the right location in the in-memory storage
+    if not LOADED_MODELS.get(model_name):
+        LOADED_MODELS[model_name] = {
+            body.model_flavor : {
+                model_version_or_alias : model
             }
-        elif not LOADED_MODELS[model_name].get(body.model_flavor):
-            LOADED_MODELS[model_name][body.model_flavor] = {
-                model_alias : model
-            }
-        elif not LOADED_MODELS[model_name][body.model_flavor].get(model_alias):
-            LOADED_MODELS[model_name][body.model_flavor][model_alias] = model
+        }
+    elif not LOADED_MODELS[model_name].get(body.model_flavor):
+        LOADED_MODELS[model_name][body.model_flavor] = {
+            model_version_or_alias : model
+        }
+    elif not LOADED_MODELS[model_name][body.model_flavor].get(model_version_or_alias):
+        LOADED_MODELS[model_name][body.model_flavor][model_version_or_alias] = model
 
     # Grab the data to predict on from the input body
     try:
@@ -278,8 +242,7 @@ def predict_alias(model_name : str, model_alias : str | int, body : PredictReque
             400,
             'Data malformed and could not be processed'
         )
-    
-    # Run prediction
+
     try:
         return predict_model(
             model,
