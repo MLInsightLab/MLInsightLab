@@ -1,6 +1,8 @@
 # Jupyter packages
+ipython[all]
 jupyterhub
 jupyterlab
+nbconvert
 jupyter
 
 # MLFlow

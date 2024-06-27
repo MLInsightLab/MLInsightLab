@@ -18,6 +18,9 @@ EXPOSE 8000
 COPY start_jupyter.sh /code/start_jupyter.sh
 RUN chmod +x /code/start_jupyter.sh
 
+# Copy the create_password script
+COPY create_password.py /code/create_password.py
+
 # Set the working directory
 WORKDIR /home
 
