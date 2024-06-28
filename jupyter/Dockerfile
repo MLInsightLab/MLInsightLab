@@ -14,12 +14,12 @@ RUN echo "root ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/root
 # Expose the port jupyter runs on
 EXPOSE 8000
 
+# Make the /root/.jupyter directory and move the config to that directory
+COPY jupyter_lab_config.py /code/jupyter_lab_config.py
+
 # Copy the start script and ensure it's executable
 COPY start_jupyter.sh /code/start_jupyter.sh
 RUN chmod +x /code/start_jupyter.sh
-
-# Copy the create_password script
-COPY create_password.py /code/create_password.py
 
 # Set the working directory
 WORKDIR /home

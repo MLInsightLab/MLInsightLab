@@ -1,6 +1,5 @@
 # Jupyter packages
 ipython[all]
-jupyterhub
 jupyterlab
 nbconvert
 jupyter
@@ -13,5 +12,5 @@ dask[complete]
 
 # Machine learning packages
 scikit-learn
-tensorflow
-torch
+#tensorflow
+#torch
