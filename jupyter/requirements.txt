@@ -12,5 +12,5 @@ dask[complete]
 
 # Machine learning packages
 scikit-learn
-#tensorflow
-#torch
+tensorflow
+torch
