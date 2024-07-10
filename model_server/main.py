@@ -140,7 +140,7 @@ def redirect_docs():
     return RedirectResponse(url = '/inference/docs')
 
 @app.get('/{model_name}/{model_flavor}/{model_version_or_alias}')
-def setup_model(model_name : str, model_flavor : str, model_version_or_alias : str | int):
+def load_model(model_name : str, model_flavor : str, model_version_or_alias : str | int):
     
     # Try to load the model
     try:
