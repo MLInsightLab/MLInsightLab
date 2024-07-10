@@ -2,7 +2,6 @@ services:
 
   dask-scheduler:
     restart: always
-#    image: ${DASK_IMAGE}
     build: ./dask
     command: dask-scheduler
     volumes:
@@ -12,7 +11,6 @@ services:
 
   dask-worker:
     restart: always
-#    image: ${DASK_IMAGE}
     build: ./dask
     depends_on:
       - dask-scheduler
@@ -26,17 +24,15 @@ services:
   
   jupyter:
     restart: always
-#    image: ${JUPYTER_IMAGE}
     build: ./jupyter
     depends_on:
       - dask-worker
     volumes:
       - ${NOTEBOOK_MOUNT}
+      - ${JUPYTER_DATABASE_MOUNT}
     environment:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - DASK_SCHEDULER_ADDRESS=${DASK_SCHEDULER_ADDRESS}
-      - NB_USER=${JUPYTER_USERNAME}
-      - JUPYTER_PASSWORD=${JUPYTER_PASSWORD}
     networks:
       - network
     #devices:
@@ -46,7 +42,6 @@ services:
 
   mlflow:
     restart: always
-#    image: ${MLFLOW_IMAGE}
     build: ./mlflow
     volumes:
       - ${MLFLOW_BACKEND_STORAGE}
@@ -61,7 +56,6 @@ services:
 
   model-server:
     restart: always
-#    image: ${MODEL_SERVER_IMAGE}
     build: ./model_server
     depends_on:
       - mlflow
@@ -76,7 +70,6 @@ services:
 
   nginx:
     restart: always
-#    image: ${NGINX_IMAGE}
     build: ./nginx
     depends_on:
       - jupyter
@@ -91,8 +84,9 @@ services:
       - network
 
 volumes:
-    mlflow_backend_storage:
     mlflow_artifact_storage:
+    mlflow_backend_storage:
+    jupyter_database:
     notebooks:
 
 networks:
