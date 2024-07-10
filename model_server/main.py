@@ -139,7 +139,7 @@ app = FastAPI()
 def redirect_docs():
     return RedirectResponse(url = '/inference/docs')
 
-@app.get('/load_model/{model_name}/{model_flavor}/{model_version_or_alias}')
+@app.get('/{model_name}/{model_flavor}/{model_version_or_alias}')
 def setup_model(model_name : str, model_flavor : str, model_version_or_alias : str | int):
     
     # Try to load the model
@@ -170,7 +170,7 @@ def setup_model(model_name : str, model_flavor : str, model_version_or_alias : s
     }
 
 # See loaded models
-@app.get('/loaded_models')
+@app.get('/models')
 def list_models():
     if LOADED_MODELS == {}:
         return []
