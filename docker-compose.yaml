@@ -2,7 +2,8 @@ services:
 
   dask-scheduler:
     restart: always
-    image: ${DASK_IMAGE}
+#    image: ${DASK_IMAGE}
+    build: ./dask
     command: dask-scheduler
     volumes:
       - ${NOTEBOOK_MOUNT}
@@ -11,7 +12,8 @@ services:
 
   dask-worker:
     restart: always
-    image: ${DASK_IMAGE}
+#    image: ${DASK_IMAGE}
+    build: ./dask
     depends_on:
       - dask-scheduler
     command: dask-worker ${DASK_SCHEDULER_ADDRESS}
@@ -24,7 +26,8 @@ services:
   
   jupyter:
     restart: always
-    image: ${JUPYTER_IMAGE}
+#    image: ${JUPYTER_IMAGE}
+    build: ./jupyter
     depends_on:
       - dask-worker
     volumes:
@@ -43,7 +46,8 @@ services:
 
   mlflow:
     restart: always
-    image: ${MLFLOW_IMAGE}
+#    image: ${MLFLOW_IMAGE}
+    build: ./mlflow
     volumes:
       - ${MLFLOW_BACKEND_STORAGE}
       - ${MLFLOW_ARTIFACT_STORAGE}
@@ -57,7 +61,8 @@ services:
 
   model-server:
     restart: always
-    image: ${MODEL_SERVER_IMAGE}
+#    image: ${MODEL_SERVER_IMAGE}
+    build: ./model-server
     depends_on:
       - mlflow
     environment:
@@ -71,7 +76,8 @@ services:
 
   nginx:
     restart: always
-    image: ${NGINX_IMAGE}
+#    image: ${NGINX_IMAGE}
+    build: ./nginx
     depends_on:
       - jupyter
       - mlflow
