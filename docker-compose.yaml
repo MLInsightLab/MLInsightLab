@@ -29,7 +29,7 @@ services:
       - dask-worker
     volumes:
       - ${NOTEBOOK_MOUNT}
-      - ${JUPYTER_DATABASE_MOUNT}
+      - ${JUPYTERHUB_DATABASE_MOUNT}
     environment:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - DASK_SCHEDULER_ADDRESS=${DASK_SCHEDULER_ADDRESS}
