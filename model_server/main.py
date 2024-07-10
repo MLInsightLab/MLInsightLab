@@ -28,7 +28,6 @@ LOADED_MODELS = dict()
 class PredictRequest(BaseModel):
     data : list
     predict_function : str = 'predict'
-    model_flavor : str = 'pyfunc'
     dtype : str = None
     params : dict = None
 
@@ -201,8 +200,8 @@ def unload_model(model_name : str, model_flavor : str, model_version_or_alias : 
         raise HTTPException(404, 'Model not found')
 
 # Predict using a model version or alias
-@app.post('/{model_name}/{model_version_or_alias}')
-def predict(model_name : str, model_version_or_alias : str | int, body : PredictRequest):
+@app.post('/{model_name}/{model_flavor}/{model_version_or_alias}')
+def predict(model_name : str, model_flavor : str, model_version_or_alias : str | int, body : PredictRequest):
 
     # Try to load the model, assuming it has already been loaded
     try:
