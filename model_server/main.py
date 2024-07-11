@@ -1,9 +1,15 @@
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi import FastAPI, HTTPException, Depends, Body
 from fastapi.responses import RedirectResponse
-from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import numpy as np
 import subprocess
 import mlflow
+
+from db_utils import setup_database, validate_user_key, fcreate_user, fdelete_user, fissue_new_api_key, fupdate_user_role, flist_users
+
+# Set up the database
+setup_database()
 
 # Global variables for model flavors
 # NOTE: "transformer" should also be supported here, but there are unknowns with running inference directly
@@ -131,8 +137,26 @@ def predict_model(model, to_predict, model_flavor, predict_function, params):
         'prediction' : results
     }
 
-# Initialize the app
+# Initialize the app and Basic Auth
 app = FastAPI()
+security = HTTPBasic()
+
+# Function to verify user credentials
+def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
+    try:
+        role = validate_user_key(
+            credentials.username,
+            credentials.password
+        )
+        return {
+            'username' : credentials.username,
+            'role' : role
+        }
+    except ValueError as e:
+        raise HTTPException(
+            401,
+            str(e)
+        )
 
 # Redirect to docs for the landing page
 @app.get('/', include_in_schema = False)
@@ -140,7 +164,7 @@ def redirect_docs():
     return RedirectResponse(url = '/inference/docs')
 
 @app.get('/{model_name}/{model_flavor}/{model_version_or_alias}')
-def load_model(model_name : str, model_flavor : str, model_version_or_alias : str | int):
+def load_model(model_name : str, model_flavor : str, model_version_or_alias : str | int, user_properties : dict = Depends(verify_credentials)):
     
     # Try to load the model
     try:
@@ -171,7 +195,7 @@ def load_model(model_name : str, model_flavor : str, model_version_or_alias : st
 
 # See loaded models
 @app.get('/models')
-def list_models():
+def list_models(user_properties : dict = Depends(verify_credentials)):
     if LOADED_MODELS == {}:
         return []
     else:
@@ -190,7 +214,7 @@ def list_models():
 
 # Delete a loaded model
 @app.delete('/{model_name}/{model_flavor}/{model_version_or_alias}')
-def unload_model(model_name : str, model_flavor : str, model_version_or_alias : str | int):
+def unload_model(model_name : str, model_flavor : str, model_version_or_alias : str | int, user_properties : dict = Depends(verify_credentials)):
     try:
         del LOADED_MODELS[model_name][model_flavor][model_version_or_alias]
         return {
@@ -201,7 +225,7 @@ def unload_model(model_name : str, model_flavor : str, model_version_or_alias : 
 
 # Predict using a model version or alias
 @app.post('/{model_name}/{model_flavor}/{model_version_or_alias}')
-def predict(model_name : str, model_flavor : str, model_version_or_alias : str | int, body : PredictRequest):
+def predict(model_name : str, model_flavor : str, model_version_or_alias : str | int, body : PredictRequest, user_properties : dict = Depends(verify_credentials)):
 
     # Try to load the model, assuming it has already been loaded
     try:
@@ -252,3 +276,68 @@ def predict(model_name : str, model_flavor : str, model_version_or_alias : str |
         )
     except Exception as e:
         raise HTTPException(400, e.message)
+
+# Create User
+# Need to create prototype for this, and verify that the user has admin access
+@app.post('/users/create')
+def create_user(user_info, user_properties : dict = Depends(verify_credentials)):
+    if user_properties['role'] != 'admin':
+        raise HTTPException(
+            403,
+            'User does not have permissions'
+        )
+    else:
+        return fcreate_user(
+            user_info.username,
+            user_info.role,
+            user_info.api_key
+        )
+
+# Delete User
+@app.delete('/users/delete/{username}')
+def delete_user(username, user_properties : dict = Depends(verify_credentials)):
+    if user_properties != 'admin':
+        raise HTTPException(
+            403,
+            'User does not have permissions'
+        )
+    else:
+        return fdelete_user(
+            username
+        )
+
+# Issue new API key for user
+@app.put('/users/api_key/{username}/new')
+def issue_new_api_key(username, user_properties : dict = Depends(verify_credentials)):
+    if user_properties['role'] != 'admin' and username != user_properties['username']:
+        raise HTTPException(
+            403,
+            'User does not have permissions'
+        )
+    else:
+        return fissue_new_api_key(
+            username
+        )
+
+# Update user role
+@app.put('/users/roles/{username}')
+def update_user_role(username, new_role = Body(embed = True), user_properties : dict = Depends(verify_credentials)):
+    if user_properties['role'] != 'admin':
+        raise HTTPException(
+            403,
+            'User does not have permissions'
+        )
+    return fupdate_user_role(
+        username,
+        new_role
+    )
+
+# List users
+@app.get('/users')
+def list_users(user_properties : dict = Depends(verify_credentials)):
+    if user_properties['role'] not in ['admin', 'data_scientist']:
+        raise HTTPException(
+            403,
+            'User does not have permissions'
+        )
+    return flist_users()
