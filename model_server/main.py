@@ -37,6 +37,11 @@ class PredictRequest(BaseModel):
     dtype : str = None
     params : dict = None
 
+class UserInfo(BaseModel):
+    username: str
+    role: str
+    api_key: str | None = None
+
 # Load_model function that allows to load model from either alias or version
 def load_model(model_name, model_flavor, model_version = None, model_alias = None):
     f"""
@@ -280,7 +285,7 @@ def predict(model_name : str, model_flavor : str, model_version_or_alias : str |
 # Create User
 # Need to create prototype for this, and verify that the user has admin access
 @app.post('/users/create')
-def create_user(user_info, user_properties : dict = Depends(verify_credentials)):
+def create_user(user_info : UserInfo, user_properties : dict = Depends(verify_credentials)):
     if user_properties['role'] != 'admin':
         raise HTTPException(
             403,

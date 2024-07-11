@@ -10,7 +10,7 @@ DB_FILE = os.path.join(DB_DIRECTORY, 'permissions.db')
 ADMIN_USERNAME = os.environ['ADMIN_USERNAME']
 ADMIN_KEY = os.environ['ADMIN_KEY']
 
-HASHED_ADMIN_KEY = argon2.hash_password(ADMIN_KEY.encode('utf-8')).decode('utf-8')
+HASHED_ADMIN_KEY = argon2.PasswordHasher().hash(ADMIN_KEY)
 
 # Function to generate an API key
 def generate_api_key():
@@ -79,11 +79,11 @@ def validate_user_key(username, key):
     username, role, hashed_key = res[0]
 
     # Return the role of the user if the key is validated
-    if argon2.verify_password(hashed_key.encode('utf-8'), key.encode('utf-8')):
+    try:
+        argon2.PasswordHasher().verify(hashed_key, key)
         return role
-
-    # If not validated, raise ValueError
-    raise ValueError('Incorrect Key')
+    except Exception as e:
+        raise ValueError('Incorrect Key Provided')
 
 # Create new user
 def fcreate_user(username, role, api_key = None):
@@ -151,7 +151,7 @@ def fissue_new_api_key(username, key = None):
         key = generate_api_key()
     
     # Hash the key
-    hashed_key = argon2.hash_password(key.encode('utf-8'))
+    hashed_key = argon2.PasswordHasher().hash(key.encode('utf-8'))
 
     # Update user in the database
     con.execute(f'UPDATE users SET key="{hashed_key}" WHERE username="{username}"')
