@@ -1,5 +1,7 @@
 # Configuration file for jupyterhub.
+from jupyterhub.auth import Authenticator
 from subprocess import check_call
+from tornado import gen
 
 c = get_config()  #noqa
 
@@ -176,13 +178,15 @@ c.JupyterHub.allow_named_servers = True
 #    - null: jupyterhub.auth.NullAuthenticator
 #    - pam: jupyterhub.auth.PAMAuthenticator
 #  Default: 'jupyterhub.auth.PAMAuthenticator'
+# c.JupyterHub.authenticator_class = 'jupyterhub.auth.PAMAuthenticator'
 
-# Uses local system to authenticate
-c.JupyterHub.authenticator_class = 'jupyterhub.auth.PAMAuthenticator'
-
-# Allows any username/password combination
-c.JupyterHub.authenticator_class = 'jupyterhub.auth.DummyAuthenticator'
-
+# Create custom authenticator
+class ODSPAuthenticator(Authenticator):
+    @gen.coroutine
+    def authenticate(self, handler, data):
+        return data['username']
+    
+c.JupyterHub.authenticator_class = ODSPAuthenticator
 
 ## The base URL of the entire application.
 #  
