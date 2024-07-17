@@ -1,4 +1,5 @@
 # Configuration file for jupyterhub.
+from subprocess import check_call
 
 c = get_config()  #noqa
 
@@ -175,7 +176,12 @@ c.JupyterHub.allow_named_servers = True
 #    - null: jupyterhub.auth.NullAuthenticator
 #    - pam: jupyterhub.auth.PAMAuthenticator
 #  Default: 'jupyterhub.auth.PAMAuthenticator'
+
+# Uses local system to authenticate
 c.JupyterHub.authenticator_class = 'jupyterhub.auth.PAMAuthenticator'
+
+# Allows any username/password combination
+c.JupyterHub.authenticator_class = 'jupyterhub.auth.DummyAuthenticator'
 
 
 ## The base URL of the entire application.
@@ -1364,7 +1370,16 @@ c.JupyterHub.spawner_class = 'jupyterhub.spawner.LocalProcessSpawner'
 #  
 #      c.Spawner.pre_spawn_hook = my_hook
 #  Default: None
-# c.Spawner.pre_spawn_hook = None
+
+# This ensures that users are created on the local system when they log in
+# If the user is not created at login time, they are created when this function is called
+def pre_spawn_hook(spawner):
+    username = spawner.user.name
+    try:
+        check_call(['useradd', '-ms', '/bin/bash', username])
+    except Exception as e:
+        print(e)
+c.Spawner.pre_spawn_hook = pre_spawn_hook
 
 ## An optional hook function that you can implement to modify the ready event,
 #  which will be shown to the user on the spawn progress page when their server
@@ -1760,4 +1775,5 @@ c.Authenticator.delete_invalid_users = True
 #  Default: 8
 # c.CryptKeeper.n_threads = 8
 
+# Create system users (GH issues indicate that this might not work, but it's worth keeping here)
 c.LocalAuthenticator.create_system_users = True
