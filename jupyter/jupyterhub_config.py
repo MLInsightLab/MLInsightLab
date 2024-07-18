@@ -185,7 +185,7 @@ c.JupyterHub.allow_named_servers = True
 #  Default: 'jupyterhub.auth.PAMAuthenticator'
 # c.JupyterHub.authenticator_class = 'jupyterhub.auth.PAMAuthenticator'
 
-# Create custom authenticator
+# Custom Authenticator class
 class ODSPAuthenticator(Authenticator):
     @gen.coroutine
     def authenticate(self, handler, data):
@@ -195,13 +195,9 @@ class ODSPAuthenticator(Authenticator):
             resp = sess.get(
                 f'{API_URL}/password/{username}/{password}'
             )
-        if resp.status_code == 401:
-            return None
-        elif resp.ok:
+        if resp.status_code == 200:
             return username
-        else:
-            raise ValueError(resp.raw)
-    
+
 c.JupyterHub.authenticator_class = ODSPAuthenticator
 
 ## The base URL of the entire application.

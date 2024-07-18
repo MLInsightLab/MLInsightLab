@@ -171,7 +171,7 @@ def verify_password(username : str, password : str):
         role = validate_user_password(username, password)
         return role
     except Exception as e:
-        return HTTPException(401, 'Incorrect credentials')
+        raise HTTPException(401, 'Incorrect credentials')
 
 # Redirect to docs for the landing page
 @app.get('/', include_in_schema = False)
