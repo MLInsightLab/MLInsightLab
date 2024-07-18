@@ -2,6 +2,11 @@
 from jupyterhub.auth import Authenticator
 from subprocess import check_call
 from tornado import gen
+import requests
+import os
+
+# Get the environment variable for the API URL
+API_URL = os.environ['API_URL']
 
 c = get_config()  #noqa
 
@@ -184,7 +189,18 @@ c.JupyterHub.allow_named_servers = True
 class ODSPAuthenticator(Authenticator):
     @gen.coroutine
     def authenticate(self, handler, data):
-        return data['username']
+        username = data['username']
+        password = data['password']
+        with requests.Session() as sess:
+            resp = sess.get(
+                f'{API_URL}/password/{username}/{password}'
+            )
+        if resp.status_code == 401:
+            return None
+        elif resp.ok:
+            return username
+        else:
+            raise ValueError(resp.raw)
     
 c.JupyterHub.authenticator_class = ODSPAuthenticator
 

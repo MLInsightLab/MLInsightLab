@@ -33,6 +33,7 @@ services:
     environment:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - DASK_SCHEDULER_ADDRESS=${DASK_SCHEDULER_ADDRESS}
+      - API_URL=${API_URL}
     networks:
       - network
     #devices:
@@ -65,6 +66,7 @@ services:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - ADMIN_USERNAME=${MODEL_SERVER_ADMIN_USERNAME}
       - ADMIN_KEY=${MODEL_SERVER_ADMIN_KEY}
+      - ADMIN_PASSWORD=${MODEL_SERVER_ADMIN_PASSWORD}
     networks:
       - network
     #devices:
@@ -80,9 +82,9 @@ services:
       - mlflow
     ports:
       - "80:80"
-    environment:
-      - AUTH_USERNAME=${NGINX_USERNAME}
-      - AUTH_PASSWORD=${NGINX_PASSWORD}
+    #environment:
+      #- AUTH_USERNAME=${NGINX_USERNAME}
+      #- AUTH_PASSWORD=${NGINX_PASSWORD}
     command: bash /code/setup.sh
     networks:
       - network

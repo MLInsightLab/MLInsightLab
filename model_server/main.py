@@ -6,7 +6,7 @@ import numpy as np
 import subprocess
 import mlflow
 
-from db_utils import setup_database, validate_user_key, fcreate_user, fdelete_user, fissue_new_api_key, fupdate_user_role, flist_users
+from db_utils import setup_database, validate_user_key, validate_user_password, fcreate_user, fdelete_user, fissue_new_api_key, fissue_new_password, fupdate_user_role, flist_users
 
 # Set up the database
 setup_database()
@@ -41,6 +41,7 @@ class UserInfo(BaseModel):
     username: str
     role: str
     api_key: str | None = None
+    password: str | None = None
 
 # Load_model function that allows to load model from either alias or version
 def load_model(model_name, model_flavor, model_version = None, model_alias = None):
@@ -163,6 +164,15 @@ def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
             str(e)
         )
 
+# Verify a user's password
+@app.get('/password/{username}/{password}')
+def verify_password(username : str, password : str):
+    try:
+        role = validate_user_password(username, password)
+        return role
+    except Exception as e:
+        return HTTPException(401, 'Incorrect credentials')
+
 # Redirect to docs for the landing page
 @app.get('/', include_in_schema = False)
 def redirect_docs():
@@ -234,15 +244,15 @@ def predict(model_name : str, model_flavor : str, model_version_or_alias : str |
 
     # Try to load the model, assuming it has already been loaded
     try:
-        model = LOADED_MODELS[model_name][body.model_flavor][model_version_or_alias]
+        model = LOADED_MODELS[model_name][model_flavor][model_version_or_alias]
     except Exception:
 
         # Model has not been loaded before, so first try to load the model using version, then alias
         try:
-            model = load_model(model_name, body.model_flavor, model_version_or_alias)
+            model = load_model(model_name, model_flavor, model_version_or_alias)
         except Exception:
             try:
-                model = load_model(model_name, body.model_flavor, model_alias = model_version_or_alias)
+                model = load_model(model_name, model_flavor, model_alias = model_version_or_alias)
             except Exception:
                 raise HTTPException(404, 'Model with that combination of name and version or alias not found')
     
@@ -295,7 +305,8 @@ def create_user(user_info : UserInfo, user_properties : dict = Depends(verify_cr
         return fcreate_user(
             user_info.username,
             user_info.role,
-            user_info.api_key
+            user_info.api_key,
+            user_info.password
         )
 
 # Delete User
@@ -314,7 +325,7 @@ def delete_user(username, user_properties : dict = Depends(verify_credentials)):
 # Issue new API key for user
 @app.put('/users/api_key/{username}/new')
 def issue_new_api_key(username, user_properties : dict = Depends(verify_credentials)):
-    if user_properties['role'] != 'admin' and username != user_properties['username']:
+    if user_properties['role'] != 'admin' or username != user_properties['username']:
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -322,6 +333,20 @@ def issue_new_api_key(username, user_properties : dict = Depends(verify_credenti
     else:
         return fissue_new_api_key(
             username
+        )
+    
+# Issue new password for user
+@app.put('/users/password/{username}/new')
+def issue_new_password(username, new_password : str = Body(embed = True), user_properties : dict = Depends(verify_credentials)):
+    if user_properties['role'] != 'admin' or username != user_properties['username']:
+        raise HTTPException(
+            403,
+            'User does not have permissions'
+        )
+    else:
+        return fissue_new_password(
+            username,
+            new_password
         )
 
 # Update user role
