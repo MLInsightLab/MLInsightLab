@@ -172,6 +172,7 @@ def fdelete_user(username):
     con = sqlite3.connect(DB_FILE)
     con.execute(f'DELETE FROM users WHERE username="{username}"')
     con.commit()
+    con.close()
 
     return True
 
