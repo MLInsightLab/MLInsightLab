@@ -12,6 +12,6 @@ mlflow[extras]
 dask[complete]
 
 # Machine learning packages
-#scikit-learn
-#tensorflow
-#torch
+scikit-learn
+tensorflow
+torch
