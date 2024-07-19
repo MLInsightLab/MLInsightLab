@@ -82,9 +82,6 @@ services:
       - mlflow
     ports:
       - "80:80"
-    #environment:
-      #- AUTH_USERNAME=${NGINX_USERNAME}
-      #- AUTH_PASSWORD=${NGINX_PASSWORD}
     command: bash /code/setup.sh
     networks:
       - network
