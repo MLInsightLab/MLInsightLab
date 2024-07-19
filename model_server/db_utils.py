@@ -95,7 +95,6 @@ def validate_user_key(username, key):
     except Exception as e:
         raise ValueError('Incorrect Key Provided')
 
-# TODO
 # Validate user password
 def validate_user_password(username, password):
     """
@@ -155,8 +154,12 @@ def fcreate_user(username, role, api_key = None, password = None):
     # Validate the prospective role
     validate_role(role)
 
+    # Hash the API key and password
+    hashed_api_key = argon2.PasswordHasher().hash(api_key)
+    hashed_password = argon2.PasswordHasher().hash(password)
+
     # Insert new user into the database
-    con.execute(f'INSERT INTO users VALUES ("{username}", "{role}", "{api_key}", "{password}")')
+    con.execute(f'INSERT INTO users VALUES ("{username}", "{role}", "{hashed_api_key}", "{hashed_password}")')
     con.commit()
     con.close()
 
@@ -199,7 +202,7 @@ def fissue_new_api_key(username, key = None):
         key = generate_api_key()
     
     # Hash the key
-    hashed_key = argon2.PasswordHasher().hash(key.encode('utf-8'))
+    hashed_key = argon2.PasswordHasher().hash(key)
 
     # Update user in the database
     con.execute(f'UPDATE users SET key="{hashed_key}" WHERE username="{username}"')
@@ -232,7 +235,7 @@ def fissue_new_password(username, password = None):
         password = generate_password()
     
     # Hash the key
-    hashed_password = argon2.PasswordHasher().hash(password.encode('utf-8'))
+    hashed_password = argon2.PasswordHasher().hash(password)
 
     # Update user in the database
     con.execute(f'UPDATE users SET password="{hashed_password}" WHERE username="{username}"')
