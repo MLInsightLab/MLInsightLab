@@ -11,4 +11,4 @@ COPY ./main.py /code/main.py
 
 EXPOSE 4488
 
-CMD [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "4488", "--root-path", "/inference" ]
+CMD [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "4488", "--root-path", "/backend" ]

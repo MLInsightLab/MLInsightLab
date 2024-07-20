@@ -196,7 +196,7 @@ def verify_password(username: str, password: str, user_properties: dict = Depend
 
 @app.get('/', include_in_schema=False)
 def redirect_docs():
-    return RedirectResponse(url='/inference/docs')
+    return RedirectResponse(url='/backend/docs')
 
 
 @app.get('/models/load/{model_name}/{model_flavor}/{model_version_or_alias}')
@@ -407,7 +407,7 @@ def update_user_role(username, new_role=Body(embed=True), user_properties: dict 
 # List users
 
 
-@app.get('/users')
+@app.get('/users/list')
 def list_users(user_properties: dict = Depends(verify_credentials)):
     if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(

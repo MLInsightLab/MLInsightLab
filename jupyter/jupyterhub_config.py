@@ -1396,11 +1396,17 @@ c.JupyterHub.spawner_class = 'jupyterhub.spawner.LocalProcessSpawner'
 # This ensures that users are created on the local system when they log in
 # If the user is not created at login time, they are created when this function is called
 
+# Pre spawn hook to check that a user is created and that the user is added to the sudo group
+
 
 def pre_spawn_hook(spawner):
     username = spawner.user.name
     try:
         check_call(['useradd', '-ms', '/bin/bash', username])
+
+        # Add user to sudo group
+        # TODO: Alter this so only admins can have sudo access
+        check_call(['adduser', username, 'sudo'])
     except Exception as e:
         print(e)
 
