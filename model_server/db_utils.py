@@ -15,28 +15,37 @@ HASHED_ADMIN_KEY = argon2.PasswordHasher().hash(ADMIN_KEY)
 HASHED_ADMIN_PASSWORD = argon2.PasswordHasher().hash(ADMIN_PASSWORD)
 
 # Function to generate an API key
+
+
 def generate_api_key():
     """
     Generate an API key
     """
-    key = ''.join(random.choices(string.ascii_letters + string.digits, k = 32))
+    key = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
     return f'odsp-{key}'
 
 # Function to generate a password
+
+
 def generate_password():
     """
     Generates a password
     """
-    password = ''.join(random.choices(string.ascii_letters + string.digits, k = 12))
+    password = ''.join(random.choices(
+        string.ascii_letters + string.digits, k=12))
     return password
 
 # Function to validate role
+
+
 def validate_role(role):
     if role not in ['admin', 'data_scientist', 'user']:
         raise ValueError('Not a valid role')
     return True
 
 # Set up the database
+
+
 def setup_database():
     """
     Set up the database if it doesn't already exist
@@ -46,7 +55,8 @@ def setup_database():
 
     # Create the users table if it does not already exist
     con = sqlite3.connect(DB_FILE)
-    con.execute('CREATE TABLE IF NOT EXISTS users(username, role, key, password)')
+    con.execute(
+        'CREATE TABLE IF NOT EXISTS users(username, role, key, password)')
     con.commit()
     con.close()
 
@@ -56,7 +66,8 @@ def setup_database():
     # Check whether the user already exists in the table
     res = con.execute(f'SELECT * FROM users WHERE username="{ADMIN_USERNAME}"')
     if len(res.fetchall()) == 0:
-        con.execute(f'INSERT INTO users VALUES ("{ADMIN_USERNAME}", "admin", "{HASHED_ADMIN_KEY}", "{HASHED_ADMIN_PASSWORD}")')
+        con.execute(
+            f'INSERT INTO users VALUES ("{ADMIN_USERNAME}", "admin", "{HASHED_ADMIN_KEY}", "{HASHED_ADMIN_PASSWORD}")')
         con.commit()
     con.close()
 
@@ -64,6 +75,8 @@ def setup_database():
     return True
 
 # Validate user's key
+
+
 def validate_user_key(username, key):
     """
     Validate a username, key combination
@@ -75,7 +88,8 @@ def validate_user_key(username, key):
 
     # Query the database for the user's information
     con = sqlite3.connect(DB_FILE)
-    res = con.execute(f'SELECT * FROM users WHERE username="{username}"').fetchall()
+    res = con.execute(
+        f'SELECT * FROM users WHERE username="{username}"').fetchall()
 
     # If there is not record for the user in the database, then the user does not exist -> raise ValueError
     if len(res) == 0:
@@ -96,6 +110,8 @@ def validate_user_key(username, key):
         raise ValueError('Incorrect Key Provided')
 
 # Validate user password
+
+
 def validate_user_password(username, password):
     """
     Validate a username, password combination
@@ -107,7 +123,8 @@ def validate_user_password(username, password):
 
     # Query the database for the user's information
     con = sqlite3.connect(DB_FILE)
-    res = con.execute(f'SELECT * FROM users WHERE username="{username}"').fetchall()
+    res = con.execute(
+        f'SELECT * FROM users WHERE username="{username}"').fetchall()
 
     # If there is not record for the user in the database, then the user does not exist -> raise ValueError
     if len(res) == 0:
@@ -128,7 +145,9 @@ def validate_user_password(username, password):
         raise ValueError('Incorrect Password Provided')
 
 # Create new user
-def fcreate_user(username, role, api_key = None, password = None):
+
+
+def fcreate_user(username, role, api_key=None, password=None):
     """
     Create a new user with an assigned role and (optionally) with an API key and password
 
@@ -139,10 +158,11 @@ def fcreate_user(username, role, api_key = None, password = None):
 
     # Establish connection to the database and check for the username already existing
     con = sqlite3.connect(DB_FILE)
-    res = con.execute(f'SELECT * FROM users WHERE username="{username}"').fetchall()
+    res = con.execute(
+        f'SELECT * FROM users WHERE username="{username}"').fetchall()
     if len(res) > 0:
         raise ValueError('Username already exists')
-    
+
     # If the API key is not already provided, generate the API key
     if api_key is None:
         api_key = generate_api_key()
@@ -159,13 +179,16 @@ def fcreate_user(username, role, api_key = None, password = None):
     hashed_password = argon2.PasswordHasher().hash(password)
 
     # Insert new user into the database
-    con.execute(f'INSERT INTO users VALUES ("{username}", "{role}", "{hashed_api_key}", "{hashed_password}")')
+    con.execute(
+        f'INSERT INTO users VALUES ("{username}", "{role}", "{hashed_api_key}", "{hashed_password}")')
     con.commit()
     con.close()
 
     return api_key, password
 
 # Delete a user
+
+
 def fdelete_user(username):
     """
     Delete a user from the database
@@ -180,7 +203,9 @@ def fdelete_user(username):
     return True
 
 # Issue a new API key for a user
-def fissue_new_api_key(username, key = None):
+
+
+def fissue_new_api_key(username, key=None):
     """
     Issue a new API key for a specified user
 
@@ -189,23 +214,25 @@ def fissue_new_api_key(username, key = None):
 
     # Connect to the database and ensure that the user already exists
     con = sqlite3.connect(DB_FILE)
-    res = con.execute(f'SELECT * FROM users WHERE username="{username}"').fetchall()
+    res = con.execute(
+        f'SELECT * FROM users WHERE username="{username}"').fetchall()
 
     # Validate that only one user with that username exists
     if len(res) == 0:
         raise ValueError('User does not exist')
     elif len(res) > 1:
         raise ValueError('More than one user with that username exists')
-    
+
     # Generate API key if one is not provided
     if key is None:
         key = generate_api_key()
-    
+
     # Hash the key
     hashed_key = argon2.PasswordHasher().hash(key)
 
     # Update user in the database
-    con.execute(f'UPDATE users SET key="{hashed_key}" WHERE username="{username}"')
+    con.execute(
+        f'UPDATE users SET key="{hashed_key}" WHERE username="{username}"')
     con.commit()
     con.close()
 
@@ -213,7 +240,9 @@ def fissue_new_api_key(username, key = None):
     return key
 
 # Issue a new password for a user
-def fissue_new_password(username, password = None):
+
+
+def fissue_new_password(username, password=None):
     """
     Issue a new password for a specified user
 
@@ -222,23 +251,25 @@ def fissue_new_password(username, password = None):
 
     # Connect to the database and ensure that the user already exists
     con = sqlite3.connect(DB_FILE)
-    res = con.execute(f'SELECT * FROM users WHERE username="{username}"').fetchall()
+    res = con.execute(
+        f'SELECT * FROM users WHERE username="{username}"').fetchall()
 
     # Validate that only one user with that username exists
     if len(res) == 0:
         raise ValueError('User does not exist')
     elif len(res) > 1:
         raise ValueError('More than one user with that username exists')
-    
+
     # Generate API key if one is not provided
     if password is None:
         password = generate_password()
-    
+
     # Hash the key
     hashed_password = argon2.PasswordHasher().hash(password)
 
     # Update user in the database
-    con.execute(f'UPDATE users SET password="{hashed_password}" WHERE username="{username}"')
+    con.execute(
+        f'UPDATE users SET password="{hashed_password}" WHERE username="{username}"')
     con.commit()
     con.close()
 
@@ -246,6 +277,8 @@ def fissue_new_password(username, password = None):
     return password
 
 # Update a user's role
+
+
 def fupdate_user_role(username, new_role):
     """
     Change a user's role
@@ -253,25 +286,29 @@ def fupdate_user_role(username, new_role):
 
     # Connect to the database and ensure that the user already exists
     con = sqlite3.connect(DB_FILE)
-    res = con.execute(f'SELECT * FROM users WHERE username="{username}"').fetchall()
+    res = con.execute(
+        f'SELECT * FROM users WHERE username="{username}"').fetchall()
 
     # Validate that only one user with that username exists
     if len(res) == 0:
         raise ValueError('User does not exist')
     elif len(res) > 1:
         raise ValueError('More than one user with that username exists')
-    
+
     # Validate the new role
     validate_role(new_role)
 
     # Update user role in the database
-    con.execute(f'UPDATE users SET role="{new_role}" WHERE username="{username}"')
+    con.execute(
+        f'UPDATE users SET role="{new_role}" WHERE username="{username}"')
     con.commit()
     con.close()
 
     return new_role
 
 # List all users
+
+
 def flist_users():
     """
     List all of the users in the database
