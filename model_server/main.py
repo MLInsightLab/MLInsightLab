@@ -165,8 +165,13 @@ def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
         )
 
 # Verify a user's password
-@app.get('/password/{username}/{password}')
-def verify_password(username : str, password : str):
+@app.get('/password/verify/{username}/{password}')
+def verify_password(username : str, password : str, user_properties : dict = Depends(verify_credentials)):
+    if user_properties['role'] != 'admin':
+        raise HTTPException(
+            403,
+            'User does not have permission'
+        )
     try:
         role = validate_user_password(username, password)
         return role
@@ -178,7 +183,7 @@ def verify_password(username : str, password : str):
 def redirect_docs():
     return RedirectResponse(url = '/inference/docs')
 
-@app.get('/{model_name}/{model_flavor}/{model_version_or_alias}')
+@app.get('/models/load/{model_name}/{model_flavor}/{model_version_or_alias}')
 def load_model(model_name : str, model_flavor : str, model_version_or_alias : str | int, user_properties : dict = Depends(verify_credentials)):
     
     # Try to load the model
@@ -209,7 +214,7 @@ def load_model(model_name : str, model_flavor : str, model_version_or_alias : st
     }
 
 # See loaded models
-@app.get('/models')
+@app.get('/models/list')
 def list_models(user_properties : dict = Depends(verify_credentials)):
     if LOADED_MODELS == {}:
         return []
@@ -228,7 +233,7 @@ def list_models(user_properties : dict = Depends(verify_credentials)):
         return to_return
 
 # Delete a loaded model
-@app.delete('/{model_name}/{model_flavor}/{model_version_or_alias}')
+@app.delete('/models/unload/{model_name}/{model_flavor}/{model_version_or_alias}')
 def unload_model(model_name : str, model_flavor : str, model_version_or_alias : str | int, user_properties : dict = Depends(verify_credentials)):
     try:
         del LOADED_MODELS[model_name][model_flavor][model_version_or_alias]
@@ -239,7 +244,7 @@ def unload_model(model_name : str, model_flavor : str, model_version_or_alias : 
         raise HTTPException(404, 'Model not found')
 
 # Predict using a model version or alias
-@app.post('/{model_name}/{model_flavor}/{model_version_or_alias}')
+@app.post('/models/predict/{model_name}/{model_flavor}/{model_version_or_alias}')
 def predict(model_name : str, model_flavor : str, model_version_or_alias : str | int, body : PredictRequest, user_properties : dict = Depends(verify_credentials)):
 
     # Try to load the model, assuming it has already been loaded
@@ -323,7 +328,7 @@ def delete_user(username, user_properties : dict = Depends(verify_credentials)):
         )
 
 # Issue new API key for user
-@app.put('/users/api_key/{username}/new')
+@app.put('/users/api_key/issue/{username}')
 def issue_new_api_key(username, user_properties : dict = Depends(verify_credentials)):
     if user_properties['role'] != 'admin' or username != user_properties['username']:
         raise HTTPException(
@@ -336,7 +341,7 @@ def issue_new_api_key(username, user_properties : dict = Depends(verify_credenti
         )
     
 # Issue new password for user
-@app.put('/users/password/{username}/new')
+@app.put('/users/password/issue/{username}')
 def issue_new_password(username, new_password : str = Body(embed = True), user_properties : dict = Depends(verify_credentials)):
     if user_properties['role'] != 'admin' or username != user_properties['username']:
         raise HTTPException(

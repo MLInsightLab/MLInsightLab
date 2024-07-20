@@ -6,6 +6,8 @@ import requests
 import os
 
 # Get the environment variable for the API URL
+ADMIN_USERNAME = os.environ['ADMIN_USERNAME']
+ADMIN_KEY = os.environ['ADMIN_KEY']
 API_URL = os.environ['API_URL']
 
 c = get_config()  #noqa
@@ -193,7 +195,8 @@ class ODSPAuthenticator(Authenticator):
         password = data['password']
         with requests.Session() as sess:
             resp = sess.get(
-                f'{API_URL}/password/{username}/{password}'
+                f'{API_URL}/password/verify/{username}/{password}',
+                auth = (ADMIN_USERNAME, ADMIN_KEY)
             )
         if resp.status_code == 200:
             return username

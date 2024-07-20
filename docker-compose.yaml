@@ -33,6 +33,8 @@ services:
     environment:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - DASK_SCHEDULER_ADDRESS=${DASK_SCHEDULER_ADDRESS}
+      - ADMIN_USERNAME=${MODEL_SERVER_ADMIN_USERNAME}
+      - ADMIN_KEY=${MODEL_SERVER_ADMIN_KEY}
       - API_URL=${API_URL}
     networks:
       - network
