@@ -295,12 +295,12 @@ def predict(model_name: str, model_flavor: str, model_version_or_alias: str | in
                 model_version_or_alias: model
             }
         }
-    elif not LOADED_MODELS[model_name].get(body.model_flavor):
-        LOADED_MODELS[model_name][body.model_flavor] = {
+    elif not LOADED_MODELS[model_name].get(model_flavor):
+        LOADED_MODELS[model_name][model_flavor] = {
             model_version_or_alias: model
         }
-    elif not LOADED_MODELS[model_name][body.model_flavor].get(model_version_or_alias):
-        LOADED_MODELS[model_name][body.model_flavor][model_version_or_alias] = model
+    elif not LOADED_MODELS[model_name][model_flavor].get(model_version_or_alias):
+        LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
 
     # Grab the data to predict on from the input body
     try:
