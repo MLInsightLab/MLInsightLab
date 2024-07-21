@@ -2,8 +2,12 @@
 ipython[all]
 jupyterhub
 jupyterlab
+ipywidgets
 nbconvert
 jupyter
+
+# Wheel
+wheel
 
 # MLFlow
 mlflow[extras]

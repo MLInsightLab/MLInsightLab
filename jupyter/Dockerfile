@@ -1,8 +1,11 @@
-FROM quay.io/jupyterhub/jupyterhub:latest
+FROM python:latest
 
 # Update software
 RUN apt update && apt upgrade -y && apt autoremove -y
-RUN apt install git emacs htop sudo cron -y
+RUN apt install git emacs htop sudo cron nodejs npm -y
+
+# Install configurable-http-proxy
+RUN npm install -g configurable-http-proxy
 
 # Copy and install requirements.txt
 COPY requirements.txt /tmp/requirements.txt
