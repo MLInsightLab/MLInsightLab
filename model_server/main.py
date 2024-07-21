@@ -317,12 +317,12 @@ def predict(model_name: str, model_flavor: str, model_version_or_alias: str | in
         return predict_model(
             model,
             to_predict,
-            body.model_flavor,
+            model_flavor,
             body.predict_function,
             body.params
         )
     except Exception as e:
-        raise HTTPException(400, e)
+        raise HTTPException(400, str(e))
 
 # Create User
 # Need to create prototype for this, and verify that the user has admin access
