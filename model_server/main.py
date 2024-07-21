@@ -209,9 +209,9 @@ def load_model(model_name: str, model_flavor: str, model_version_or_alias: str |
         try:
             model = fload_model(model_name, model_flavor,
                                model_alias=model_version_or_alias)
-        except Exception:
+        except Exception as e:
             raise HTTPException(
-                404, 'Model with that combination of name, flavor, and version or alias not found')
+                404, str(e))
 
     # Place the model in the right location in the model in-memory storage
     if not LOADED_MODELS.get(model_name):
