@@ -48,7 +48,7 @@ class UserInfo(BaseModel):
 # Load_model function that allows to load model from either alias or version
 
 
-def load_model(model_name, model_flavor, model_version=None, model_alias=None):
+def fload_model(model_name, model_flavor, model_version=None, model_alias=None):
     f"""
     Load a model from the MLFlow server
 
@@ -204,10 +204,10 @@ def load_model(model_name: str, model_flavor: str, model_version_or_alias: str |
 
     # Try to load the model
     try:
-        model = load_model(model_name, model_flavor, model_version_or_alias)
+        model = fload_model(model_name, model_flavor, model_version_or_alias)
     except Exception:
         try:
-            model = load_model(model_name, model_flavor,
+            model = fload_model(model_name, model_flavor,
                                model_alias=model_version_or_alias)
         except Exception:
             raise HTTPException(
@@ -278,11 +278,11 @@ def predict(model_name: str, model_flavor: str, model_version_or_alias: str | in
 
         # Model has not been loaded before, so first try to load the model using version, then alias
         try:
-            model = load_model(model_name, model_flavor,
+            model = fload_model(model_name, model_flavor,
                                model_version_or_alias)
         except Exception:
             try:
-                model = load_model(model_name, model_flavor,
+                model = fload_model(model_name, model_flavor,
                                    model_alias=model_version_or_alias)
             except Exception:
                 raise HTTPException(
