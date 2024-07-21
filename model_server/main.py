@@ -322,7 +322,7 @@ def predict(model_name: str, model_flavor: str, model_version_or_alias: str | in
             body.params
         )
     except Exception as e:
-        raise HTTPException(400, e.message)
+        raise HTTPException(400, e)
 
 # Create User
 # Need to create prototype for this, and verify that the user has admin access
