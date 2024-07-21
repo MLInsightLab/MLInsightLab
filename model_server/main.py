@@ -291,7 +291,7 @@ def predict(model_name: str, model_flavor: str, model_version_or_alias: str | in
     # Place the model in the right location in the in-memory storage
     if not LOADED_MODELS.get(model_name):
         LOADED_MODELS[model_name] = {
-            body.model_flavor: {
+            model_flavor: {
                 model_version_or_alias: model
             }
         }
