@@ -17,9 +17,12 @@ RUN echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/root
 # Expose the port jupyter runs on
 EXPOSE 8000
 
-# Make the /root/.jupyter directory and move the config to that directory
+# Make the /srv/jupyter directory and move the config to that directory
 COPY jupyterhub_config.py /srv/jupyter/jupyterhub_config.py
+
+# Move the jupyterhub-singleuser.sh script to the /srv/jupyter directory and ensure it's executable
 COPY jupyterhub-singleuser.sh /srv/jupyter/jupyterhub-singleuser.sh
+RUN chmod +x /srv/jupyter/jupyterhub-singleuser.sh
 
 # Copy the start script and ensure it's executable
 COPY start_jupyter.sh /code/start_jupyter.sh
