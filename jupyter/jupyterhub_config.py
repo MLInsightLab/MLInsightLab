@@ -916,7 +916,7 @@ c.JupyterHub.spawner_class = 'jupyterhub.spawner.LocalProcessSpawner'
 
 # Paths to search for jinja templates, before using the default templates.
 #  Default: []
-# c.JupyterHub.template_paths = []
+# c.JupyterHub.template_paths = ['/srv/jupyter/templates']
 
 # Extra variables to be passed into jinja templates.
 #
