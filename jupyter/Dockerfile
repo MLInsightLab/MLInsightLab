@@ -2,7 +2,7 @@ FROM python:latest
 
 # Update software
 RUN apt update && apt upgrade -y && apt autoremove -y
-RUN apt install git emacs htop sudo cron nodejs npm -y
+RUN apt install git emacs htop sudo cron nodejs npm exec -y
 
 # Install configurable-http-proxy
 RUN npm install -g configurable-http-proxy
