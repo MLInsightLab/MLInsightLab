@@ -303,7 +303,7 @@ c.JupyterHub.authenticator_class = ODSPAuthenticator
 
 # File in which to store the cookie secret.
 #  Default: 'jupyterhub_cookie_secret'
-c.JupyterHub.cookie_secret_file = '/srv/jupyterhub/jupyterhub_cookie_secret'
+c.JupyterHub.cookie_secret_file = '/srv/jupyter/jupyterhub_cookie_secret'
 
 # Custom scopes to define.
 #
