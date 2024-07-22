@@ -19,6 +19,7 @@ EXPOSE 8000
 
 # Make the /root/.jupyter directory and move the config to that directory
 COPY jupyterhub_config.py /srv/jupyter/jupyterhub_config.py
+COPY jupyterhub-singleuser.sh /srv/jupyter/jupyterhub-singleuser.sh
 
 # Copy the start script and ensure it's executable
 COPY start_jupyter.sh /code/start_jupyter.sh
