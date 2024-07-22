@@ -48,7 +48,12 @@ class UserInfo(BaseModel):
 # Load_model function that allows to load model from either alias or version
 
 
-def fload_model(model_name, model_flavor, model_version=None, model_alias=None):
+def fload_model(
+        model_name : str,
+        model_flavor : str,
+        model_version : str | int | None = None,
+        model_alias : str | None =None
+    ):
     f"""
     Load a model from the MLFlow server
 
@@ -115,10 +120,29 @@ def fload_model(model_name, model_flavor, model_version=None, model_alias=None):
         raise mlflow.MlflowException('Could not load model')
 
 # Predict_model function that runs prediction
+def predict_model(
+        model : mlflow.models.Model,
+        to_predict : np.ndarray,
+        model_flavor : str,
+        predict_function : str,
+        params : dict
+    ):
+    f"""
+    Make predictions with a model
 
-
-def predict_model(model, to_predict, model_flavor, predict_function, params):
-
+    Parameters
+    ----------
+    model : mlflow.models.Model
+        The model to run prediction on
+    to_predict : np.ndarray or array-like
+        The data to predict on
+    model_flavor : str
+        The flavor of the model, must be one of {ALLOWED_MODEL_FLAVORS}
+    predict_function : str
+        The predict function to run, must be one of {ALLOWED_PREDICT_FUNCTIONS}
+    params : dict
+        Parameters to run prediction with
+    """
     if predict_function == 'predict':
         try:
             if model_flavor != 'sklearn':
@@ -157,9 +181,10 @@ app = FastAPI()
 security = HTTPBasic()
 
 # Function to verify user credentials
-
-
 def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
+    """
+    Verify a user's API key credentials
+    """
     try:
         role = validate_user_key(
             credentials.username,
@@ -176,10 +201,18 @@ def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
         )
 
 # Verify a user's password
-
-
 @app.get('/password/verify/{username}/{password}')
 def verify_password(username: str, password: str, user_properties: dict = Depends(verify_credentials)):
+    """
+    Verify a password
+
+    Parameters
+    ----------
+    username : str
+        The user's username
+    password : str
+        The user's password
+    """
     if user_properties['role'] != 'admin':
         raise HTTPException(
             403,
@@ -192,8 +225,6 @@ def verify_password(username: str, password: str, user_properties: dict = Depend
         raise HTTPException(401, 'Incorrect credentials')
 
 # Redirect to docs for the landing page
-
-
 @app.get('/', include_in_schema=False)
 def redirect_docs():
     return RedirectResponse(url='/backend/docs')
@@ -201,6 +232,18 @@ def redirect_docs():
 
 @app.get('/models/load/{model_name}/{model_flavor}/{model_version_or_alias}')
 def load_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, user_properties: dict = Depends(verify_credentials)):
+    """
+    Load a model into local memory
+
+    Parameters
+    ----------
+    model_name : str
+        The name of the model
+    model_flavor : str
+        The flavor of the model
+    model_version_or_alias : str or int
+        The version or alias of the model
+    """
 
     # Try to load the model
     try:
@@ -232,10 +275,11 @@ def load_model(model_name: str, model_flavor: str, model_version_or_alias: str |
     }
 
 # See loaded models
-
-
 @app.get('/models/list')
 def list_models(user_properties: dict = Depends(verify_credentials)):
+    """
+    List loaded models
+    """
     if LOADED_MODELS == {}:
         return []
     else:
@@ -253,10 +297,20 @@ def list_models(user_properties: dict = Depends(verify_credentials)):
         return to_return
 
 # Delete a loaded model
-
-
 @app.delete('/models/unload/{model_name}/{model_flavor}/{model_version_or_alias}')
 def unload_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, user_properties: dict = Depends(verify_credentials)):
+    """
+    Unload a model from memory
+
+    Parameters
+    ----------
+    model_name : str
+        The name of the model
+    model_flavor : str
+        The flavor of the model
+    model_version_or_alias : str or int
+        The version or alias of the model
+    """
     try:
         del LOADED_MODELS[model_name][model_flavor][model_version_or_alias]
         return {
@@ -266,10 +320,20 @@ def unload_model(model_name: str, model_flavor: str, model_version_or_alias: str
         raise HTTPException(404, 'Model not found')
 
 # Predict using a model version or alias
-
-
 @app.post('/models/predict/{model_name}/{model_flavor}/{model_version_or_alias}')
 def predict(model_name: str, model_flavor: str, model_version_or_alias: str | int, body: PredictRequest, user_properties: dict = Depends(verify_credentials)):
+    """
+    Run prediction
+
+    Parameters
+    ----------
+    model_name : str
+        The name of the model
+    model_flavor : str
+        The flavor of the model
+    model_version_or_alias : str or int
+        The version or alias of the model
+    """
 
     # Try to load the model, assuming it has already been loaded
     try:
@@ -326,10 +390,16 @@ def predict(model_name: str, model_flavor: str, model_version_or_alias: str | in
 
 # Create User
 # Need to create prototype for this, and verify that the user has admin access
-
-
 @app.post('/users/create')
 def create_user(user_info: UserInfo, user_properties: dict = Depends(verify_credentials)):
+    """
+    Create a user
+
+    Parameters
+    ----------
+    user_info : UserInfo
+        Properties of the user
+    """
     if user_properties['role'] != 'admin':
         raise HTTPException(
             403,
@@ -344,10 +414,16 @@ def create_user(user_info: UserInfo, user_properties: dict = Depends(verify_cred
         )
 
 # Delete User
-
-
 @app.delete('/users/delete/{username}')
 def delete_user(username, user_properties: dict = Depends(verify_credentials)):
+    """
+    Delete a user
+
+    Parameters
+    ----------
+    username : str
+        The username of the user to delete
+    """
     if user_properties != 'admin':
         raise HTTPException(
             403,
@@ -359,10 +435,16 @@ def delete_user(username, user_properties: dict = Depends(verify_credentials)):
         )
 
 # Issue new API key for user
-
-
 @app.put('/users/api_key/issue/{username}')
 def issue_new_api_key(username, user_properties: dict = Depends(verify_credentials)):
+    """
+    Issue a new API key for a user
+    
+    Parameters
+    ----------
+    username : str
+        The username of the user
+    """
     if user_properties['role'] != 'admin' or username != user_properties['username']:
         raise HTTPException(
             403,
@@ -374,10 +456,18 @@ def issue_new_api_key(username, user_properties: dict = Depends(verify_credentia
         )
 
 # Issue new password for user
-
-
 @app.put('/users/password/issue/{username}')
 def issue_new_password(username, new_password: str = Body(embed=True), user_properties: dict = Depends(verify_credentials)):
+    """
+    Issue a new password for a user
+
+    Parameters
+    ----------
+    username : str
+        The username of the user
+    new_password : str
+        The new password for the user
+    """
     if user_properties['role'] != 'admin' or username != user_properties['username']:
         raise HTTPException(
             403,
@@ -390,10 +480,18 @@ def issue_new_password(username, new_password: str = Body(embed=True), user_prop
         )
 
 # Update user role
-
-
 @app.put('/users/roles/{username}')
 def update_user_role(username, new_role=Body(embed=True), user_properties: dict = Depends(verify_credentials)):
+    """
+    Update a user's role
+
+    Parameters
+    ----------
+    username : str
+        The username for the user
+    new_role : str
+        The new role for the user
+    """
     if user_properties['role'] != 'admin':
         raise HTTPException(
             403,
@@ -405,10 +503,11 @@ def update_user_role(username, new_role=Body(embed=True), user_properties: dict 
     )
 
 # List users
-
-
 @app.get('/users/list')
 def list_users(user_properties: dict = Depends(verify_credentials)):
+    """
+    List all users
+    """
     if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(
             403,
