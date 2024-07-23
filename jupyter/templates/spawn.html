@@ -1,0 +1,59 @@
+{% extends "page.html" %}
+{% if announcement_spawn is string %}
+  {% set announcement = announcement_spawn %}
+{% endif %}
+{% block main %}
+  <div class="container my-5">
+    {% block heading %}
+      <div class="row text-center mb-4">
+        <h1 class="display-4" style="color: #4a90e2;">Server Options</h1> <!-- Brand Color -->
+      </div>
+    {% endblock heading %}
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        {% if for_user and user.name != for_user.name -%}
+          <div class="alert alert-info" role="alert">
+            Spawning server for {{ for_user.name }}
+          </div>
+        {% endif -%}
+        {% if error_message -%}
+          <div class="alert alert-danger" role="alert">
+            Error: {{ error_message }}
+          </div>
+        {% endif %}
+        <div class="card shadow-sm border-light">
+          <div class="card-body">
+            <form enctype="multipart/form-data"
+                  id="spawn_form"
+                  action="{{ url | safe }}"
+                  method="post"
+                  role="form">
+              {{ spawner_options_form | safe }}
+              <br>
+              <div class="feedback-container text-center">
+                <button type="submit" class="btn btn-primary">
+                  Start
+                </button>
+                <div class="feedback-widget hidden mt-2">
+                  <i class="fa fa-spinner fa-pulse" style="font-size: 24px; color: #4a90e2;"></i>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock main %}
+{% block script %}
+  {{ super() }}
+  <script>
+    // Setup onSubmit feedback
+    $('form').submit((e) => {
+      var form = $(e.target);
+      form.find('.feedback-container>button').attr('disabled', true);
+      form.find('.feedback-container>*').toggleClass('hidden');
+      form.find('.feedback-widget>*').toggleClass('fa-pulse');
+    });
+  </script>
+{% endblock script %}
