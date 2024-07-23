@@ -1,65 +1,56 @@
-{% extends "templates/page.html" %}
-
-{% block head %}
-{{ super() }}
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f5f5f5;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-    }
-    .login-container {
-        text-align: center;
-        background-color: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        width: 300px;
-    }
-    .login-header {
-        margin-bottom: 20px;
-    }
-    .login-form {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    .login-form input {
-        margin-bottom: 10px;
-        padding: 10px;
-        width: 100%;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-    .login-form button {
-        padding: 10px;
-        width: 100%;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    .login-form button:hover {
-        background-color: #45a049;
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="login-container">
-    <div class="login-header">
-        <h1>Welcome to JupyterHub</h1>
-        <p>Please log in to continue</p>
+{% extends "page.html" %}
+{% block main %}
+  {% block login %}
+    <div id="login-main" class="container">
+      <form action="{{ authenticator_login_url | safe }}"
+            method="post"
+            role="form">
+        <div class="auth-form-header">
+          <h1>Sign in</h1>
+        </div>
+        <div class='auth-form-body m-auto'>
+          {% if login_error %}<p class="login_error">{{ login_error }}</p>{% endif %}
+          <input type="hidden" name="_xsrf" value="{{ xsrf }}" />
+          <label for="username_input">Username:</label>
+          <input id="username_input"
+                 type="text"
+                 autocapitalize="off"
+                 autocorrect="off"
+                 autocomplete="username"
+                 class="form-control"
+                 name="username"
+                 val="{{ username }}"
+                 autofocus="autofocus" />
+          <label for='password_input'>Password:</label>
+          <input type="password"
+                 class="form-control"
+                 autocomplete="current-password"
+                 name="password"
+                 id="password_input" />
+          <div class="feedback-container">
+            <input id="login_submit"
+                   type="submit"
+                   class='btn btn-jupyter form-control'
+                   value='Sign in'
+                   tabindex="3" />
+            <div class="feedback-widget hidden">
+              <i class="fa fa-spinner"></i>
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
-    <form class="login-form" action="/hub/login" method="post">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Login</button>
-    </form>
-</div>
-{% endblock %}
+  {% endblock login %}
+{% endblock main %}
+{% block script %}
+  {{ super() }}
+  <script>
+    // setup onSubmit feedback
+    $('form').submit((e) => {
+      var form = $(e.target);
+      form.find('.feedback-container>input').attr('disabled', true);
+      form.find('.feedback-container>*').toggleClass('hidden');
+      form.find('.feedback-widget>*').toggleClass('fa-pulse');
+    });
+  </script>
+{% endblock script %}
