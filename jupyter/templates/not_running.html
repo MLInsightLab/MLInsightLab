@@ -1,0 +1,76 @@
+{% extends "page.html" %}
+{% block main %}
+  <div class="container">
+    <div class="row">
+      <div class="text-center">
+        {% block heading %}
+          <h1>
+            {% if failed %}
+              Server Spawn: The Quest Continues
+            {% else %}
+              Server Not Running: Have You Tried Turning It Off and On Again?
+            {% endif %}
+          </h1>
+        {% endblock heading %}
+        {% block message %}
+          <p>
+            {% if failed %}
+              Our attempt to start server {{ server_name }} was like trying to reboot a robot in a sci-fi movie—except with less suspense and more error messages.
+              {% if failed_html_message %}
+              </p>
+              <p>{{ failed_html_message | safe }}</p>
+              <p>{% elif failed_message %}</p>
+              <p>{{ failed_message }}</p>
+              <p>
+              {% endif %}
+              Fancy a second try? If nothing else, it’ll give you more practice in the art of digital persistence.
+            {% else %}
+              Your server {{ server_name }} is currently taking a nap. It’s not broken, just in a deep slumber.
+              {% if implicit_spawn_seconds %}
+                It will wake up eventually, probably around the same time as that old VHS player you keep meaning to fix.
+                If you’re still here in a few seconds, click below to speed up the process.
+              {% else %}
+                Feel like taking matters into your own hands? Click below to start the server and show it who’s boss.
+              {% endif %}
+            {% endif %}
+          </p>
+        {% endblock message %}
+        {% block start_button %}
+          <a id="start"
+             role="button"
+             class="btn btn-lg btn-primary"
+             href="{{ spawn_url }}">
+            {% if failed %}
+              Retry: Because the Universe Needs More Chaos
+            {% else %}
+              Start Server: Channel Your Inner Tech Support
+            {% endif %}
+            {{ server_name }}
+          </a>
+        {% endblock start_button %}
+      </div>
+    </div>
+  </div>
+{% endblock main %}
+{% block script %}
+  {{ super () }}
+  {% if implicit_spawn_seconds %}
+    <script type="text/javascript">
+      var spawn_url = "{{ spawn_url }}";
+      var implicit_spawn_seconds = {
+        {
+          implicit_spawn_seconds
+        }
+      };
+      setTimeout(function() {
+          console.log("Redirecting to server spawn at", spawn_url);
+          window.location = spawn_url;
+        },
+        1000 * implicit_spawn_seconds
+      );
+    </script>
+  {% endif %}
+  <script type="text/javascript">
+    require(["not_running"]);
+  </script>
+{% endblock script %}
