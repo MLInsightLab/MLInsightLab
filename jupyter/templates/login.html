@@ -1,0 +1,51 @@
+{% extends "templates/login.html" %}
+
+{% set announcement = 'Welcome to our custom JupyterHub!' %}
+
+{% block head %}
+{{ super() }}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+    }
+    .login-container {
+        margin-top: 50px;
+    }
+    .login-panel {
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .login-header {
+        background-color: #4CAF50;
+        color: white;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        padding: 10px;
+        text-align: center;
+    }
+    .login-body {
+        padding: 20px;
+    }
+    .login-footer {
+        text-align: center;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-panel">
+        <div class="login-header">
+            <h2>Login to JupyterHub</h2>
+        </div>
+        <div class="login-body">
+            {{ super() }}
+        </div>
+        <div class="login-footer">
+            <p>Contact support@example.com if you need help.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
