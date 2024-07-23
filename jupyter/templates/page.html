@@ -106,7 +106,7 @@
         <div class="container-fluid">
           {% block logo %}
             <a href="{{ logo_url or base_url }}" class="navbar-brand">
-              <img src='{{ https://github.com/Beyond-ML-Labs/artwork/blob/main/icon/color/BeyondML_icon-color.png }}' alt='Open Data Science Platform logo' class='img-fluid' />
+              <img src='{{ static_url("images/logo.png") }}' alt='Open Data Science Platform logo' class='img-fluid' />
             </a>
           {% endblock logo %}
           {% if user %}
