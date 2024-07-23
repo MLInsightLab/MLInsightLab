@@ -1,49 +1,73 @@
 {% extends "page.html" %}
-{% block head %}
+
+{% block title %}Open Data Science Platform{% endblock title %}
+
+{% block stylesheet %}
   {{ super() }}
   <style>
     /* Custom styles for the login page */
-    .branding-header {
-      text-align: center;
-      margin-bottom: 20px;
+    .container {
+      background-color: #ffffff; /* White Background */
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
     }
 
-    .branding-header h1 {
-      font-size: 2em;
-      color: #333;
-      font-weight: bold;
+    .auth-form-header h1 {
+      color: #3498db; /* Primary Color */
     }
 
-    .auth-form-header h2 {
-      font-size: 1.5em;
-      color: #666;
-      text-align: center;
+    .auth-form-body {
+      padding: 20px;
     }
 
     .btn-jupyter {
-      background-color: #007acc; /* Example color for branding */
-      color: #fff;
+      background-color: #3498db; /* Primary Color */
+      color: #ffffff;
     }
 
     .btn-jupyter:hover {
-      background-color: #005999; /* Darker shade for hover effect */
+      background-color: #2980b9; /* Darker Shade of Primary Color */
+    }
+
+    .login_error {
+      color: #e74c3c; /* Bright Red for Errors */
+    }
+
+    .feedback-container input {
+      background-color: #3498db; /* Primary Color */
+      color: #ffffff;
+    }
+
+    .feedback-widget {
+      color: #3498db; /* Primary Color for Feedback Widget */
+    }
+
+    .login_terms {
+      color: #333333; /* Dark Gray Text */
+    }
+
+    .login_terms a {
+      color: #3498db; /* Primary Color for Links */
+    }
+
+    .login_terms a:hover {
+      color: #2980b9; /* Darker Shade of Primary Color on Hover */
     }
   </style>
-{% endblock head %}
+{% endblock stylesheet %}
+
 {% block main %}
-  {% block login %}
-    <div id="login-main" class="container">
-      <div class="branding-header">
-        <h1>Open Data Science Platform</h1>
+  <div id="login-main" class="container">
+    {% block login %}
+      <div class="auth-form-header">
+        <h1>Sign in</h1>
       </div>
-      <form action="{{ authenticator_login_url | safe }}"
-            method="post"
-            role="form">
-        <div class="auth-form-header">
-          <h2>Sign in</h2>
-        </div>
-        <div class='auth-form-body m-auto'>
-          {% if login_error %}<p class="login_error">{{ login_error }}</p>{% endif %}
+      <div class="auth-form-body m-auto">
+        {% if login_error %}
+          <p class="login_error">{{ login_error }}</p>
+        {% endif %}
+        <form action="{{ authenticator_login_url | safe }}" method="post" role="form">
           <input type="hidden" name="_xsrf" value="{{ xsrf }}" />
           <label for="username_input">Username:</label>
           <input id="username_input"
@@ -61,6 +85,13 @@
                  autocomplete="current-password"
                  name="password"
                  id="password_input" />
+          {% if authenticator.request_otp %}
+            <label for='otp_input'>{{ authenticator.otp_prompt }}</label>
+            <input class="form-control"
+                   autocomplete="one-time-password"
+                   name="otp"
+                   id="otp_input" />
+          {% endif %}
           <div class="feedback-container">
             <input id="login_submit"
                    type="submit"
@@ -71,20 +102,8 @@
               <i class="fa fa-spinner"></i>
             </div>
           </div>
-        </div>
-      </form>
-    </div>
-  {% endblock login %}
-{% endblock main %}
-{% block script %}
-  {{ super() }}
-  <script>
-    // setup onSubmit feedback
-    $('form').submit((e) => {
-      var form = $(e.target);
-      form.find('.feedback-container>input').attr('disabled', true);
-      form.find('.feedback-container>*').toggleClass('hidden');
-      form.find('.feedback-widget>*').toggleClass('fa-pulse');
-    });
-  </script>
-{% endblock script %}
+          {% block login_terms %}
+            {% if login_term_url %}
+              <div id="login_terms" class="login_terms">
+                <input type="checkbox"
+                       id="login_terms_checkbox

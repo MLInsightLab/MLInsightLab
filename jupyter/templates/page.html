@@ -42,6 +42,11 @@
       <link rel="stylesheet" href="{{ static_url("css/style.min.css") }}" type="text/css" />
       <style>
         /* Custom styles for the login page */
+        body {
+          background-color: #f9f9f9; /* Light Gray Background */
+          color: #333333; /* Dark Gray Text */
+        }
+
         .branding-header {
           text-align: center;
           margin-bottom: 20px;
@@ -49,38 +54,61 @@
 
         .branding-header h1 {
           font-size: 2em;
-          color: #333;
+          color: #3498db; /* Primary Color */
           font-weight: bold;
         }
 
         .auth-form-header h2 {
           font-size: 1.5em;
-          color: #666;
+          color: #333333; /* Dark Gray Text */
           text-align: center;
         }
 
         .btn-jupyter {
-          background-color: #007acc; /* Example color for branding */
+          background-color: #3498db; /* Primary Color */
           color: #fff;
         }
 
         .btn-jupyter:hover {
-          background-color: #005999; /* Darker shade for hover effect */
+          background-color: #2980b9; /* Darker Shade of Primary Color */
         }
 
-        /* Custom styles for navbar branding */
-        #jupyterhub-logo {
-          display: none; /* Hide default JupyterHub logo */
+        .navbar {
+          background-color: #ffffff; /* White Background for Navbar */
         }
-        
+
         .navbar-brand {
+          color: #3498db; /* Primary Color */
           font-size: 1.5em;
-          color: #333;
           font-weight: bold;
         }
-        
-        .navbar-toggler {
-          border: none;
+
+        .navbar-nav .nav-link {
+          color: #333333; /* Dark Gray Text */
+        }
+
+        .navbar-nav .nav-link:hover {
+          color: #3498db; /* Primary Color on Hover */
+        }
+
+        .btn-outline-dark {
+          border-color: #3498db; /* Primary Color for Button Border */
+          color: #3498db; /* Primary Color for Button Text */
+        }
+
+        .btn-outline-dark:hover {
+          background-color: #3498db; /* Primary Color on Hover */
+          color: #ffffff; /* White Text */
+        }
+
+        .alert-warning {
+          background-color: #f1c40f; /* Bright Yellow for Warnings */
+          color: #333333; /* Dark Gray Text */
+        }
+
+        .ajax-error.alert-danger {
+          background-color: #e74c3c; /* Bright Red for Errors */
+          color: #ffffff; /* White Text */
         }
       </style>
     {% endblock stylesheet %}
@@ -218,28 +246,3 @@
                       {% endif %}
                     </span>
                   {% endblock login_widget %}
-                </li>
-              {% endblock nav_bar_right_items %}
-            </ul>
-          </div>
-          {% block header %}
-          {% endblock header %}
-        </div>
-      </nav>
-    {% endblock nav_bar %}
-    {% block announcement %}
-      {% if announcement %}
-        <div class="container text-center announcement alert alert-warning">{{ announcement | safe }}</div>
-      {% endif %}
-    {% endblock announcement %}
-    {% block main %}
-    {% endblock main %}
-    {% block footer %}
-    {% endblock footer %}
-    {% call modal('Error', btn_label='OK') %}
-      <div class="ajax-error alert-danger">The error</div>
-    {% endcall %}
-    {% block script %}
-    {% endblock script %}
-  </body>
-</html>
