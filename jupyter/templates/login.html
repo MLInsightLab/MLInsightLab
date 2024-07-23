@@ -1,109 +1,160 @@
 {% extends "page.html" %}
-
-{% block title %}Open Data Science Platform{% endblock title %}
+{% block title %}
+  Open Data Science Platform - Login
+{% endblock title %}
 
 {% block stylesheet %}
   {{ super() }}
   <style>
     /* Custom styles for the login page */
-    .container {
-      background-color: #ffffff; /* White Background */
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    #login-main {
+      background-color: #ffffff; /* White Background for Login Container */
+      border: 1px solid #ddd; /* Light Gray Border */
+      border-radius: 8px; /* Rounded Corners */
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle Shadow */
+      max-width: 400px;
+      margin: 0 auto;
       padding: 20px;
     }
 
-    .auth-form-header h1 {
-      color: #3498db; /* Primary Color */
+    .auth-form-header {
+      margin-bottom: 20px;
     }
 
-    .auth-form-body {
-      padding: 20px;
-    }
-
-    .btn-jupyter {
-      background-color: #3498db; /* Primary Color */
-      color: #ffffff;
-    }
-
-    .btn-jupyter:hover {
-      background-color: #2980b9; /* Darker Shade of Primary Color */
-    }
-
-    .login_error {
-      color: #e74c3c; /* Bright Red for Errors */
-    }
-
-    .feedback-container input {
-      background-color: #3498db; /* Primary Color */
-      color: #ffffff;
-    }
-
-    .feedback-widget {
-      color: #3498db; /* Primary Color for Feedback Widget */
-    }
-
-    .login_terms {
+    .auth-form-body label {
       color: #333333; /* Dark Gray Text */
     }
 
+    .form-control {
+      border: 1px solid #ddd; /* Light Gray Border */
+      border-radius: 4px; /* Rounded Corners */
+      box-shadow: none; /* Remove Default Shadow */
+    }
+
+    .feedback-container {
+      text-align: center;
+    }
+
+    .feedback-widget {
+      display: inline-block;
+      margin-left: 10px;
+    }
+
+    #login_submit {
+      background-color: #3498db; /* Primary Color */
+      color: #ffffff; /* White Text */
+      border: none;
+      border-radius: 4px; /* Rounded Corners */
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    #login_submit:hover {
+      background-color: #2980b9; /* Darker Shade of Primary Color */
+    }
+
+    #login_terms {
+      margin-top: 10px;
+    }
+
+    #login_terms_checkbox {
+      margin-right: 5px;
+    }
+
     .login_terms a {
-      color: #3498db; /* Primary Color for Links */
+      color: #3498db; /* Primary Color */
     }
 
     .login_terms a:hover {
-      color: #2980b9; /* Darker Shade of Primary Color on Hover */
+      text-decoration: underline;
+    }
+
+    #insecure-login-warning {
+      color: #e74c3c; /* Bright Red Warning Color */
+      font-weight: bold;
     }
   </style>
 {% endblock stylesheet %}
 
-{% block main %}
+{% block login %}
   <div id="login-main" class="container">
-    {% block login %}
-      <div class="auth-form-header">
-        <h1>Sign in</h1>
-      </div>
-      <div class="auth-form-body m-auto">
-        {% if login_error %}
-          <p class="login_error">{{ login_error }}</p>
-        {% endif %}
-        <form action="{{ authenticator_login_url | safe }}" method="post" role="form">
-          <input type="hidden" name="_xsrf" value="{{ xsrf }}" />
-          <label for="username_input">Username:</label>
-          <input id="username_input"
-                 type="text"
-                 autocapitalize="off"
-                 autocorrect="off"
-                 autocomplete="username"
-                 class="form-control"
-                 name="username"
-                 val="{{ username }}"
-                 autofocus="autofocus" />
-          <label for='password_input'>Password:</label>
-          <input type="password"
-                 class="form-control"
-                 autocomplete="current-password"
-                 name="password"
-                 id="password_input" />
-          {% if authenticator.request_otp %}
-            <label for='otp_input'>{{ authenticator.otp_prompt }}</label>
-            <input class="form-control"
-                   autocomplete="one-time-password"
-                   name="otp"
-                   id="otp_input" />
-          {% endif %}
-          <div class="feedback-container">
-            <input id="login_submit"
-                   type="submit"
-                   class='btn btn-jupyter form-control'
-                   value='Sign in'
-                   tabindex="3" />
-            <div class="feedback-widget hidden">
-              <i class="fa fa-spinner"></i>
-            </div>
+    {% block login_container %}
+      {% if custom_html %}
+        {{ custom_html | safe }}
+      {% elif login_service %}
+        <div class="service-login">
+          <p id='insecure-login-warning' class='hidden'>
+            Warning: Open Data Science Platform seems to be served over an unsecured HTTP connection.
+            We strongly recommend enabling HTTPS for the platform.
+          </p>
+          <a role="button"
+             class='btn btn-jupyter btn-lg'
+             href='{{ authenticator_login_url | safe }}'>Sign in with {{ login_service }}</a>
+        </div>
+      {% else %}
+        <form action="{{ authenticator_login_url | safe }}"
+              method="post"
+              role="form">
+          <div class="auth-form-header">
+            <h2>Sign in to Open Data Science Platform</h2>
           </div>
-          {% block login_terms %}
-            {% if login_term_url %}
-              <div id="login_terms" class="login_terms">
-                <input type="checkbox"
-                       id="login_terms_checkbox
+          <div class='auth-form-body m-auto'>
+            <p id='insecure-login-warning' class='hidden'>
+              Warning: Open Data Science Platform seems to be served over an unsecured HTTP connection.
+              We strongly recommend enabling HTTPS for the platform.
+            </p>
+            {% if login_error %}<p class="login_error">{{ login_error }}</p>{% endif %}
+            <input type="hidden" name="_xsrf" value="{{ xsrf }}" />
+            <label for="username_input">Username:</label>
+            <input id="username_input"
+                   type="text"
+                   autocapitalize="off"
+                   autocorrect="off"
+                   autocomplete="username"
+                   class="form-control"
+                   name="username"
+                   val="{{ username }}"
+                   autofocus="autofocus" />
+            <label for='password_input'>Password:</label>
+            <input type="password"
+                   class="form-control"
+                   autocomplete="current-password"
+                   name="password"
+                   id="password_input" />
+            {% if authenticator.request_otp %}
+              <label for='otp_input'>{{ authenticator.otp_prompt }}</label>
+              <input class="form-control"
+                     autocomplete="one-time-password"
+                     name="otp"
+                     id="otp_input" />
+            {% endif %}
+            <div class="feedback-container">
+              <input id="login_submit"
+                     type="submit"
+                     class='btn btn-jupyter form-control'
+                     value='Sign in'
+                     tabindex="3" />
+              <div class="feedback-widget hidden">
+                <i class="fa fa-spinner"></i>
+              </div>
+            </div>
+            {% block login_terms %}
+              {% if login_term_url %}
+                <div id="login_terms" class="login_terms">
+                  <input type="checkbox"
+                         id="login_terms_checkbox"
+                         name="login_terms_checkbox"
+                         required />
+                  {% block login_terms_text %}
+                    {# allow overriding the text #}
+                    By logging into the platform you accept the <a href="{{ login_term_url }}">terms and conditions</a>.
+                  {% endblock login_terms_text %}
+                </div>
+              {% endif %}
+            {% endblock login_terms %}
+          </div>
+        </form>
+      {% endif %}
+    {% endblock login_container %}
+  </div>
+{% endblock login %}
