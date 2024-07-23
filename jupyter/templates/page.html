@@ -159,7 +159,18 @@
             {% endif %}
             <ul class="nav navbar-nav me-2">
               {% block nav_bar_right_items %}
-              {% endblock nav_bar_right_items %}
+                <li class="nav-item">
+                {% block login_widget %}
+                <span id="login_widget">
+                <span class="navbar-text me-1">{{ user.name }}</span>
+                    <a id="logout"
+                       role="button"
+                       class="btn btn-sm btn-outline-dark"
+                       href="{{ logout_url }}"> <i aria-hidden="true" class="fa fa-sign-out"></i> Logout</a>
+                </span>
+                {% endblock login_widget %}
+                </li>
+            {% endblock nav_bar_right_items %}
             </ul>
           </div>
           {% block header %}
