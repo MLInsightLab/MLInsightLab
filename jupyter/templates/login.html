@@ -1,12 +1,46 @@
 {% extends "page.html" %}
+{% block head %}
+  {{ super() }}
+  <style>
+    /* Custom styles for the login page */
+    .branding-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .branding-header h1 {
+      font-size: 2em;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .auth-form-header h2 {
+      font-size: 1.5em;
+      color: #666;
+      text-align: center;
+    }
+
+    .btn-jupyter {
+      background-color: #007acc; /* Example color for branding */
+      color: #fff;
+    }
+
+    .btn-jupyter:hover {
+      background-color: #005999; /* Darker shade for hover effect */
+    }
+  </style>
+{% endblock head %}
 {% block main %}
   {% block login %}
     <div id="login-main" class="container">
+      <div class="branding-header">
+        <h1>Open Data Science Platform</h1>
+      </div>
       <form action="{{ authenticator_login_url | safe }}"
             method="post"
             role="form">
         <div class="auth-form-header">
-          <h1>Sign in</h1>
+          <h2>Sign in</h2>
         </div>
         <div class='auth-form-body m-auto'>
           {% if login_error %}<p class="login_error">{{ login_error }}</p>{% endif %}
