@@ -17,18 +17,29 @@
       padding: 20px;
     }
 
-    .auth-form-header {
+    .auth-form-header h2 {
+      font-size: 24px;
       margin-bottom: 20px;
+      color: #4a90e2; /* Brand Color */
+      text-align: center;
+    }
+
+    .auth-form-body {
+      padding: 10px;
     }
 
     .auth-form-body label {
-      color: #333333; /* Dark Gray Text */
+      display: block;
+      margin-bottom: 5px;
+      color: #333; /* Dark Gray Text */
     }
 
     .form-control {
       border: 1px solid #ddd; /* Light Gray Border */
       border-radius: 4px; /* Rounded Corners */
-      box-shadow: none; /* Remove Default Shadow */
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 15px;
     }
 
     .feedback-container {
@@ -36,25 +47,30 @@
     }
 
     .feedback-widget {
-      display: inline-block;
+      display: none;
       margin-left: 10px;
+      font-size: 24px;
+      color: #4a90e2; /* Brand Color */
     }
 
     #login_submit {
-      background-color: #3498db; /* Primary Color */
+      background-color: #4a90e2; /* Brand Color */
       color: #ffffff; /* White Text */
       border: none;
       border-radius: 4px; /* Rounded Corners */
       padding: 10px;
       cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
     }
 
     #login_submit:hover {
-      background-color: #2980b9; /* Darker Shade of Primary Color */
+      background-color: #357ABD; /* Darker Shade of Brand Color */
     }
 
     #login_terms {
       margin-top: 10px;
+      font-size: 14px;
     }
 
     #login_terms_checkbox {
@@ -62,7 +78,8 @@
     }
 
     .login_terms a {
-      color: #3498db; /* Primary Color */
+      color: #4a90e2; /* Brand Color */
+      text-decoration: none;
     }
 
     .login_terms a:hover {
@@ -70,8 +87,12 @@
     }
 
     #insecure-login-warning {
-      color: #e74c3c; /* Bright Red Warning Color */
+      color: #e74c3c; /* Warning Color */
       font-weight: bold;
+    }
+
+    .hidden {
+      display: none !important;
     }
   </style>
 {% endblock stylesheet %}
@@ -98,7 +119,7 @@
           <div class="auth-form-header">
             <h2>Sign in to Open Data Science Platform</h2>
           </div>
-          <div class='auth-form-body m-auto'>
+          <div class='auth-form-body'>
             <p id='insecure-login-warning' class='hidden'>
               Warning: Open Data Science Platform seems to be served over an unsecured HTTP connection.
               We strongly recommend enabling HTTPS for the platform.
@@ -131,11 +152,10 @@
             <div class="feedback-container">
               <input id="login_submit"
                      type="submit"
-                     class='btn btn-jupyter form-control'
                      value='Sign in'
                      tabindex="3" />
-              <div class="feedback-widget hidden">
-                <i class="fa fa-spinner"></i>
+              <div class="feedback-widget">
+                <i class="fa fa-spinner fa-pulse"></i>
               </div>
             </div>
             {% block login_terms %}
