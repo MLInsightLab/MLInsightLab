@@ -45,9 +45,9 @@
       <link rel="icon" href="{{ static_url("favicon.ico") }}" type="image/x-icon">
     {% endblock favicon %}
     {% block scripts %}
-      <script src="{{ static_url("components/bootstrap/dist/js/bootstrap.bundle.min.js") }}" type="text/javascript" charset="utf-8"></script>
-      <script src="{{ static_url("components/requirejs/require.js") }}" type="text/javascript" charset="utf-8"></script>
-      <script src="{{ static_url("components/jquery/dist/jquery.min.js") }}" type="text/javascript" charset="utf-8"></script>
+      <script src="{{static_url("components/bootstrap/dist/js/bootstrap.bundle.min.js") }}" type="text/javascript" charset="utf-8"></script>
+      <script src="{{static_url("components/requirejs/require.js") }}" type="text/javascript" charset="utf-8"></script>
+      <script src="{{static_url("components/jquery/dist/jquery.min.js") }}" type="text/javascript" charset="utf-8"></script>
     {% endblock scripts %}
     {# djlint js formatting doesn't handle template blocks in js #}
     {# djlint: off #}
@@ -56,7 +56,7 @@
         {% if version_hash %}
         urlArgs: "v={{version_hash}}",
         {% endif %}
-        baseUrl: '{{ static_url("js", include_version=False) }}',
+        baseUrl: '{{static_url("js", include_version=False)}}',
         paths: {
           components: '../components',
           jquery: '../components/jquery/dist/jquery.min',
@@ -65,8 +65,8 @@
       });
 
       window.jhdata = {
-        base_url: "{{ base_url }}",
-        prefix: "{{ prefix }}",
+        base_url: "{{base_url}}",
+        prefix: "{{prefix}}",
         {% if user %}
         {#- Autoescaping in templates is turned on in JupyterHub, #}
         {#-  need `| safe` to prevent escaping #}
@@ -85,11 +85,12 @@
         {% endif %}
         xsrf_token: "{{ xsrf_token }}",
       };
+
     </script>
     {# djlint: on #}
     {% block meta %}
       <meta name="description" content="Open Data Science Platform">
-      <meta name="keywords" content="Open Data Science, Data Science, JupyterHub">
+      <meta name="keywords" content="Open Data Science, Platform">
     {% endblock meta %}
   </head>
   <body>
@@ -104,11 +105,9 @@
       <nav class="navbar navbar-expand-sm bg-body-tertiary mb-4">
         <div class="container-fluid">
           {% block logo %}
-            <span id="branding-logo" class="navbar-brand">
-              <a href="{{ logo_url or base_url }}">
-                Open Data Science Platform
-              </a>
-            </span>
+            <a href="{{ logo_url or base_url }}" class="navbar-brand">
+              <img src='{{ static_url("https://github.com/Beyond-ML-Labs/artwork/blob/main/icon/color/BeyondML_icon-color.png") }}' alt='Open Data Science Platform logo' class='img-fluid' />
+            </a>
           {% endblock logo %}
           {% if user %}
             <button class="navbar-toggler"
@@ -191,8 +190,6 @@
       {% endif %}
     {% endblock announcement %}
     {% block main %}
-      {% block login %}
-      {% endblock login %}
     {% endblock main %}
     {% block footer %}
     {% endblock footer %}
