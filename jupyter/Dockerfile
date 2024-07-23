@@ -9,7 +9,8 @@ RUN npm install -g configurable-http-proxy
 
 # Copy and install requirements.txt
 COPY requirements.txt /tmp/requirements.txt
-RUN pip install --upgrade -r /tmp/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir --upgrade -r /tmp/requirements.txt
 
 # Add sudo users to not require password for sudo
 RUN echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/root
