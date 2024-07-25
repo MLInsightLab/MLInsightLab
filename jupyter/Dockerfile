@@ -36,6 +36,6 @@ RUN chmod +x /code/start_jupyter.sh
 RUN service cron start
 
 # Set the working directory
-WORKDIR /notebooks
+WORKDIR /home
 
 CMD [ "sh", "/code/start_jupyter.sh" ]
