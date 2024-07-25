@@ -7,5 +7,8 @@ echo "export DASK_SCHEDULER_ADDRESS=$DASK_SCHEDULER_ADDRESS" >> /etc/profile.d/d
 # Add read and write permissions to /notebooks
 chmod 755 /notebooks
 
+# Start the cron service
+service cron restart
+
 # Start JupyterHub
 jupyterhub -f /srv/jupyter/jupyterhub_config.py --ip 0.0.0.0

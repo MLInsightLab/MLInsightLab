@@ -32,9 +32,6 @@ RUN chmod +x /srv/jupyter/jupyterhub-singleuser.sh
 COPY start_jupyter.sh /code/start_jupyter.sh
 RUN chmod +x /code/start_jupyter.sh
 
-# Start the cron service
-RUN service cron restart
-
 # Set the working directory
 WORKDIR /home
 
