@@ -31,6 +31,8 @@ services:
       - ${NOTEBOOK_MOUNT}
       - ${JUPYTERHUB_DATABASE_MOUNT}
       - ${JUPYTERHUB_ETC_MOUNT}
+      - ${JUPYTERHUB_CRON_MOUNT}
+      - ${JUPYTERHUB_HOME_MOUNT}
     environment:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - DASK_SCHEDULER_ADDRESS=${DASK_SCHEDULER_ADDRESS}
@@ -96,6 +98,8 @@ volumes:
     mlflow_backend_storage:
     model_server_database:
     jupyter_database:
+    jupyter_cron:
+    jupyter_home:
     jupyter_etc:
     notebooks:
 
