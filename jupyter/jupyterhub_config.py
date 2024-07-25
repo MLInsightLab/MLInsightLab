@@ -1402,6 +1402,8 @@ c.Spawner.notebook_dir = '/notebooks'
 def pre_spawn_hook(spawner):
     username = spawner.user.name
     try:
+
+        # TODO: Alter this so only admins and data_scientists actually log in
         check_call(['useradd', '-ms', '/bin/bash', username])
 
         # Add user to sudo group
