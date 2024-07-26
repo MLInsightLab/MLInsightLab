@@ -12,7 +12,7 @@ DB_FILE = os.path.join(DB_DIRECTORY, 'permissions.db')
 SYSTEM_USERNAME = os.environ['SYSTEM_USERNAME']
 SYSTEM_KEY = os.environ['SYSTEM_KEY']
 
-# Admin username, password, and key 
+# Admin username, password, and key
 ADMIN_USERNAME = os.environ['ADMIN_USERNAME']
 ADMIN_PASSWORD = os.environ['ADMIN_PASSWORD']
 ADMIN_KEY = os.environ['ADMIN_KEY']
@@ -286,6 +286,30 @@ def fissue_new_password(username, password=None):
 
     # Return the new password
     return password
+
+# Get a user's role
+
+
+def fget_user_role(username):
+    """
+    Get a user's role
+    """
+
+    # Connect to the database and ensure the user already exists
+    con = sqlite3.connect(DB_FILE)
+    res = con.execute(
+        f'SELECT * FROM users WHERE username="{username}"'.fetchall()
+    )
+
+    # Validate thatonly oneuser with that username exists
+    if len(res) == 0:
+        raise ValueError('User does not exist')
+    elif len(res) > 1:
+        raise ValueError('More than one user with that username exists')
+
+    username, role, hashed_key, hashed_password = res[0]
+
+    return role
 
 # Update a user's role
 

@@ -201,7 +201,11 @@ class ODSPAuthenticator(Authenticator):
                 auth=(SYSTEM_USERNAME, SYSTEM_KEY)
             )
         if resp.status_code == 200:
-            return username
+            role = resp.json()
+
+            # Only allow the user to login if they are an admin or a data scientist
+            if role in ['admin', 'data_scientist']:
+                return username
 
 
 c.JupyterHub.authenticator_class = ODSPAuthenticator
@@ -1401,14 +1405,24 @@ c.Spawner.notebook_dir = '/notebooks'
 
 def pre_spawn_hook(spawner):
     username = spawner.user.name
+
     try:
 
-        # TODO: Alter this so only admins and data_scientists actually log in
-        check_call(['useradd', '-ms', '/bin/bash', username])
+        # Get the user's role
+        with requests.Session() as sess:
+            resp = sess.get(
+                f'{API_URL}/users/role/{username}',
+                auth=(SYSTEM_USERNAME, SYSTEM_KEY)
+            )
+        role = resp.json()
 
-        # Add user to sudo group
-        # TODO: Alter this so only admins can have sudo access
-        check_call(['adduser', username, 'sudo'])
+        # Add user if their role is admin or data scientist
+        if role in ['admin', 'data_scientist']:
+            check_call(['useradd', '-ms', '/bin/bash', username])
+
+        # Add user to sudo group if thir role is admin
+        if role == 'admin':
+            check_call(['adduser', username, 'sudo'])
     except Exception as e:
         print(e)
 
