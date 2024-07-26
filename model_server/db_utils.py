@@ -298,8 +298,8 @@ def fget_user_role(username):
     # Connect to the database and ensure the user already exists
     con = sqlite3.connect(DB_FILE)
     res = con.execute(
-        f'SELECT * FROM users WHERE username="{username}"'.fetchall()
-    )
+        f'SELECT * FROM users WHERE username="{username}"'
+    ).fetchall()
 
     # Validate thatonly oneuser with that username exists
     if len(res) == 0:
