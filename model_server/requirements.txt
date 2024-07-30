@@ -3,6 +3,7 @@ torchvision
 argon2-cffi
 tensorflow
 pydantic
+tf-keras
 uvicorn
 fastapi
 mlflow

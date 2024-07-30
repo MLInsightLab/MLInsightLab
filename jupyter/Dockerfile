@@ -28,6 +28,9 @@ COPY templates /srv/jupyter/templates
 COPY jupyterhub-singleuser.sh /srv/jupyter/jupyterhub-singleuser.sh
 RUN chmod +x /srv/jupyter/jupyterhub-singleuser.sh
 
+# Copy the tutorials
+COPY tutorials/ /notebooks
+
 # Copy the start script and ensure it's executable
 COPY start_jupyter.sh /code/start_jupyter.sh
 RUN chmod +x /code/start_jupyter.sh
