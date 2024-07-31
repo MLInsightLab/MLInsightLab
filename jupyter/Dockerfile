@@ -20,12 +20,15 @@ RUN pip install --no-cache-dir --upgrade -r /tmp/requirements.txt
 
 # Install jupyterlab_iframe extension
 RUN pip install --no-cache-dir jupyterlab_iframe
+RUN jupyter labextension install jupyterlab_iframe
 
 # Install the variable inspector extension
 RUN pip install --no-cache-dir lckr_jupyterlab_variableinspector
+RUN jupyter labextension install lckr_jupyterlab_variableinspector
 
 # Install the jupyterlab-git extension
 RUN pip install --no-cache-dir jupyterlab-git
+RUN jupyter labextension install jupyterlab-git
 
 # Install the jupyterlab system monitor extension
 RUN pip install --no-cache-dir jupyterlab-system-monitor
