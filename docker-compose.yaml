@@ -39,6 +39,8 @@ services:
       - SYSTEM_USERNAME=${MODEL_SERVER_SYSTEM_USERNAME}
       - SYSTEM_KEY=${MODEL_SERVER_SYSTEM_KEY}
       - API_URL=${API_URL}
+    ports:
+      - "5000:5000"
     networks:
       - network
     #devices:
