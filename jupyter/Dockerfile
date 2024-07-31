@@ -2,7 +2,7 @@ FROM python:latest
 
 # Update software
 RUN apt update && apt upgrade -y && apt autoremove -y
-RUN apt install git emacs htop tmux sudo cron -y
+RUN apt install git emacs htop tmux sudo cron less -y
 RUN apt install -y ca-certificates curl gnupg
 RUN mkdir -p /etc/apt/keyrings
 RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
@@ -25,16 +25,8 @@ RUN jupyter labextension install jupyterlab_iframe
 # Install the variable inspector extension
 RUN pip install --no-cache-dir lckr_jupyterlab_variableinspector
 
-# Install the jupyterlab-git extension
-RUN pip install --no-cache-dir jupyterlab-git
-
 # Install the jupyterlab system monitor extension
 RUN pip install --no-cache-dir jupyterlab-system-monitor
-RUN jupyter labextension install jupyterlab-system-monitor
-
-# Install the cron scheduler extension
-RUN pip install --no-cache-dir jupyterlab_scheduler
-RUN jupyter labextension install jupyterlab_scheduler
 
 # Add sudo users to not require password for sudo
 RUN echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/root
