@@ -22,13 +22,16 @@ RUN pip install --no-cache-dir --upgrade -r /tmp/requirements.txt
 RUN pip install --no-cache-dir jupyterlab_iframe
 
 # Install the variable inspector extension
-RUN pip install lckr_jupyterlab_variableinspector
+RUN pip install --no-cache-dir lckr_jupyterlab_variableinspector
 
 # Install the jupyterlab-git extension
-RUN pip install jupyterlab-git
+RUN pip install --no-cache-dir jupyterlab-git
 
 # Install the jupyterlab system monitor extension
-RUN pip install jupyterlab-system-monitor
+RUN pip install --no-cache-dir jupyterlab-system-monitor
+
+# Install the cron scheduler extension
+RUN pip install --no-cache-dir jupyterlab_scheduler
 
 # Add sudo users to not require password for sudo
 RUN echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/root
