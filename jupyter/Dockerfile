@@ -2,7 +2,13 @@ FROM python:latest
 
 # Update software
 RUN apt update && apt upgrade -y && apt autoremove -y
-RUN apt install git emacs htop tmux sudo cron nodejs npm -y
+RUN apt install git emacs htop tmux sudo cron -y
+RUN apt install -y ca-certificates curl gnupg
+RUN mkdir -p /etc/apt/keyrings
+RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+RUN apt update
+RUN apt install nodejs -y
 
 # Install configurable-http-proxy
 RUN npm install -g configurable-http-proxy
@@ -11,6 +17,18 @@ RUN npm install -g configurable-http-proxy
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /tmp/requirements.txt
+
+# Install jupyterlab_iframe extension
+RUN pip install --no-cache-dir jupyterlab_iframe
+
+# Install the variable inspector extension
+RUN pip install lckr_jupyterlab_variableinspector
+
+# Install the jupyterlab-git extension
+RUN pip install jupyterlab-git
+
+# Install the jupyterlab system monitor extension
+RUN pip install jupyterlab-system-monitor
 
 # Add sudo users to not require password for sudo
 RUN echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/root
