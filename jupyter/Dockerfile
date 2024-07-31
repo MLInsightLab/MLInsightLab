@@ -29,9 +29,11 @@ RUN pip install --no-cache-dir jupyterlab-git
 
 # Install the jupyterlab system monitor extension
 RUN pip install --no-cache-dir jupyterlab-system-monitor
+RUN jupyter labextension install jupyterlab-system-monitor
 
 # Install the cron scheduler extension
 RUN pip install --no-cache-dir jupyterlab_scheduler
+RUN jupyter labextension install jupyterlab_scheduler
 
 # Add sudo users to not require password for sudo
 RUN echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/root
