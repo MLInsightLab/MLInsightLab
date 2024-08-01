@@ -17,8 +17,8 @@ dask[complete]
 
 # Machine learning packages
 scikit-learn
-transformers
-torchvision
-tensorflow
-tf-keras
-torch
+#transformers
+#torchvision
+#tensorflow
+#tf-keras
+#torch

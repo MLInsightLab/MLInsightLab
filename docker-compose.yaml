@@ -81,12 +81,27 @@ services:
         #count: all
         #capabilities: [gpu]
 
+  mlflow-ui:
+    restart: always
+    build: ./mlflow_ui
+    depends_on:
+      - mlflow
+    environment:
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
+      - SECRET_KEY=${MLFLOW_UI_SECRET_KEY}
+      - API_URL=${API_URL}
+      - SYSTEM_USERNAME=${MODEL_SERVER_SYSTEM_USERNAME}
+      - SYSTEM_KEY=${MODEL_SERVER_SYSTEM_KEY}
+    networks:
+      - network
+
   nginx:
     restart: always
     build: ./nginx
     depends_on:
       - jupyter
       - mlflow
+      - mlflow-ui
     ports:
       - "80:80"
     command: bash /code/setup.sh
