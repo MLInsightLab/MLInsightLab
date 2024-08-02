@@ -3,9 +3,11 @@ services:
   dask-scheduler:
     restart: always
     build: ./dask
-    command: dask-scheduler
+    command: dask-scheduler --dashboard-prefix /dask
     volumes:
       - ${NOTEBOOK_MOUNT}
+    ports:
+      - 8787:8787
     networks:
       - network
 
@@ -81,17 +83,18 @@ services:
         #count: all
         #capabilities: [gpu]
 
-  mlflow-ui:
+  odsp-ui:
     restart: always
-    build: ./mlflow_ui
+    build: ./odsp_ui
     depends_on:
       - mlflow
     environment:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
-      - SECRET_KEY=${MLFLOW_UI_SECRET_KEY}
+      - SECRET_KEY=${UI_SECRET_KEY}
       - API_URL=${API_URL}
       - SYSTEM_USERNAME=${MODEL_SERVER_SYSTEM_USERNAME}
       - SYSTEM_KEY=${MODEL_SERVER_SYSTEM_KEY}
+      - DASK_UI_ADDRESS=${DASK_UI_ADDRESS}
     networks:
       - network
 
@@ -101,7 +104,7 @@ services:
     depends_on:
       - jupyter
       - mlflow
-      - mlflow-ui
+      - odsp-ui
     ports:
       - "80:80"
     command: bash /code/setup.sh

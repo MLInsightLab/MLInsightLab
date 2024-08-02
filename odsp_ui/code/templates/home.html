@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ODSP Home</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .home-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+        .home-container h2 {
+            color: #4a90e2;
+            margin-bottom: 20px;
+        }
+        .home-container a {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #357ABD;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .home-container a:hover {
+            background-color: #4a90e2;
+        }
+    </style>
+</head>
+<body>
+    <div class="home-container">
+        <h2>ODSP Dashboard</h2>
+        <a href="/ui/mlflow">Go to MLflow</a>
+        <a href="/ui/dask">Go to Dask</a>
+        <a href="/ui/logout">Logout</a>
+    </div>
+</body>
+</html>
