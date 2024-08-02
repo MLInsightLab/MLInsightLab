@@ -204,6 +204,28 @@ def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
             str(e)
         )
 
+# Function to verify user credentials using password
+
+
+def verify_credentials_password(credentials: HTTPBasicCredentials = Depends(security)):
+    """
+    Verify a user's Username/Password credentials
+    """
+    try:
+        role = validate_user_password(
+            credentials.username,
+            credentials.password
+        )
+        return {
+            'username': credentials.username,
+            'role': role
+        }
+    except ValueError as e:
+        raise HTTPException(
+            401,
+            str(e)
+        )
+
 # Verify a user's password
 
 
@@ -456,7 +478,7 @@ def delete_user(username, user_properties: dict = Depends(verify_credentials)):
 
 
 @app.put('/users/api_key/issue/{username}')
-def issue_new_api_key(username, user_properties: dict = Depends(verify_credentials)):
+def issue_new_api_key(username, user_properties: dict = Depends(verify_credentials_password)):
     """
     Issue a new API key for a user
 

@@ -3,11 +3,9 @@ services:
   dask-scheduler:
     restart: always
     build: ./dask
-    command: dask-scheduler --dashboard-prefix /dask
+    command: dask-scheduler
     volumes:
       - ${NOTEBOOK_MOUNT}
-    ports:
-      - 8787:8787
     networks:
       - network
 
@@ -94,7 +92,6 @@ services:
       - API_URL=${API_URL}
       - SYSTEM_USERNAME=${MODEL_SERVER_SYSTEM_USERNAME}
       - SYSTEM_KEY=${MODEL_SERVER_SYSTEM_KEY}
-      - DASK_UI_ADDRESS=${DASK_UI_ADDRESS}
     networks:
       - network
 
