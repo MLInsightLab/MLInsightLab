@@ -7,7 +7,6 @@ import os
 
 # Get the environment variable for the API URL
 SYSTEM_USERNAME = os.environ['SYSTEM_USERNAME']
-ADMIN_USERNAME = os.environ['ADMIN_USERNAME']
 SYSTEM_KEY = os.environ['SYSTEM_KEY']
 API_URL = os.environ['API_URL']
 
@@ -130,7 +129,7 @@ c = get_config()  # noqa
 
 # DEPRECATED since version 0.7.2, use Authenticator.admin_users instead.
 #  Default: set()
-c.JupyterHub.admin_users = {ADMIN_USERNAME}
+# c.JupyterHub.admin_users = set()
 
 # Allow named single-user servers per user
 #  Default: False
@@ -205,7 +204,12 @@ class ODSPAuthenticator(Authenticator):
             role = resp.json()
 
             # Only allow the user to login if they are an admin or a data scientist
-            if role in ['admin', 'data_scientist']:
+            if role == 'admin':
+                return {
+                    'name': username,
+                    'admin': True
+                }
+            elif role == 'data_scientist':
                 return username
 
 
