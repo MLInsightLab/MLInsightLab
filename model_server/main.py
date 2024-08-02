@@ -116,7 +116,7 @@ def fload_model(
 
         return model
 
-    except Exception as e:
+    except Exception:
         raise mlflow.MlflowException('Could not load model')
 
 # Predict_model function that runs prediction
@@ -227,7 +227,7 @@ def verify_password(username: str, password: str, user_properties: dict = Depend
     try:
         role = validate_user_password(username, password)
         return role
-    except Exception as e:
+    except Exception:
         raise HTTPException(401, 'Incorrect credentials')
 
 # Redirect to docs for the landing page

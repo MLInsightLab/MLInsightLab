@@ -117,7 +117,7 @@ def validate_user_key(username, key):
     try:
         argon2.PasswordHasher().verify(hashed_key, key)
         return role
-    except Exception as e:
+    except Exception:
         raise ValueError('Incorrect Key Provided')
 
 # Validate user password
@@ -152,7 +152,7 @@ def validate_user_password(username, password):
     try:
         argon2.PasswordHasher().verify(hashed_password, password)
         return role
-    except Exception as e:
+    except Exception:
         raise ValueError('Incorrect Password Provided')
 
 # Create new user
