@@ -464,7 +464,7 @@ def delete_user(username, user_properties: dict = Depends(verify_credentials)):
     username : str
         The username of the user to delete
     """
-    if user_properties != 'admin':
+    if user_properties['role'] != 'admin':
         raise HTTPException(
             403,
             'User does not have permissions'
