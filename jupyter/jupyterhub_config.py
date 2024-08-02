@@ -7,6 +7,7 @@ import os
 
 # Get the environment variable for the API URL
 SYSTEM_USERNAME = os.environ['SYSTEM_USERNAME']
+ADMIN_USERNAME = os.environ['ADMIN_USERNAME']
 SYSTEM_KEY = os.environ['SYSTEM_KEY']
 API_URL = os.environ['API_URL']
 
@@ -129,7 +130,7 @@ c = get_config()  # noqa
 
 # DEPRECATED since version 0.7.2, use Authenticator.admin_users instead.
 #  Default: set()
-# c.JupyterHub.admin_users = set()
+c.JupyterHub.admin_users = {ADMIN_USERNAME}
 
 # Allow named single-user servers per user
 #  Default: False
