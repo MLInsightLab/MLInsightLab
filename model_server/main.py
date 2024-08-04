@@ -14,7 +14,7 @@ setup_database()
 # Global variables for model flavors
 ALLOWED_MODEL_FLAVORS = [
     'pyfunc',
-    'sklearn'
+    'sklearn',
     'transformers'
 ]
 PYFUNC_FLAVOR = ALLOWED_MODEL_FLAVORS[0]
