@@ -290,8 +290,11 @@ def load_model(model_name: str, model_flavor: str, model_version_or_alias: str |
 
     # Try to load the model
     try:
-        model = fload_model(model_name, model_flavor, model_version_or_alias)
-    except Exception:
+        model = fload_model(model_name, model_flavor, model_version = model_version_or_alias)
+    except Exception as e:
+        raise HTTPException(
+            404, str(e)
+        )
         try:
             model = fload_model(model_name, model_flavor,
                                 model_alias=model_version_or_alias)
