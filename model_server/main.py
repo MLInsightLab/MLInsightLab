@@ -121,8 +121,8 @@ def fload_model(
 
         return model
 
-    except Exception:
-        raise mlflow.MlflowException('Could not load model')
+    except Exception as e:
+        raise mlflow.MlflowException(str(e))
 
 # Predict_model function that runs prediction
 
