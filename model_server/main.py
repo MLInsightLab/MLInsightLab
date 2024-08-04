@@ -12,13 +12,14 @@ from db_utils import setup_database, validate_user_key, validate_user_password, 
 setup_database()
 
 # Global variables for model flavors
-# NOTE: "transformer" should also be supported here, but there are unknowns with running inference directly
 ALLOWED_MODEL_FLAVORS = [
     'pyfunc',
     'sklearn'
+    'transformers'
 ]
 PYFUNC_FLAVOR = ALLOWED_MODEL_FLAVORS[0]
 SKLEARN_FLAVOR = ALLOWED_MODEL_FLAVORS[1]
+TRANSFORMERS_FLAVOR = ALLOWED_MODEL_FLAVORS[2]
 
 # Global variables for prediction functions
 ALLOWED_PREDICT_FUNCTIONS = [
@@ -114,6 +115,10 @@ def fload_model(
         elif model_flavor == SKLEARN_FLAVOR:
             model = mlflow.sklearn.load_model(model_uri)
 
+        # Load the model if it is requested to be a transformers model
+        elif model_flavor == TRANSFORMERS_FLAVOR:
+            model = mlflow.transformers.load_model(model_uri)
+
         return model
 
     except Exception:
@@ -147,13 +152,21 @@ def predict_model(
     """
     if predict_function == 'predict':
         try:
-            if model_flavor != 'sklearn':
+            if model_flavor == PYFUNC_FLAVOR:
                 results = model.predict(to_predict, params=params)
-            else:
+            elif model_flavor == TRANSFORMERS_FLAVOR:
+                results = model(to_predict, **params)
+            elif model_flavor == SKLEARN_FLAVOR:
                 results = model.predict(to_predict)
         except Exception:
             try:
-                results = model.predict(to_predict.reshape(-1, 1))
+                to_predict = to_predict.reshape(-1, 1)
+                if model_flavor == PYFUNC_FLAVOR:
+                    results = model.predict(to_predict, params=params)
+                elif model_flavor == TRANSFORMERS_FLAVOR:
+                    results = model(to_predict, **params)
+                elif model_flavor == SKLEARN_FLAVOR:
+                    results = model.predict(to_predict)
             except Exception:
                 raise ValueError('There was an issue running `predict`')
 
