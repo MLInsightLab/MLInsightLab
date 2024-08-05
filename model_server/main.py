@@ -167,8 +167,8 @@ def predict_model(
                     results = model(to_predict, **params)
                 elif model_flavor == SKLEARN_FLAVOR:
                     results = model.predict(to_predict)
-            except Exception:
-                raise ValueError('There was an issue running `predict`')
+            except Exception as e:
+                raise ValueError(f'There was an issue running `predict`: {str(e)}')
 
     elif predict_function == 'predict_proba':
         try:
