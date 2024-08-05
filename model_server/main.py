@@ -423,12 +423,20 @@ def predict(model_name: str, model_flavor: str, model_version_or_alias: str | in
                 model_version_or_alias: model
             }
         }
+        with open(SERVED_MODEL_CACHE_FILE, 'wb') as f:
+            pickle.dump(LOADED_MODELS, f)
+
     elif not LOADED_MODELS[model_name].get(model_flavor):
         LOADED_MODELS[model_name][model_flavor] = {
             model_version_or_alias: model
         }
+        with open(SERVED_MODEL_CACHE_FILE, 'wb') as f:
+            pickle.dump(LOADED_MODELS, f)
+            
     elif not LOADED_MODELS[model_name][model_flavor].get(model_version_or_alias):
         LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
+        with open(SERVED_MODEL_CACHE_FILE, 'wb') as f:
+            pickle.dump(LOADED_MODELS, f)
 
     # Grab the data to predict on from the input body
     try:
