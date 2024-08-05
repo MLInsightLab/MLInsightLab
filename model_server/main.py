@@ -163,7 +163,8 @@ def predict_model(
                 results = model.predict(to_predict)
         except Exception:
             try:
-                to_predict = to_predict.reshape(-1, 1)
+                if isinstance(to_predict, np.ndarray):
+                    to_predict = to_predict.reshape(-1, 1)
                 if model_flavor == PYFUNC_FLAVOR:
                     results = model.predict(to_predict, params=params)
                 elif model_flavor == TRANSFORMERS_FLAVOR:
