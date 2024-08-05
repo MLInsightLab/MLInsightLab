@@ -407,39 +407,10 @@ def predict(model_name: str, model_flavor: str, model_version_or_alias: str | in
         model = LOADED_MODELS[model_name][model_flavor][model_version_or_alias]
     except Exception:
 
-        # Model has not been loaded before, so first try to load the model using version, then alias
-        try:
-            model = fload_model(model_name, model_flavor,
-                                model_version_or_alias)
-        except Exception:
-            try:
-                model = fload_model(model_name, model_flavor,
-                                    model_alias=model_version_or_alias)
-            except Exception:
-                raise HTTPException(
-                    404, 'Model with that combination of name and version or alias not found')
-
-    # Place the model in the right location in the in-memory storage
-    if not LOADED_MODELS.get(model_name):
-        LOADED_MODELS[model_name] = {
-            model_flavor: {
-                model_version_or_alias: model
-            }
-        }
-        with open(SERVED_MODEL_CACHE_FILE, 'wb') as f:
-            pickle.dump(LOADED_MODELS, f)
-
-    elif not LOADED_MODELS[model_name].get(model_flavor):
-        LOADED_MODELS[model_name][model_flavor] = {
-            model_version_or_alias: model
-        }
-        with open(SERVED_MODEL_CACHE_FILE, 'wb') as f:
-            pickle.dump(LOADED_MODELS, f)
-
-    elif not LOADED_MODELS[model_name][model_flavor].get(model_version_or_alias):
-        LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
-        with open(SERVED_MODEL_CACHE_FILE, 'wb') as f:
-            pickle.dump(LOADED_MODELS, f)
+        # Model needs to be loaded
+        raise HTTPException(
+            404, 'That model is not loaded. Please load the model by calling the /model/load endpoint first'
+        )
 
     # Grab the data to predict on from the input body
     try:
