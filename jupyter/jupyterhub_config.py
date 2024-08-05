@@ -189,15 +189,18 @@ c.JupyterHub.allow_named_servers = True
 
 # Custom Authenticator class
 
-
 class ODSPAuthenticator(Authenticator):
     @gen.coroutine
     def authenticate(self, handler, data):
         username = data['username']
         password = data['password']
         with requests.Session() as sess:
-            resp = sess.get(
-                f'{API_URL}/password/verify/{username}/{password}',
+            resp = sess.post(
+                f'{API_URL}/password/verify',
+                json = {
+                    'username' : username,
+                    'password' : password
+                },
                 auth=(SYSTEM_USERNAME, SYSTEM_KEY)
             )
         if resp.status_code == 200:

@@ -50,6 +50,10 @@ class UserInfo(BaseModel):
     api_key: str | None = None
     password: str | None = None
 
+class VerifyPasswordInfo(BaseModel):
+    username: str
+    password: str
+
 # Load_model function that allows to load model from either alias or version
 
 
@@ -250,9 +254,8 @@ def verify_credentials_password(credentials: HTTPBasicCredentials = Depends(secu
 
 # Verify a user's password
 
-
-@app.get('/password/verify/{username}/{password}')
-def verify_password(username: str, password: str, user_properties: dict = Depends(verify_credentials)):
+@app.post('/password/verify')
+def verify_password(body: VerifyPasswordInfo, user_properties: dict = Depends(verify_credentials)):
     """
     Verify a password
 
@@ -269,7 +272,7 @@ def verify_password(username: str, password: str, user_properties: dict = Depend
             'User does not have permission'
         )
     try:
-        role = validate_user_password(username, password)
+        role = validate_user_password(body.username, body.password)
         return role
     except Exception:
         raise HTTPException(401, 'Incorrect credentials')
@@ -432,7 +435,7 @@ def predict(model_name: str, model_flavor: str, model_version_or_alias: str | in
         }
         with open(SERVED_MODEL_CACHE_FILE, 'wb') as f:
             pickle.dump(LOADED_MODELS, f)
-            
+
     elif not LOADED_MODELS[model_name][model_flavor].get(model_version_or_alias):
         LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
         with open(SERVED_MODEL_CACHE_FILE, 'wb') as f:

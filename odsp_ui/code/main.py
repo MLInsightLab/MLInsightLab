@@ -18,11 +18,14 @@ app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
 templates = Jinja2Templates(directory="templates")
 
-
 def authenticate(username: str, password: str):
     with requests.Session() as sess:
-        resp = sess.get(
-            f'{API_URL}/password/verify/{username}/{password}',
+        resp = sess.post(
+            f'{API_URL}/password/verify',
+            json = {
+                'username' : username,
+                'password' : password
+            },
             auth=(SYSTEM_USERNAME, SYSTEM_KEY)
         )
     if resp.ok:
