@@ -66,8 +66,10 @@ services:
     depends_on:
       - mlflow
     volumes:
+      - ${MODEL_SERVER_CACHE_MOUNT}
       - ${MODEL_SERVER_DB_MOUNT}
     environment:
+      - SERVED_MODEL_CACHE_DIR=${MODEL_SERVER_SERVED_MODEL_CACHE_DIR}
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - ADMIN_USERNAME=${MODEL_SERVER_ADMIN_USERNAME}
       - ADMIN_KEY=${MODEL_SERVER_ADMIN_KEY}
@@ -112,6 +114,7 @@ volumes:
     mlflow_artifact_storage:
     mlflow_backend_storage:
     model_server_database:
+    model_server_cache:
     jupyter_database:
     jupyter_cron:
     jupyter_home:

@@ -5,8 +5,9 @@ from pydantic import BaseModel
 import numpy as np
 import subprocess
 import mlflow
+import pickle
 
-from db_utils import setup_database, validate_user_key, validate_user_password, fcreate_user, fdelete_user, fissue_new_api_key, fissue_new_password, fget_user_role, fupdate_user_role, flist_users
+from db_utils import setup_database, validate_user_key, validate_user_password, fcreate_user, fdelete_user, fissue_new_api_key, fissue_new_password, fget_user_role, fupdate_user_role, flist_users, SERVED_MODEL_CACHE_FILE
 
 # Set up the database
 setup_database()
@@ -29,9 +30,12 @@ ALLOWED_PREDICT_FUNCTIONS = [
 PREDICT = ALLOWED_PREDICT_FUNCTIONS[0]
 PREDICT_PROBA = ALLOWED_PREDICT_FUNCTIONS[1]
 
-# Global variable for already loaded models
-LOADED_MODELS = dict()
-
+# Load all models from cache
+try:
+    with open(SERVED_MODEL_CACHE_FILE, 'rb') as f:
+        LOADED_MODELS = pickle.load(f)
+except:
+    LOADED_MODELS = {}
 
 class PredictRequest(BaseModel):
     data: list
@@ -172,7 +176,8 @@ def predict_model(
                 elif model_flavor == SKLEARN_FLAVOR:
                     results = model.predict(to_predict)
             except Exception as e:
-                raise ValueError(f'There was an issue running `predict`: {str(e)}')
+                raise ValueError(
+                    f'There was an issue running `predict`: {str(e)}')
 
     elif predict_function == 'predict_proba':
         try:
@@ -276,7 +281,6 @@ def verify_password(username: str, password: str, user_properties: dict = Depend
 def redirect_docs():
     return RedirectResponse(url='/backend/docs')
 
-
 @app.get('/models/load/{model_name}/{model_flavor}/{model_version_or_alias}')
 def load_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, user_properties: dict = Depends(verify_credentials)):
     """
@@ -294,7 +298,8 @@ def load_model(model_name: str, model_flavor: str, model_version_or_alias: str |
 
     # Try to load the model
     try:
-        model = fload_model(model_name, model_flavor, model_version = model_version_or_alias)
+        model = fload_model(model_name, model_flavor,
+                            model_version=model_version_or_alias)
     except Exception:
         try:
             model = fload_model(model_name, model_flavor,
@@ -316,6 +321,9 @@ def load_model(model_name: str, model_flavor: str, model_version_or_alias: str |
         }
     elif not LOADED_MODELS[model_name][model_flavor].get(model_version_or_alias):
         LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
+
+    with open(SERVED_MODEL_CACHE_FILE, 'wb') as f:
+        pickle.dump(LOADED_MODELS, f)
 
     return {
         'success': True
@@ -347,7 +355,6 @@ def list_models(user_properties: dict = Depends(verify_credentials)):
 
 # Delete a loaded model
 
-
 @app.delete('/models/unload/{model_name}/{model_flavor}/{model_version_or_alias}')
 def unload_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, user_properties: dict = Depends(verify_credentials)):
     """
@@ -364,11 +371,15 @@ def unload_model(model_name: str, model_flavor: str, model_version_or_alias: str
     """
     try:
         del LOADED_MODELS[model_name][model_flavor][model_version_or_alias]
+        
+        with open(SERVED_MODEL_CACHE_FILE, 'wb') as f:
+            pickle.dump(LOADED_MODELS, f)
+        
         return {
             'success': True
         }
     except Exception:
-        raise HTTPException(404, 'Model not found')
+        raise HTTPException(404, 'Model not found')    
 
 # Predict using a model version or alias
 
