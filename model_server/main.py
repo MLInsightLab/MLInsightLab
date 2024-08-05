@@ -420,9 +420,12 @@ def predict(model_name: str, model_flavor: str, model_version_or_alias: str | in
 
     # Grab the data to predict on from the input body
     try:
-        to_predict = np.array(body.data)
-        if body.dtype:
-            to_predict = to_predict.astype(body.dtype)
+        if model_flavor != TRANSFORMERS_FLAVOR:
+            to_predict = np.array(body.data)
+            if body.dtype:
+                to_predict = to_predict.astype(body.dtype)
+        else:
+            to_predict = body.data
     except Exception:
         raise HTTPException(
             400,
