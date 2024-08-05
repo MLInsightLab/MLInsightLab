@@ -155,7 +155,10 @@ def predict_model(
             if model_flavor == PYFUNC_FLAVOR:
                 results = model.predict(to_predict, params=params)
             elif model_flavor == TRANSFORMERS_FLAVOR:
-                results = model(to_predict, **params)
+                if params:
+                    results = model(to_predict, **params)
+                else:
+                    results = model(to_predict)
             elif model_flavor == SKLEARN_FLAVOR:
                 results = model.predict(to_predict)
         except Exception:
