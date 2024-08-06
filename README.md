@@ -8,22 +8,21 @@ This project is a comprehensive Docker Compose setup for an Open Data Science Pl
    - Distributed computing framework for parallel computing.
    - Includes a Dask scheduler and multiple Dask workers for efficient task distribution.
 
-2. **Jupyter**:
-   - Interactive notebooks for data analysis and visualization.
-   - Integrated with Dask for parallel computing capabilities.
+2. **JupyterHub**:
+   - Interactive, multi-user JupyterLab environment
+   - Automatically integrated with the other services in this platform
 
 3. **MLFlow**:
    - Experiment tracking, model registry, and model serving.
    - Stores experiment artifacts and metadata for reproducibility and model management.
 
 4. **Model Server**:
-   - Serves trained models using MLFlow for inference.
-   - Supports multiple model flavors including `pyfunc` and `sklearn`.
+   - Serves trained models using MLFlow for inference, without users having to configure infrastructure.
+   - Supports multiple model flavors including `pyfunc`, `sklearn`, and `transformers`.
    - Provides endpoints for model loading, prediction, and management.
 
 5. **Nginx**:
    - Acts as a reverse proxy to manage and secure HTTP requests.
-   - Provides basic authentication for the Jupyter and MLFlow interfaces.
 
 ## Quick Start Guide
 
@@ -36,7 +35,7 @@ This project is a comprehensive Docker Compose setup for an Open Data Science Pl
 1. **Clone the repository**:
 
     ```bash
-    git clone https://github.com/your-repo/odsp.git
+    git clone https://github.com/jacobrenn/opendatascienceplatform.git
     cd odsp
     ```
 
@@ -44,11 +43,15 @@ This project is a comprehensive Docker Compose setup for an Open Data Science Pl
 
     Use the provided example `.env` file and adjust the environment variables as needed.
 
+    *Note that the provided `.env` file is comprehensive and requires no additional setup, but does leave security vulnerabilities due to default passwords and API keys*
+
     ```bash
     cp .env.example .env
     ```
 
 3. **Build and start the services**:
+
+    The following command will both build all required containers and start the service
 
     ```bash
     docker-compose up -d
@@ -61,39 +64,8 @@ This project is a comprehensive Docker Compose setup for an Open Data Science Pl
 - **Jupyter**: Provides an interactive development environment with Dask integration.
 - **MLFlow**: Tracks experiments and manages the model registry.
 - **Model Server**: Serves trained models for inference.
+- **ODSP UI**: Front-end interface for interacting with models and the platform.
 - **Nginx**: Acts as a reverse proxy with basic authentication.
-
-### Environment Variables
-
-Ensure the following environment variables are correctly set in your `.env` file:
-
-- **Dask**:
-  - `DASK_IMAGE`: Docker image for Dask.
-  - `DASK_SCHEDULER_ADDRESS`: Address of the Dask scheduler.
-  - `DASK_WORKER_REPLICAS`: Number of Dask worker replicas.
-
-- **Jupyter**:
-  - `JUPYTER_IMAGE`: Docker image for Jupyter.
-  - `JUPYTER_USERNAME`: Username for Jupyter authentication.
-
-- **MLFlow**:
-  - `MLFLOW_IMAGE`: Docker image for MLFlow.
-  - `MLFLOW_BACKEND_STORE_URI`: URI for the MLFlow backend store.
-  - `MLFLOW_TRACKING_ARTIFACT_STORE`: URI for the MLFlow artifact store.
-  - `MLFLOW_TRACKING_URI`: URI for the MLFlow tracking server.
-
-- **Model Server**:
-  - `MODEL_SERVER_IMAGE`: Docker image for the model server.
-
-- **Nginx**:
-  - `NGINX_IMAGE`: Docker image for Nginx.
-  - `NGINX_USERNAME`: Username for Nginx authentication.
-  - `NGINX_PASSWORD`: Password for Nginx authentication.
-
-- **Volume Mounts**:
-  - `MLFLOW_ARTIFACT_STORAGE`: Volume for MLFlow artifact storage.
-  - `MLFLOW_BACKEND_STORAGE`: Volume for MLFlow backend storage.
-  - `NOTEBOOK_MOUNT`: Volume for notebook storage.
 
 ### Stopping the Services
 
