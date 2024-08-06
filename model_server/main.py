@@ -1,5 +1,5 @@
+from fastapi import FastAPI, HTTPException, Depends, Body, BackgroundTasks
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from fastapi import FastAPI, HTTPException, Depends, Body
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 import numpy as np
@@ -131,6 +131,42 @@ def fload_model(
 
     except Exception:
         raise mlflow.MlflowException('Could not load model')
+
+# Function to load a model in the background
+def load_model_background(model_name : str, model_flavor : str, model_version_or_alias : str|int):
+    try:
+        model = fload_model(
+            model_name,
+            model_flavor,
+            model_version = model_version_or_alias
+        )
+    except Exception:
+        try:
+            model = fload_model(
+                model_name,
+                model_flavor,
+                model_alias = model_version_or_alias
+            )
+        except Exception as e:
+            raise ValueError('Model not able to be loaded')
+        
+    if not LOADED_MODELS.get(model_name):
+        LOADED_MODELS[model_name] = {
+            model_flavor : {
+                model_version_or_alias : model
+            }
+        }
+    elif not LOADED_MODELS[model_name].get(model_flavor):
+        LOADED_MODELS[model_name][model_flavor] = {
+            model_version_or_alias: model
+        }
+    elif not LOADED_MODELS[model_name][model_flavor].get(model_version_or_alias):
+        LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
+
+    with open(SERVED_MODEL_CACHE_FILE, 'wb') as f:
+        pickle.dump(LOADED_MODELS, f)
+
+    return True
 
 # Predict_model function that runs prediction
 
@@ -285,7 +321,7 @@ def redirect_docs():
     return RedirectResponse(url='/backend/docs')
 
 @app.get('/models/load/{model_name}/{model_flavor}/{model_version_or_alias}')
-def load_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, user_properties: dict = Depends(verify_credentials)):
+def load_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, background_tasks : BackgroundTasks, user_properties: dict = Depends(verify_credentials)):
     """
     Load a model into local memory
 
@@ -299,37 +335,15 @@ def load_model(model_name: str, model_flavor: str, model_version_or_alias: str |
         The version or alias of the model
     """
 
-    # Try to load the model
-    try:
-        model = fload_model(model_name, model_flavor,
-                            model_version=model_version_or_alias)
-    except Exception:
-        try:
-            model = fload_model(model_name, model_flavor,
-                                model_alias=model_version_or_alias)
-        except Exception as e:
-            raise HTTPException(
-                404, str(e))
-
-    # Place the model in the right location in the model in-memory storage
-    if not LOADED_MODELS.get(model_name):
-        LOADED_MODELS[model_name] = {
-            model_flavor: {
-                model_version_or_alias: model
-            }
-        }
-    elif not LOADED_MODELS[model_name].get(model_flavor):
-        LOADED_MODELS[model_name][model_flavor] = {
-            model_version_or_alias: model
-        }
-    elif not LOADED_MODELS[model_name][model_flavor].get(model_version_or_alias):
-        LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
-
-    with open(SERVED_MODEL_CACHE_FILE, 'wb') as f:
-        pickle.dump(LOADED_MODELS, f)
+    background_tasks.add_task(
+        load_model_background,
+        model_name,
+        model_flavor,
+        model_version_or_alias
+    )
 
     return {
-        'success': True
+        'Processing': True
     }
 
 # See loaded models
