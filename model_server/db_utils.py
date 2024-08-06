@@ -23,7 +23,7 @@ HASHED_ADMIN_PASSWORD = argon2.PasswordHasher().hash(ADMIN_PASSWORD)
 
 # Location to cache state of loaded models
 SERVED_MODEL_CACHE_DIR = os.environ['SERVED_MODEL_CACHE_DIR']
-SERVED_MODEL_CACHE_FILE = os.path.join(SERVED_MODEL_CACHE_DIR, 'models.pkl')
+SERVED_MODEL_CACHE_FILE = os.path.join(SERVED_MODEL_CACHE_DIR, 'models.json')
 
 # Function to generate an API key
 

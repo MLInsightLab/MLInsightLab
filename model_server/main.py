@@ -5,7 +5,7 @@ from pydantic import BaseModel
 import numpy as np
 import subprocess
 import mlflow
-import pickle
+import json
 
 from db_utils import setup_database, validate_user_key, validate_user_password, fcreate_user, fdelete_user, fissue_new_api_key, fissue_new_password, fget_user_role, fupdate_user_role, flist_users, SERVED_MODEL_CACHE_FILE
 
@@ -29,30 +29,6 @@ ALLOWED_PREDICT_FUNCTIONS = [
 ]
 PREDICT = ALLOWED_PREDICT_FUNCTIONS[0]
 PREDICT_PROBA = ALLOWED_PREDICT_FUNCTIONS[1]
-
-# Load all models from cache
-try:
-    with open(SERVED_MODEL_CACHE_FILE, 'rb') as f:
-        LOADED_MODELS = pickle.load(f)
-except:
-    LOADED_MODELS = {}
-
-class PredictRequest(BaseModel):
-    data: list
-    predict_function: str = 'predict'
-    dtype: str = None
-    params: dict = None
-
-
-class UserInfo(BaseModel):
-    username: str
-    role: str
-    api_key: str | None = None
-    password: str | None = None
-
-class VerifyPasswordInfo(BaseModel):
-    username: str
-    password: str
 
 # Load_model function that allows to load model from either alias or version
 
@@ -132,6 +108,89 @@ def fload_model(
     except Exception:
         raise mlflow.MlflowException('Could not load model')
 
+# Function to load models from cache
+def load_models_from_cache():
+    try:
+        with open(SERVED_MODEL_CACHE_FILE, 'r') as f:
+            return json.load(f)
+    except:
+        return None
+
+# Load all models from cache
+try:
+    models_to_load = load_models_from_cache()
+    LOADED_MODELS = {}
+    for model_info in models_to_load:
+        model_name = model_info['model_name']
+        model_flavor = model_info['model_flavor']
+        model_version_or_alias = model_info['model_version_or_alias']
+
+        try:
+            model = fload_model(
+                model_name,
+                model_flavor,
+                model_version_or_alias
+            )
+        except Exception:
+            try:
+                model = fload_model(
+                    model_name,
+                    model_flavor,
+                    model_alias = model_version_or_alias
+                )
+            except Exception:
+                raise ValueError('Model not able to be loaded')
+            
+    if not LOADED_MODELS.get(model_name):
+        LOADED_MODELS[model_name] = {
+            model_flavor : {
+                model_version_or_alias : model
+            }
+        }
+    elif not LOADED_MODELS[model_name].get(model_flavor):
+        LOADED_MODELS[model_name][model_flavor] = {
+            model_version_or_alias: model
+        }
+    elif not LOADED_MODELS[model_flavor].get(model_version_or_alias):
+        LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
+except:
+    LOADED_MODELS = {}
+
+
+# Function to save models to cache
+def save_models_to_cache():
+    to_save = []
+    if LOADED_MODELS != {}:
+        for model_name in LOADED_MODELS.keys():
+            for model_flavor in LOADED_MODELS[model_name]:
+                for model_version_or_alias in LOADED_MODELS[model_name][model_flavor].keys():
+                    to_save.append(
+                        dict(
+                            model_name = model_name,
+                            model_flavor = model_flavor,
+                            model_version_or_alias = model_version_or_alias
+                        )
+                    )
+    with open(SERVED_MODEL_CACHE_FILE, 'w') as f:
+        json.dump(to_save, f)
+
+class PredictRequest(BaseModel):
+    data: list
+    predict_function: str = 'predict'
+    dtype: str = None
+    params: dict = None
+
+
+class UserInfo(BaseModel):
+    username: str
+    role: str
+    api_key: str | None = None
+    password: str | None = None
+
+class VerifyPasswordInfo(BaseModel):
+    username: str
+    password: str
+
 # Function to load a model in the background
 def load_model_background(model_name : str, model_flavor : str, model_version_or_alias : str|int):
     try:
@@ -163,8 +222,7 @@ def load_model_background(model_name : str, model_flavor : str, model_version_or
     elif not LOADED_MODELS[model_name][model_flavor].get(model_version_or_alias):
         LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
 
-    with open(SERVED_MODEL_CACHE_FILE, 'wb') as f:
-        pickle.dump(LOADED_MODELS, f)
+    save_models_to_cache()
 
     return True
 
@@ -389,8 +447,7 @@ def unload_model(model_name: str, model_flavor: str, model_version_or_alias: str
     try:
         del LOADED_MODELS[model_name][model_flavor][model_version_or_alias]
         
-        with open(SERVED_MODEL_CACHE_FILE, 'wb') as f:
-            pickle.dump(LOADED_MODELS, f)
+        save_models_to_cache()
         
         return {
             'success': True
