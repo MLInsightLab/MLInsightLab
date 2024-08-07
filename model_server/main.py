@@ -120,6 +120,7 @@ def load_models_from_cache():
 try:
     models_to_load = load_models_from_cache()
     LOADED_MODELS = {}
+    
     for model_info in models_to_load:
         model_name = model_info['model_name']
         model_flavor = model_info['model_flavor']
@@ -131,6 +132,19 @@ try:
                 model_flavor,
                 model_version_or_alias
             )
+            if not LOADED_MODELS.get(model_name):
+                LOADED_MODELS[model_name] = {
+                    model_flavor : {
+                        model_version_or_alias : model
+                    }
+                }
+            elif not LOADED_MODELS[model_name].get(model_flavor):
+                LOADED_MODELS[model_name][model_flavor] = {
+                    model_version_or_alias: model
+                }
+            elif not LOADED_MODELS[model_flavor].get(model_version_or_alias):
+                LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
+        
         except Exception:
             try:
                 model = fload_model(
@@ -138,21 +152,21 @@ try:
                     model_flavor,
                     model_alias = model_version_or_alias
                 )
+                if not LOADED_MODELS.get(model_name):
+                    LOADED_MODELS[model_name] = {
+                        model_flavor : {
+                            model_version_or_alias : model
+                        }
+                    }
+                elif not LOADED_MODELS[model_name].get(model_flavor):
+                    LOADED_MODELS[model_name][model_flavor] = {
+                        model_version_or_alias: model
+                    }
+                elif not LOADED_MODELS[model_flavor].get(model_version_or_alias):
+                    LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
             except Exception:
                 raise ValueError('Model not able to be loaded')
-            
-    if not LOADED_MODELS.get(model_name):
-        LOADED_MODELS[model_name] = {
-            model_flavor : {
-                model_version_or_alias : model
-            }
-        }
-    elif not LOADED_MODELS[model_name].get(model_flavor):
-        LOADED_MODELS[model_name][model_flavor] = {
-            model_version_or_alias: model
-        }
-    elif not LOADED_MODELS[model_flavor].get(model_version_or_alias):
-        LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
+
 except:
     LOADED_MODELS = {}
 
