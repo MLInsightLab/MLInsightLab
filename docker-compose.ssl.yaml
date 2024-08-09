@@ -88,6 +88,9 @@ services:
     build: ./odsp_ui
     depends_on:
       - mlflow
+    volumes:
+      - ./certs/fullchain.pem:/etc/nginx/ssl/fullchain.pem
+      - ./certs/privkey.pem:/etc/nginx/ssl/privkey.pem
     environment:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - SECRET_KEY=${UI_SECRET_KEY}
@@ -104,8 +107,11 @@ services:
       - jupyter
       - mlflow
       - odsp-ui
+    environment:
+      - USE_SSL=true
     ports:
       - "80:80"
+      - "443:443"
     command: bash /code/setup.sh
     networks:
       - network
