@@ -7,7 +7,8 @@ RUN apt upgrade -y
 RUN apt install apache2-utils -y
 
 # Copy the custom nginx configuration file into the container
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.nonssl.conf /etc/nginx/nginx.nonssl.conf
+COPY nginx.ssl.conf /etc/nginx/nginx.ssl.conf
 
 # Copy the password setup file to the container
 COPY setup.sh /code/setup.sh
