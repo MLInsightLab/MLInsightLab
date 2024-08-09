@@ -1,0 +1,131 @@
+services:
+
+  dask-scheduler:
+    restart: always
+    build: ./dask
+    command: dask-scheduler
+    volumes:
+      - ${NOTEBOOK_MOUNT}
+    networks:
+      - network
+
+  dask-worker:
+    restart: always
+    build: ./dask
+    depends_on:
+      - dask-scheduler
+    command: dask-worker ${DASK_SCHEDULER_ADDRESS}
+    volumes:
+      - ${NOTEBOOK_MOUNT}
+    deploy:
+      replicas: 4
+    networks:
+      - network
+  
+  jupyter:
+    restart: always
+    build: ./jupyter
+    depends_on:
+      - dask-worker
+    volumes:
+      - ${NOTEBOOK_MOUNT}
+      - ${JUPYTERHUB_DATABASE_MOUNT}
+      - ${JUPYTERHUB_ETC_MOUNT}
+      - ${JUPYTERHUB_CRON_MOUNT}
+      - ${JUPYTERHUB_HOME_MOUNT}
+    environment:
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
+      - DASK_SCHEDULER_ADDRESS=${DASK_SCHEDULER_ADDRESS}
+      - SYSTEM_USERNAME=${MODEL_SERVER_SYSTEM_USERNAME}
+      - SYSTEM_KEY=${MODEL_SERVER_SYSTEM_KEY}
+      - API_URL=${API_URL}
+    networks:
+      - network
+    devices:
+      - driver: nvidia
+        count: all
+        capabilities: [gpu]
+
+  mlflow:
+    restart: always
+    build: ./mlflow
+    volumes:
+      - ${MLFLOW_BACKEND_STORAGE}
+      - ${MLFLOW_ARTIFACT_STORAGE}
+    environment:
+      - MLFLOW_BACKEND_STORE_URI=${MLFLOW_BACKEND_STORE_URI}
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
+      - MLFLOW_TRACKING_ARTIFACT_STORE=${MLFLOW_TRACKING_ARTIFACT_STORE}
+    entrypoint: /bin/sh -c "mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 2244 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
+    networks:
+      - network
+
+  model-server:
+    restart: always
+    build: ./model_server
+    depends_on:
+      - mlflow
+    volumes:
+      - ${MODEL_SERVER_CACHE_MOUNT}
+      - ${MODEL_SERVER_DB_MOUNT}
+    environment:
+      - SERVED_MODEL_CACHE_DIR=${MODEL_SERVER_SERVED_MODEL_CACHE_DIR}
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
+      - ADMIN_USERNAME=${MODEL_SERVER_ADMIN_USERNAME}
+      - ADMIN_KEY=${MODEL_SERVER_ADMIN_KEY}
+      - ADMIN_PASSWORD=${MODEL_SERVER_ADMIN_PASSWORD}
+      - SYSTEM_USERNAME=${MODEL_SERVER_SYSTEM_USERNAME}
+      - SYSTEM_KEY=${MODEL_SERVER_SYSTEM_KEY}
+    networks:
+      - network
+    devices:
+      - driver: nvidia
+        count: all
+        capabilities: [gpu]
+
+  odsp-ui:
+    restart: always
+    build: ./odsp_ui
+    depends_on:
+      - mlflow
+    environment:
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
+      - SECRET_KEY=${UI_SECRET_KEY}
+      - API_URL=${API_URL}
+      - SYSTEM_USERNAME=${MODEL_SERVER_SYSTEM_USERNAME}
+      - SYSTEM_KEY=${MODEL_SERVER_SYSTEM_KEY}
+    networks:
+      - network
+
+  nginx:
+    restart: always
+    build: ./nginx
+    depends_on:
+      - jupyter
+      - mlflow
+      - odsp-ui
+    volumes:
+      - ./certs/fullchain.pem:/etc/nginx/ssl/fullchain.pem
+      - ./certs/privkey.pem:/etc/nginx/ssl/privkey.pem
+    environment:
+      - USE_SSL=true
+    ports:
+      - "80:80"
+      - "443:443"
+    command: bash /code/setup.sh
+    networks:
+      - network
+
+volumes:
+  mlflow_artifact_storage:
+  mlflow_backend_storage:
+  model_server_database:
+  model_server_cache:
+  jupyter_database:
+  jupyter_cron:
+  jupyter_home:
+  jupyter_etc:
+  notebooks:
+
+networks:
+  network:
