@@ -41,10 +41,6 @@ services:
       - API_URL=${API_URL}
     networks:
       - network
-    #devices:
-      #- driver: nvidia
-        #count: all
-        #capabilities: [gpu]
 
   mlflow:
     restart: always
@@ -78,10 +74,6 @@ services:
       - SYSTEM_KEY=${MODEL_SERVER_SYSTEM_KEY}
     networks:
       - network
-    #devices:
-      #- driver: nvidia
-        #count: all
-        #capabilities: [gpu]
 
   odsp-ui:
     restart: always
@@ -113,15 +105,15 @@ services:
       - network
 
 volumes:
-    mlflow_artifact_storage:
-    mlflow_backend_storage:
-    model_server_database:
-    model_server_cache:
-    jupyter_database:
-    jupyter_cron:
-    jupyter_home:
-    jupyter_etc:
-    notebooks:
+  mlflow_artifact_storage:
+  mlflow_backend_storage:
+  model_server_database:
+  model_server_cache:
+  jupyter_database:
+  jupyter_cron:
+  jupyter_home:
+  jupyter_etc:
+  notebooks:
 
 networks:
   network:

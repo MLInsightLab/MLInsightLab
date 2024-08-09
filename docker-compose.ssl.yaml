@@ -117,15 +117,15 @@ services:
       - network
 
 volumes:
-    mlflow_artifact_storage:
-    mlflow_backend_storage:
-    model_server_database:
-    model_server_cache:
-    jupyter_database:
-    jupyter_cron:
-    jupyter_home:
-    jupyter_etc:
-    notebooks:
+  mlflow_artifact_storage:
+  mlflow_backend_storage:
+  model_server_database:
+  model_server_cache:
+  jupyter_database:
+  jupyter_cron:
+  jupyter_home:
+  jupyter_etc:
+  notebooks:
 
 networks:
   network:
