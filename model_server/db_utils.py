@@ -33,7 +33,7 @@ def generate_api_key():
     Generate an API key
     """
     key = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
-    return f'odsp-{key}'
+    return f'mlil-{key}'
 
 # Function to generate a password
 

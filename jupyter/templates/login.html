@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 {% block title %}
-  Open Data Science Platform - Login
+  MLInsightLab - Login
 {% endblock title %}
 
 {% block stylesheet %}
@@ -106,7 +106,7 @@
       {% elif login_service %}
         <div class="service-login">
           <p id='insecure-login-warning' class='hidden'>
-            Warning: Open Data Science Platform seems to be served over an unsecured HTTP connection.
+            Warning: MLInsightLab seems to be served over an unsecured HTTP connection.
             We strongly recommend enabling HTTPS for the platform.
           </p>
           <a role="button"
@@ -118,11 +118,11 @@
               method="post"
               role="form">
           <div class="auth-form-header">
-            <h2>ODSP Sign In</h2>
+            <h2>MLInsightLab Sign In</h2>
           </div>
           <div class='auth-form-body'>
             <p id='insecure-login-warning' class='hidden'>
-              Warning: Open Data Science Platform seems to be served over an unsecured HTTP connection.
+              Warning: MLInsightLab seems to be served over an unsecured HTTP connection.
               We strongly recommend enabling HTTPS for the platform.
             </p>
             {% if login_error %}<p class="login_error">{{ login_error }}</p>{% endif %}

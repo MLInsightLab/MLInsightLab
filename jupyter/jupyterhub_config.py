@@ -189,7 +189,7 @@ c.JupyterHub.allow_named_servers = True
 
 # Custom Authenticator class
 
-class ODSPAuthenticator(Authenticator):
+class MLILAuthenticator(Authenticator):
     @gen.coroutine
     def authenticate(self, handler, data):
         username = data['username']
@@ -216,7 +216,7 @@ class ODSPAuthenticator(Authenticator):
                 return username
 
 
-c.JupyterHub.authenticator_class = ODSPAuthenticator
+c.JupyterHub.authenticator_class = MLILAuthenticator
 
 # The base URL of the entire application.
 #

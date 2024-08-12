@@ -1,6 +1,6 @@
-# Open Data Science Platform (ODSP)
+# MLInsightLab
 
-This project is a comprehensive Docker Compose setup for an Open Data Science Platform (ODSP). It integrates multiple services, including Dask, Jupyter, MLFlow, a model server, and Nginx, to provide a robust environment for data science, machine learning, and model management.
+This project is a comprehensive Docker Compose setup for MLInsightLab. It integrates multiple services, including Dask, Jupyter, MLFlow, a model server, and Nginx, providing a robust environment for data science, machine learning, and model management.
 
 ## Capabilities
 
@@ -9,8 +9,8 @@ This project is a comprehensive Docker Compose setup for an Open Data Science Pl
    - Includes a Dask scheduler and multiple Dask workers for efficient task distribution.
 
 2. **JupyterHub**:
-   - Interactive, multi-user JupyterLab environment
-   - Automatically integrated with the other services in this platform
+   - Interactive, multi-user JupyterLab environment.
+   - Automatically integrated with the other services in this platform.
 
 3. **MLFlow**:
    - Experiment tracking, model registry, and model serving.
@@ -35,15 +35,15 @@ This project is a comprehensive Docker Compose setup for an Open Data Science Pl
 1. **Clone the repository**:
 
     ```bash
-    git clone https://github.com/jacobrenn/opendatascienceplatform.git
-    cd odsp
+    git clone https://github.com/jacobrenn/mlinsightlab.git
+    cd mlinsightlab
     ```
 
 2. **Create a `.env` file**:
 
     Use the provided example `.env` file and adjust the environment variables as needed.
 
-    *Note that the provided `.env` file is comprehensive and requires no additional setup, but does leave security vulnerabilities due to default passwords and API keys*
+    *Note that the provided `.env` file is comprehensive and requires no additional setup, but does leave security vulnerabilities due to default passwords and API keys.*
 
     ```bash
     cp .env.example .env
@@ -51,7 +51,7 @@ This project is a comprehensive Docker Compose setup for an Open Data Science Pl
 
 3. **Build and start the services**:
 
-    The following command will both build all required containers and start the service
+    The following command will both build all required containers and start the service:
 
     ```bash
     docker-compose up -d
@@ -64,7 +64,7 @@ This project is a comprehensive Docker Compose setup for an Open Data Science Pl
 - **Jupyter**: Provides an interactive development environment with Dask integration.
 - **MLFlow**: Tracks experiments and manages the model registry.
 - **Model Server**: Serves trained models for inference.
-- **ODSP UI**: Front-end interface for interacting with models and the platform.
+- **MLInsightLab UI**: Front-end interface for interacting with models and the platform.
 - **Nginx**: Acts as a reverse proxy with basic authentication.
 
 ### Stopping the Services

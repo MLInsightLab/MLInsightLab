@@ -79,9 +79,9 @@ services:
     networks:
       - network
 
-  odsp-ui:
+  mlil-ui:
     restart: always
-    build: ./odsp_ui
+    build: ./mlil_ui
     depends_on:
       - mlflow
     environment:
@@ -99,7 +99,7 @@ services:
     depends_on:
       - jupyter
       - mlflow
-      - odsp-ui
+      - mlil-ui
     environment:
       - USE_SSL=false
     ports:

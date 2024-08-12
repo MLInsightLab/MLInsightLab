@@ -83,9 +83,9 @@ services:
         count: all
         capabilities: [gpu]
 
-  odsp-ui:
+  mlil-ui:
     restart: always
-    build: ./odsp_ui
+    build: ./mlil_ui
     depends_on:
       - mlflow
     environment:
@@ -103,7 +103,7 @@ services:
     depends_on:
       - jupyter
       - mlflow
-      - odsp-ui
+      - mlil-ui
     volumes:
       - ./certs/fullchain.pem:/etc/nginx/ssl/fullchain.pem
       - ./certs/privkey.pem:/etc/nginx/ssl/privkey.pem
