@@ -27,6 +27,7 @@ services:
     build: ./jupyter
     depends_on:
       - dask-worker
+      - model-server
     volumes:
       - ${NOTEBOOK_MOUNT}
       - ${JUPYTERHUB_DATABASE_MOUNT}
@@ -80,6 +81,7 @@ services:
     build: ./mlil_ui
     depends_on:
       - mlflow
+      - jupyter
     environment:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - SECRET_KEY=${UI_SECRET_KEY}
