@@ -223,7 +223,7 @@ c.JupyterHub.authenticator_class = MLILAuthenticator
 #          Add this to the beginning of all JupyterHub URLs.
 #          Use base_url to run JupyterHub within an existing website.
 #  Default: '/'
-# c.JupyterHub.base_url = '/'
+c.JupyterHub.base_url = '/jupyter'
 
 # The public facing URL of the whole JupyterHub application.
 #
@@ -755,7 +755,6 @@ c.JupyterHub.hub_connect_ip = '0.0.0.0'
 
 # DEPRECATED since version 0.8. Use ConfigurableHTTPProxy.command
 #  Default: []
-# c.JupyterHub.proxy_cmd = []
 
 # Set the public URL of JupyterHub
 #
