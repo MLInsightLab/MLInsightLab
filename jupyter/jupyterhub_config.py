@@ -336,8 +336,7 @@ c.JupyterHub.cookie_secret_file = '/srv/jupyter/jupyterhub_cookie_secret'
 # c.JupyterHub.custom_scopes = {}
 
 # The location of jupyterhub data files (e.g. /usr/local/share/jupyterhub)
-#  Default: '/Users/jwrenn4/miniforge3/share/jupyterhub'
-# c.JupyterHub.data_files_path = '/Users/jwrenn4/miniforge3/share/jupyterhub'
+c.JupyterHub.data_files_path = '/usr/local/share/jupyterhub'
 
 # Include any kwargs to pass to the database connection.
 #          See sqlalchemy.create_engine for details.
