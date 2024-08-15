@@ -223,14 +223,14 @@ c.JupyterHub.authenticator_class = MLILAuthenticator
 #          Add this to the beginning of all JupyterHub URLs.
 #          Use base_url to run JupyterHub within an existing website.
 #  Default: '/'
-c.JupyterHub.base_url = '/jupyter'
+c.JupyterHub.base_url = '/jupyter/'
 
 # The public facing URL of the whole JupyterHub application.
 #
 #          This is the address on which the proxy will bind.
 #          Sets protocol, ip, base_url
 #  Default: 'http://:8000'
-# c.JupyterHub.bind_url = 'http://:8000'
+c.JupyterHub.bind_url = 'http://:8000/jupyter/'
 
 # Whether to shutdown the proxy when the Hub shuts down.
 #
@@ -462,7 +462,7 @@ c.JupyterHub.db_url = 'sqlite:////jupyterhub_database/jupyterhub.sqlite'
 #
 #          .. versionadded:: 0.8
 #  Default: ''
-c.JupyterHub.hub_connect_ip = '0.0.0.0'
+# c.JupyterHub.hub_connect_ip = '0.0.0.0'
 
 # DEPRECATED
 #
@@ -926,7 +926,7 @@ c.JupyterHub.spawner_class = 'jupyterhub.spawner.LocalProcessSpawner'
 
 # Paths to search for jinja templates, before using the default templates.
 #  Default: []
-c.JupyterHub.template_paths = ['/srv/jupyter/templates']
+# c.JupyterHub.template_paths = ['/srv/jupyter/templates']
 
 # Extra variables to be passed into jinja templates.
 #
