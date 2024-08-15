@@ -779,7 +779,7 @@ c.JupyterHub.db_url = 'sqlite:////jupyterhub_database/jupyterhub.sqlite'
 
 # Redirect user to server (if running), instead of control panel.
 #  Default: True
-# c.JupyterHub.redirect_to_server = True
+c.JupyterHub.redirect_to_server = False
 
 # Purge and reset the database.
 #  Default: False
