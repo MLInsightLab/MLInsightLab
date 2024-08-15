@@ -390,7 +390,7 @@ def verify_password(body: VerifyPasswordInfo, user_properties: dict = Depends(ve
 
 @app.get('/', include_in_schema=False)
 def redirect_docs():
-    return RedirectResponse(url='/backend/docs')
+    return RedirectResponse(url='/api/docs')
 
 @app.get('/models/load/{model_name}/{model_flavor}/{model_version_or_alias}')
 def load_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, background_tasks : BackgroundTasks, user_properties: dict = Depends(verify_credentials)):
