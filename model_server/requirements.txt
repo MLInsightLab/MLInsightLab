@@ -1,6 +1,7 @@
 transformers
 torchvision
 argon2-cffi
+accelerate
 tensorflow
 pydantic
 tf-keras

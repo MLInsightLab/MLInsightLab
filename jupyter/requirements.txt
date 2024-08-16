@@ -19,6 +19,7 @@ dask[complete]
 scikit-learn
 transformers
 torchvision
+accelerate
 tensorflow
 tf-keras
 torch
