@@ -100,10 +100,11 @@ def fload_model(
             model = mlflow.sklearn.load_model(model_uri)
 
         # Load the model if it is requested to be a transformers model
-        try:
-            model = mlflow.transformers.load_model(model_uri, device = 'cuda')
-        except:
-            print('GPU not available')
+        if mlflow.transformers.is_gpu_available():
+            # NOTE: This loads the model to the first GPU
+            # TODO: Change this so that it can be done more intelligently
+            model = mlflow.transformers.load_model(model_uri, device = 0)
+        else:
             model = mlflow.transformers.load_model(model_uri)
 
         return model
