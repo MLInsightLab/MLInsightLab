@@ -40,12 +40,15 @@ services:
       - SYSTEM_USERNAME=${MODEL_SERVER_SYSTEM_USERNAME}
       - SYSTEM_KEY=${MODEL_SERVER_SYSTEM_KEY}
       - API_URL=${API_URL}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     networks:
       - network
-    devices:
-      - driver: nvidia
-        count: all
-        capabilities: [gpu]
 
   mlflow:
     restart: always
@@ -77,6 +80,13 @@ services:
       - ADMIN_PASSWORD=${MODEL_SERVER_ADMIN_PASSWORD}
       - SYSTEM_USERNAME=${MODEL_SERVER_SYSTEM_USERNAME}
       - SYSTEM_KEY=${MODEL_SERVER_SYSTEM_KEY}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     networks:
       - network
 

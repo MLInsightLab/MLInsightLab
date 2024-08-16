@@ -100,7 +100,10 @@ def fload_model(
             model = mlflow.sklearn.load_model(model_uri)
 
         # Load the model if it is requested to be a transformers model
-        elif model_flavor == TRANSFORMERS_FLAVOR:
+        try:
+            model = mlflow.transformers.load_model(model_uri, device = 'cuda')
+        except:
+            print('GPU not available')
             model = mlflow.transformers.load_model(model_uri)
 
         return model

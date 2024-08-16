@@ -42,10 +42,13 @@ services:
       - API_URL=${API_URL}
     networks:
       - network
-    devices:
-      - driver: nvidia
-        count: all
-        capabilities: [gpu]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
   mlflow:
     restart: always
@@ -79,10 +82,13 @@ services:
       - SYSTEM_KEY=${MODEL_SERVER_SYSTEM_KEY}
     networks:
       - network
-    devices:
-      - driver: nvidia
-        count: all
-        capabilities: [gpu]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
   mlil-ui:
     restart: always
