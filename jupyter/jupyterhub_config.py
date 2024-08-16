@@ -189,6 +189,7 @@ c.JupyterHub.allow_named_servers = True
 
 # Custom Authenticator class
 
+
 class MLILAuthenticator(Authenticator):
     @gen.coroutine
     def authenticate(self, handler, data):
@@ -197,9 +198,9 @@ class MLILAuthenticator(Authenticator):
         with requests.Session() as sess:
             resp = sess.post(
                 f'{API_URL}/password/verify',
-                json = {
-                    'username' : username,
-                    'password' : password
+                json={
+                    'username': username,
+                    'password': password
                 },
                 auth=(SYSTEM_USERNAME, SYSTEM_KEY)
             )

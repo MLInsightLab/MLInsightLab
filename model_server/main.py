@@ -103,7 +103,12 @@ def fload_model(
         if mlflow.transformers.is_gpu_available():
             # NOTE: This loads the model to the first GPU
             # TODO: Change this so that it can be done more intelligently
-            model = mlflow.transformers.load_model(model_uri, device = 0)
+            model = mlflow.transformers.load_model(
+                model_uri,
+                kwargs={
+                    'device_map': 'auto'
+                }
+            )
         else:
             model = mlflow.transformers.load_model(model_uri)
 
@@ -113,6 +118,8 @@ def fload_model(
         raise mlflow.MlflowException('Could not load model')
 
 # Function to load models from cache
+
+
 def load_models_from_cache():
     try:
         with open(SERVED_MODEL_CACHE_FILE, 'r') as f:
@@ -120,11 +127,12 @@ def load_models_from_cache():
     except:
         return None
 
+
 # Load all models from cache
 try:
     models_to_load = load_models_from_cache()
     LOADED_MODELS = {}
-    
+
     for model_info in models_to_load:
         model_name = model_info['model_name']
         model_flavor = model_info['model_flavor']
@@ -138,8 +146,8 @@ try:
             )
             if not LOADED_MODELS.get(model_name):
                 LOADED_MODELS[model_name] = {
-                    model_flavor : {
-                        model_version_or_alias : model
+                    model_flavor: {
+                        model_version_or_alias: model
                     }
                 }
             elif not LOADED_MODELS[model_name].get(model_flavor):
@@ -148,18 +156,18 @@ try:
                 }
             elif not LOADED_MODELS[model_flavor].get(model_version_or_alias):
                 LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
-        
+
         except Exception:
             try:
                 model = fload_model(
                     model_name,
                     model_flavor,
-                    model_alias = model_version_or_alias
+                    model_alias=model_version_or_alias
                 )
                 if not LOADED_MODELS.get(model_name):
                     LOADED_MODELS[model_name] = {
-                        model_flavor : {
-                            model_version_or_alias : model
+                        model_flavor: {
+                            model_version_or_alias: model
                         }
                     }
                 elif not LOADED_MODELS[model_name].get(model_flavor):
@@ -184,13 +192,14 @@ def save_models_to_cache():
                 for model_version_or_alias in LOADED_MODELS[model_name][model_flavor].keys():
                     to_save.append(
                         dict(
-                            model_name = model_name,
-                            model_flavor = model_flavor,
-                            model_version_or_alias = model_version_or_alias
+                            model_name=model_name,
+                            model_flavor=model_flavor,
+                            model_version_or_alias=model_version_or_alias
                         )
                     )
     with open(SERVED_MODEL_CACHE_FILE, 'w') as f:
         json.dump(to_save, f)
+
 
 class PredictRequest(BaseModel):
     data: list
@@ -205,32 +214,35 @@ class UserInfo(BaseModel):
     api_key: str | None = None
     password: str | None = None
 
+
 class VerifyPasswordInfo(BaseModel):
     username: str
     password: str
 
 # Function to load a model in the background
-def load_model_background(model_name : str, model_flavor : str, model_version_or_alias : str|int):
+
+
+def load_model_background(model_name: str, model_flavor: str, model_version_or_alias: str | int):
     try:
         model = fload_model(
             model_name,
             model_flavor,
-            model_version = model_version_or_alias
+            model_version=model_version_or_alias
         )
     except Exception:
         try:
             model = fload_model(
                 model_name,
                 model_flavor,
-                model_alias = model_version_or_alias
+                model_alias=model_version_or_alias
             )
         except Exception as e:
             raise ValueError('Model not able to be loaded')
-        
+
     if not LOADED_MODELS.get(model_name):
         LOADED_MODELS[model_name] = {
-            model_flavor : {
-                model_version_or_alias : model
+            model_flavor: {
+                model_version_or_alias: model
             }
         }
     elif not LOADED_MODELS[model_name].get(model_flavor):
@@ -366,6 +378,7 @@ def verify_credentials_password(credentials: HTTPBasicCredentials = Depends(secu
 
 # Verify a user's password
 
+
 @app.post('/password/verify')
 def verify_password(body: VerifyPasswordInfo, user_properties: dict = Depends(verify_credentials)):
     """
@@ -396,8 +409,9 @@ def verify_password(body: VerifyPasswordInfo, user_properties: dict = Depends(ve
 def redirect_docs():
     return RedirectResponse(url='/api/docs')
 
+
 @app.get('/models/load/{model_name}/{model_flavor}/{model_version_or_alias}')
-def load_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, background_tasks : BackgroundTasks, user_properties: dict = Depends(verify_credentials)):
+def load_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, background_tasks: BackgroundTasks, user_properties: dict = Depends(verify_credentials)):
     """
     Load a model into local memory
 
@@ -448,6 +462,7 @@ def list_models(user_properties: dict = Depends(verify_credentials)):
 
 # Delete a loaded model
 
+
 @app.delete('/models/unload/{model_name}/{model_flavor}/{model_version_or_alias}')
 def unload_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, user_properties: dict = Depends(verify_credentials)):
     """
@@ -464,14 +479,14 @@ def unload_model(model_name: str, model_flavor: str, model_version_or_alias: str
     """
     try:
         del LOADED_MODELS[model_name][model_flavor][model_version_or_alias]
-        
+
         save_models_to_cache()
-        
+
         return {
             'success': True
         }
     except Exception:
-        raise HTTPException(404, 'Model not found')    
+        raise HTTPException(404, 'Model not found')
 
 # Predict using a model version or alias
 
