@@ -101,7 +101,7 @@ def fload_model(
 
         # Load the model if it is requested to be a transformers model
         if mlflow.transformers.is_gpu_available():
-            # NOTE: This loads the model to the first GPU
+            # NOTE: This loads the model to GPU automatically
             # TODO: Change this so that it can be done more intelligently
             model = mlflow.transformers.load_model(
                 model_uri,
