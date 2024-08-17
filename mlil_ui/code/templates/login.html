@@ -3,65 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login - MLInsightLab</title>
     <style>
+        /* Base styles */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Roboto', sans-serif;
+            background-color: #1a1a2e;
+            color: #fff;
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             height: 100vh;
-            margin: 0;
         }
+
+        /* Container */
         .login-container {
-            background-color: #ffffff;
+            background-color: #16213e;
             padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            width: 350px;
             text-align: center;
-            margin-top: 50px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+
+        .login-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Heading */
         .login-container h2 {
-            color: #4a90e2;
-            margin-bottom: 20px;
+            color: #e94560;
+            font-size: 24px;
+            margin-bottom: 30px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
         }
+
+        /* Input fields */
         .login-container input[type="text"],
         .login-container input[type="password"] {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #cccccc;
-            border-radius: 4px;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid #0f3460;
+            border-radius: 50px;
+            background-color: #0f3460;
+            color: #fff;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
         }
+
         .login-container input[type="text"]:focus,
         .login-container input[type="password"]:focus {
-            border-color: #4a90e2;
+            border-color: #e94560;
             outline: none;
         }
+
+        /* Submit button */
         .login-container input[type="submit"] {
-            background-color: #357ABD;
+            background-color: #e94560;
             color: #ffffff;
-            padding: 10px;
+            padding: 12px;
             border: none;
-            border-radius: 4px;
+            border-radius: 50px;
             cursor: pointer;
             width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
             margin-top: 20px;
         }
+
         .login-container input[type="submit"]:hover {
-            background-color: #4a90e2;
+            background-color: #f76c7c;
+            transform: translateY(-3px);
         }
+
+        /* Warning message */
         .warning-message {
             color: #e74c3c;
             margin-top: 20px;
+            font-weight: 600;
+        }
+
+        /* Responsive design */
+        @media (max-width: 500px) {
+            .login-container {
+                width: 100%;
+                padding: 20px;
+            }
+
+            .login-container h2 {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+
+            .login-container input[type="submit"] {
+                font-size: 14px;
+                padding: 10px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <h2>MLInsightLab UI Login</h2>
+        <h2>MLInsightLab Login</h2>
         <form method="post">
             <input type="text" id="username" name="username" placeholder="Username" required><br>
             <input type="password" id="password" name="password" placeholder="Password" required><br>
