@@ -27,7 +27,7 @@ services:
     build: ./jupyter
     depends_on:
       - dask-worker
-      - api
+      - model-server
     volumes:
       - ${NOTEBOOK_MOUNT}
       - ${JUPYTERHUB_DATABASE_MOUNT}
@@ -57,9 +57,9 @@ services:
     networks:
       - network
 
-  api:
+  model-server:
     restart: always
-    build: ./api
+    build: ./model_server
     depends_on:
       - mlflow
     volumes:
@@ -76,9 +76,9 @@ services:
     networks:
       - network
 
-  ui:
+  mlil-ui:
     restart: always
-    build: ./ui
+    build: ./mlil_ui
     depends_on:
       - mlflow
       - jupyter
@@ -97,7 +97,7 @@ services:
     depends_on:
       - jupyter
       - mlflow
-      - ui
+      - mlil-ui
     volumes:
       - ./certs/fullchain.pem:/etc/nginx/ssl/fullchain.pem
       - ./certs/privkey.pem:/etc/nginx/ssl/privkey.pem
