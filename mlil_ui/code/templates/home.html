@@ -3,38 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLInsightLab Home</title>
+    <title>MLInsightLab Dashboard</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             display: flex;
+            flex-direction: column;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             height: 100vh;
             margin: 0;
+        }
+        header {
+            width: 100%;
+            background-color: #357ABD;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            width: 100%;
+            background-color: #357ABD;
+            color: #ffffff;
+            padding: 10px;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
         }
         .home-container {
             background-color: #ffffff;
             padding: 40px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 500px;
             text-align: center;
-            margin-top: 50px;
+            margin-top: 20px;
         }
         .home-container h2 {
             color: #4a90e2;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            font-size: 28px;
         }
         .home-container a {
             display: block;
-            margin: 10px 0;
-            padding: 10px;
+            margin: 15px 0;
+            padding: 15px;
             background-color: #357ABD;
             color: #ffffff;
             text-decoration: none;
-            border-radius: 4px;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
         }
         .home-container a:hover {
             background-color: #4a90e2;
@@ -42,12 +64,20 @@
     </style>
 </head>
 <body>
+    <header>
+        <h1>Welcome to MLInsightLab</h1>
+    </header>
+    
     <div class="home-container">
-        <h2>MLInsightLab Dashboard</h2>
+        <h2>Dashboard</h2>
         <a href="/jupyter">Go To JupyterHub</a>
         <a href="/mlflow">Go to MLflow</a>
         <a href="/api">API Documentation</a>
         <a href="/logout">Logout</a>
     </div>
+    
+    <footer>
+        <p>© 2024 MLInsightLab. All rights reserved.</p>
+    </footer>
 </body>
 </html>
