@@ -27,7 +27,7 @@ services:
     build: ./jupyter
     depends_on:
       - dask-worker
-      - model-server
+      - api
     volumes:
       - ${NOTEBOOK_MOUNT}
       - ${JUPYTERHUB_DATABASE_MOUNT}
@@ -57,9 +57,9 @@ services:
     networks:
       - network
 
-  model-server:
+  api:
     restart: always
-    build: ./model_server
+    build: ./api
     depends_on:
       - mlflow
     volumes:
@@ -76,9 +76,9 @@ services:
     networks:
       - network
 
-  mlil-ui:
+  ui:
     restart: always
-    build: ./mlil_ui
+    build: ./ui
     depends_on:
       - mlflow
       - jupyter
@@ -97,7 +97,7 @@ services:
     depends_on:
       - jupyter
       - mlflow
-      - mlil-ui
+      - ui
     environment:
       - USE_SSL=false
     ports:
