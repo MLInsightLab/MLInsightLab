@@ -124,7 +124,7 @@ def load_models_from_cache():
     try:
         with open(SERVED_MODEL_CACHE_FILE, 'r') as f:
             return json.load(f)
-    except:
+    except Exception:
         return None
 
 
@@ -179,7 +179,7 @@ try:
             except Exception:
                 raise ValueError('Model not able to be loaded')
 
-except:
+except Exception:
     LOADED_MODELS = {}
 
 

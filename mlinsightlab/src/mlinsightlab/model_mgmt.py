@@ -1,9 +1,10 @@
 # Helper functions to manage and interat with MLFlow models
-from .MLIL_APIException import MLIL_APIException
+from .MLILException import MLILException
 from typing import Union, List, Optional
-from .endpoints import ENDPOINTS
+from .endpoints import LOAD_MODEL_ENDPOINT, LIST_MODELS_ENDPOINT, UNLOAD_MODEL_ENDPOINT, PREDICT_ENDPOINT
 import pandas as pd
 import requests
+
 
 def _load_model(
     url: str,
@@ -11,7 +12,7 @@ def _load_model(
     model_name: str,
     model_flavor: str,
     model_version_or_alias: str
-    ):
+):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
@@ -22,7 +23,7 @@ def _load_model(
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds: 
+    creds:
         Dictionary that must contain keys "username" and "key", and associated values.
     model_name: str
         The name of the model to load
@@ -33,12 +34,12 @@ def _load_model(
     """
 
     json_data = {
-        'model_name' : model_name,
-        'model_flavor' : model_flavor,
-        'model_version_or_alias' : model_version_or_alias
+        'model_name': model_name,
+        'model_flavor': model_flavor,
+        'model_version_or_alias': model_version_or_alias
     }
 
-    url = f"{url}/{ENDPOINTS['load_model']}/{model_name}/{model_flavor}/{model_version_or_alias}"
+    url = f"{url}/{LOAD_MODEL_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
 
     with requests.Session() as sess:
         resp = sess.get(
@@ -47,12 +48,14 @@ def _load_model(
             json=json_data
         )
     if not resp.ok:
-        raise MLIL_APIException(resp.json())
+        raise MLILException(str(resp.json()))
     return resp
+
+
 def _list_models(
     url: str,
     creds: dict
-    ):
+):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
@@ -63,11 +66,11 @@ def _list_models(
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds: 
+    creds:
         Dictionary that must contain keys "username" and "key", and associated values.
     """
 
-    url = f"{url}/{ENDPOINTS['list_models']}"
+    url = f"{url}/{LIST_MODELS_ENDPOINT}"
 
     with requests.Session() as sess:
         resp = sess.get(
@@ -75,15 +78,17 @@ def _list_models(
             auth=(creds['username'], creds['key']),
         )
     if not resp.ok:
-        raise MLIL_APIException(resp.json())
+        raise MLILException(str(resp.json()))
     return resp
+
+
 def _unload_model(
     url: str,
     creds: dict,
     model_name: str,
     model_flavor: str,
     model_version_or_alias: str
-    ):
+):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
@@ -94,7 +99,7 @@ def _unload_model(
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds: 
+    creds:
         Dictionary that must contain keys "username" and "key", and associated values.
     model_name: str
         The name of the model to unload.
@@ -105,12 +110,12 @@ def _unload_model(
     """
 
     json_data = {
-        'model_name' : model_name,
-        'model_flavor' : model_flavor,
-        'model_version_or_alias' : model_version_or_alias
+        'model_name': model_name,
+        'model_flavor': model_flavor,
+        'model_version_or_alias': model_version_or_alias
     }
 
-    url = f"{url}/{ENDPOINTS['unload_model']/{model_name}/{model_flavor}/{model_version_or_alias}}"
+    url = f"{url}/{UNLOAD_MODEL_ENDPOINT/{model_name}/{model_flavor}/{model_version_or_alias}}"
 
     with requests.Session() as sess:
         resp = sess.delete(
@@ -119,8 +124,10 @@ def _unload_model(
             json=json_data
         )
     if not resp.ok:
-        raise MLIL_APIException(resp.json())
+        raise MLILException(str(resp.json()))
     return resp
+
+
 def _predict(
     url: str,
     creds: dict,
@@ -131,7 +138,7 @@ def _predict(
     predict_function: str = "predict",
     dtype: str = "string",
     params: Optional[dict] = None
-    ):
+):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
@@ -143,7 +150,7 @@ def _predict(
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds: 
+    creds:
         Dictionary that must contain keys "username" and "key", and associated values.
     model_name: str
         The name of the model to be invoked.
@@ -170,7 +177,7 @@ def _predict(
         "params": params or {}
     }
 
-    url = f"{url}/{ENDPOINTS['predict']}/{model_name}/{model_flavor}/{model_version_or_alias}"
+    url = f"{url}/{PREDICT_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
 
     with requests.Session() as sess:
         resp = sess.post(
@@ -179,5 +186,5 @@ def _predict(
             json=json_data
         )
     if not resp.ok:
-        raise MLIL_APIException(resp.json())
+        raise MLILException(str(resp.json()))
     return resp

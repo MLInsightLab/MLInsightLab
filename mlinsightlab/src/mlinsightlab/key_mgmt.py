@@ -1,24 +1,25 @@
 # Manage authentication keys
-from .MLIL_APIException import MLIL_APIException
-from .endpoints import ENDPOINTS
+from .MLILException import MLILException
+from .endpoints import NEW_API_KEY_ENDPOINT
 import requests
+
 
 def _create_api_key(
     url: str,
     creds: dict,
     username: str
-    ):
+):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
-    Create a new API key for a user. 
+    Create a new API key for a user.
     Called within the MLIL_client class.
 
     Parameters
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds: 
+    creds:
         Dictionary that must contain keys "username" and "key", and associated values.
     username: str
         The user's display name and login credential
@@ -29,10 +30,10 @@ def _create_api_key(
     """
 
     json_data = {
-        'username' : username
+        'username': username
     }
 
-    url = f"{url}/{ENDPOINTS['new_api_key']}"
+    url = f"{url}/{NEW_API_KEY_ENDPOINT}"
 
     with requests.Session() as sess:
         resp = sess.put(
@@ -41,5 +42,5 @@ def _create_api_key(
             json=json_data
         )
     if not resp.ok:
-        raise MLIL_APIException(resp.json())
+        raise MLILException(str(resp.json()))
     return resp

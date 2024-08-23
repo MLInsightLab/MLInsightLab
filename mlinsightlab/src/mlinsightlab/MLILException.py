@@ -1,0 +1,2 @@
+class MLILException(Exception):
+    pass

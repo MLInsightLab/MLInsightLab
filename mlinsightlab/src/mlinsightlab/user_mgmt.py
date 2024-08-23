@@ -1,27 +1,28 @@
 # Manage users and credentials
-from .MLIL_APIException import MLIL_APIException
-from .endpoints import ENDPOINTS
+from .MLILException import MLILException
+from .endpoints import CREATE_USER_ENDPOINT, DELETE_USER_ENDPOINT, VERIFY_PASSWORD_ENDPOINT, NEW_PASSWORD_ENDPOINT, GET_USER_ROLE_ENDPOINT, UPDATE_USER_ROLE_ENDPOINT, LIST_USERS_ENDPOINT
 import requests
+
 
 def _create_user(
     url: str,
     creds: dict,
     username: str,
     role: str,
-    api_key: str or None,
-    password: str or None
-    ):
+    api_key: str | None,
+    password: str | None
+):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
-    Create a user within the platform. 
+    Create a user within the platform.
     Called within the MLIL_client class.
 
     Parameters
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    cred: 
+    cred:
         Dictionary that must contain keys "username" and "key", and associated values.
     username: str
         The user's display name and login credential
@@ -34,8 +35,8 @@ def _create_user(
     """
 
     json_data = {
-        'username' : username,
-        'role' : role
+        'username': username,
+        'role': role
     }
 
     if api_key:
@@ -43,7 +44,7 @@ def _create_user(
     if password:
         json_data['password'] = password
 
-    url = f"{url}/{ENDPOINTS['create_user']}"
+    url = f"{url}/{CREATE_USER_ENDPOINT}"
 
     with requests.Session() as sess:
         resp = sess.post(
@@ -52,34 +53,36 @@ def _create_user(
             json=json_data
         )
     if not resp.ok:
-        raise MLIL_APIException(resp.json())
+        raise MLILException(str(resp.json()))
     return resp
+
+
 def _delete_user(
     url: str,
     creds: dict,
     username: str
-    ):
+):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
-    Delete a user within the platform. 
+    Delete a user within the platform.
     Called within the MLIL_client class.
 
     Parameters
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds: 
+    creds:
         Dictionary that must contain keys "username" and "key", and associated values.
     username: str
         The user's display name and login credential
     """
 
     json_data = {
-        'username' : username
+        'username': username
     }
 
-    url = f"{url}/{ENDPOINTS['delete_user']}"
+    url = f"{url}/{DELETE_USER_ENDPOINT}"
 
     with requests.Session() as sess:
         resp = sess.delete(
@@ -88,25 +91,27 @@ def _delete_user(
             json=json_data
         )
     if not resp.ok:
-        raise MLIL_APIException(resp.json())
+        raise MLILException(str(resp.json()))
     return resp
+
+
 def _verify_password(
     url: str,
     creds: dict,
     username: str,
     password: str
-    ):
+):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
-    Verify a user's password. 
+    Verify a user's password.
     Called within the MLIL_client class.
 
     Parameters
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds: 
+    creds:
         Dictionary that must contain keys "username" and "key", and associated values.
     username: str
         The user's display name and login credential
@@ -115,11 +120,11 @@ def _verify_password(
     """
 
     json_data = {
-        'username' : username,
-        'password' : password
+        'username': username,
+        'password': password
     }
 
-    url = f"{url}/{ENDPOINTS['verify_password']}"
+    url = f"{url}/{VERIFY_PASSWORD_ENDPOINT}"
 
     with requests.Session() as sess:
         resp = sess.post(
@@ -128,25 +133,27 @@ def _verify_password(
             json=json_data
         )
     if not resp.ok:
-        raise MLIL_APIException(resp.json())
+        raise MLILException(str(resp.json()))
     return resp
+
+
 def _issue_new_password(
     url: str,
     creds: dict,
     username: str,
     new_password: str
-    ):
+):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
-    Create a new a password for an existing user. 
+    Create a new a password for an existing user.
     Called within the MLIL_client class.
 
     Parameters
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds: 
+    creds:
         Dictionary that must contain keys "username" and "key", and associated values.
     username: str
         The user's display name and login credential
@@ -155,11 +162,11 @@ def _issue_new_password(
     """
 
     json_data = {
-        'username' : username,
-        'new_password' : new_password
+        'username': username,
+        'new_password': new_password
     }
 
-    url = f"{url}/{ENDPOINTS['issue_new_password']}"
+    url = f"{url}/{NEW_PASSWORD_ENDPOINT}"
 
     with requests.Session() as sess:
         resp = sess.put(
@@ -168,34 +175,36 @@ def _issue_new_password(
             json=json_data
         )
     if not resp.ok:
-        raise MLIL_APIException(resp.json())
+        raise MLILException(resp.json())
     return resp
+
+
 def _get_user_role(
     url: str,
     creds: dict,
     username: str,
-    ):
+):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
-    Check a user's role. 
+    Check a user's role.
     Called within the MLIL_client class.
 
     Parameters
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds: 
+    creds:
         Dictionary that must contain keys "username" and "key", and associated values.
     username: str
         The user's display name and login credential.
     """
 
     json_data = {
-        'username' : username
+        'username': username
     }
 
-    url = f"{url}/{ENDPOINTS['get_user_role']}"
+    url = f"{url}/{GET_USER_ROLE_ENDPOINT}"
 
     with requests.Session() as sess:
         resp = sess.get(
@@ -204,25 +213,27 @@ def _get_user_role(
             json=json_data
         )
     if not resp.ok:
-        raise MLIL_APIException(resp.json())
+        raise MLILException(str(resp.json()))
     return resp
+
+
 def _update_user_role(
     url: str,
     creds: dict,
     username: str,
     new_role: str
-    ):
+):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
-    Update a user's role. 
+    Update a user's role.
     Called within the MLIL_client class.
 
     Parameters
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds: 
+    creds:
         Dictionary that must contain keys "username" and "key", and associated values.
     username: str
         The user's display name and login credential
@@ -231,11 +242,11 @@ def _update_user_role(
     """
 
     json_data = {
-        'username' : username,
-        'new_role' : new_role
+        'username': username,
+        'new_role': new_role
     }
 
-    url = f"{url}/{ENDPOINTS['update_user_role']}"
+    url = f"{url}/{UPDATE_USER_ROLE_ENDPOINT}"
 
     with requests.Session() as sess:
         resp = sess.put(
@@ -244,27 +255,29 @@ def _update_user_role(
             json=json_data
         )
     if not resp.ok:
-        raise MLIL_APIException(resp.json())
+        raise MLILException(str(resp.json()))
     return resp
+
+
 def _list_users(
     url: str,
     creds: dict,
-    ):
+):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
-    Update a user's role. 
+    Update a user's role.
     Called within the MLIL_client class.
 
     Parameters
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds: 
-        Dictionary that must contain keys "username" and "key", and associated values.    
+    creds:
+        Dictionary that must contain keys "username" and "key", and associated values.
     """
 
-    url = f"{url}/{ENDPOINTS['list_users']}"
+    url = f"{url}/{LIST_USERS_ENDPOINT}"
 
     with requests.Session() as sess:
         resp = sess.get(
@@ -272,5 +285,5 @@ def _list_users(
             auth=(creds['username'], creds['key']),
         )
     if not resp.ok:
-        raise MLIL_APIException(resp.json())
+        raise MLILException(str(resp.json()))
     return resp

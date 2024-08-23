@@ -1,15 +1,13 @@
-ENDPOINTS = {
-    'login' : 'TEST', #TODO,
-    'verify_password' : 'api/password/verify',
-    'load_model' : 'api/models/load',
-    'list_models' : 'api/models/list',
-    'unload_model' : 'api/models/unload',
-    'predict' : 'api/models/predict',
-    'create_user' : 'api/users/create',
-    'delete_user' : 'api/users/delete',
-    'new_api_key' : 'api/users/api_key/issue',
-    'issue_new_password' : 'api/users/password/issue',
-    'get_user_role' : 'api/users/role',
-    'update_user_role' : 'api/users/role',
-    'list_users' : 'api/users/list'
-}
+LOGIN_ENDPOINT = None  # TODO
+VERIFY_PASSWORD_ENDPOINT = 'api/password/verify'
+LOAD_MODEL_ENDPOINT = 'api/models/load'
+LIST_MODELS_ENDPOINT = 'api/models/list'
+UNLOAD_MODEL_ENDPOINT = 'api/models/unload'
+PREDICT_ENDPOINT = 'api/models/predict'
+CREATE_USER_ENDPOINT = 'api/users/create'
+DELETE_USER_ENDPOINT = 'api/users/delete'
+NEW_API_KEY_ENDPOINT = 'api/users/api_key/issue'
+NEW_PASSWORD_ENDPOINT = 'api/users/password/issue'
+GET_USER_ROLE_ENDPOINT = 'api/users/role'
+UPDATE_USER_ROLE_ENDPOINT = 'api/users/role'
+LIST_USERS_ENDPOINT = 'api/users/list'
