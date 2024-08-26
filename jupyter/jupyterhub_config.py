@@ -3,6 +3,7 @@ from jupyterhub.auth import Authenticator
 from subprocess import check_call
 from tornado import gen
 import requests
+import shutil
 import os
 
 # Get the environment variable for the API URL
@@ -1430,6 +1431,12 @@ def pre_spawn_hook(spawner):
         # Add user to sudo group if thir role is admin
         if role == 'admin':
             check_call(['adduser', username.lower(), 'sudo'])
+
+        # Create a directory for the user in the /notebooks directory and change the ownership
+        user_directory = os.path.join('/notebooks', username.lower())
+        os.makedirs(user_directory, exist_ok = True)
+        shutil.chown(user_directory, username.lower(), username.lower())
+
     except Exception as e:
         print(e)
 
