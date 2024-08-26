@@ -610,9 +610,15 @@ def issue_new_api_key(username, user_properties: dict = Depends(verify_credentia
             'User does not have permissions'
         )
     else:
-        return fissue_new_api_key(
-            username
-        )
+        try:
+            return fissue_new_api_key(
+                username
+            )
+        except Exception as e:
+            raise HTTPException(
+                400,
+                str(e)
+            )
 
 # Issue new password for user
 
@@ -635,10 +641,16 @@ def issue_new_password(username, new_password: str = Body(embed=True), user_prop
             'User does not have permissions'
         )
     else:
-        return fissue_new_password(
-            username,
-            new_password
-        )
+        try:
+            return fissue_new_password(
+                username,
+                new_password
+            )
+        except Exception as e:
+            raise HTTPException(
+                400,
+                str(e)
+            )
 
 # Get user role
 

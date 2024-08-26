@@ -22,6 +22,7 @@ app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
 templates = Jinja2Templates(directory="templates")
 
+
 def authenticate(username: str, password: str):
     with requests.Session() as sess:
         resp = sess.post(
@@ -40,6 +41,7 @@ def authenticate(username: str, password: str):
         except Exception:
             pass
 
+
 def check_inactivity(request: Request):
     last_active = request.session.get('last_active', None)
     if last_active:
@@ -49,9 +51,11 @@ def check_inactivity(request: Request):
     request.session['last_active'] = time.time()
     return True
 
+
 @app.get("/login", response_class=HTMLResponse)
 async def login_form(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
+
 
 @app.post("/login")
 async def login(request: Request, username: str = Form(...), password: str = Form(...)):
@@ -61,16 +65,19 @@ async def login(request: Request, username: str = Form(...), password: str = For
         return RedirectResponse(url="/", status_code=302)
     return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})
 
+
 @app.get("/logout")
 async def logout(request: Request):
     request.session.clear()
     return RedirectResponse(url="/login")
+
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     if 'user' not in request.session or not check_inactivity(request):
         return RedirectResponse(url="/login")
     return templates.TemplateResponse("home.html", {"request": request})
+
 
 @app.api_route("/mlflow/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy_mlflow(path: str, request: Request):

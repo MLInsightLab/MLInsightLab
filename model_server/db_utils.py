@@ -25,6 +25,9 @@ HASHED_ADMIN_PASSWORD = argon2.PasswordHasher().hash(ADMIN_PASSWORD)
 SERVED_MODEL_CACHE_DIR = os.environ['SERVED_MODEL_CACHE_DIR']
 SERVED_MODEL_CACHE_FILE = os.path.join(SERVED_MODEL_CACHE_DIR, 'models.json')
 
+# Password requirements
+MINIMUM_PASSWORD_LENGTH = 8
+
 # Function to generate an API key
 
 
@@ -42,8 +45,16 @@ def generate_password():
     """
     Generates a password
     """
-    password = ''.join(random.choices(
-        string.ascii_letters + string.digits, k=12))
+    password = ''
+    while not all(
+        [
+            any([letter in password for letter in string.ascii_lowercase]),
+            any([letter in password for letter in string.ascii_uppercase]),
+            any([number in password for number in string.digits])
+        ]
+    ):
+        password = ''.join(random.choices(
+            string.ascii_letters + string.digits, k=12))
     return password
 
 # Function to validate role
@@ -262,6 +273,7 @@ def fissue_new_password(username, password=None):
     Issue a new password for a specified user
 
     NOTE: Raises ValueError if zero or more than one user exists with the username
+    NOTE: Raises ValueError if password does not meet minimum length requirements or does not contain at least one uppercase and one lowercase letter
     """
 
     # Connect to the database and ensure that the user already exists
@@ -278,6 +290,14 @@ def fissue_new_password(username, password=None):
     # Generate API key if one is not provided
     if password is None:
         password = generate_password()
+
+    # Validate whether the password fits the minimum requirements
+    if len(password) < MINIMUM_PASSWORD_LENGTH:
+        raise ValueError('Password must contain at least 8 characters')
+    if not any([letter in password for letter in string.ascii_lowercase]):
+        raise ValueError('Password must contain at least one lowercase letter')
+    if not any([letter in password for letter in string.ascii_uppercase]):
+        raise ValueError('Password must contain at least one uppercase letter')
 
     # Hash the key
     hashed_password = argon2.PasswordHasher().hash(password)
