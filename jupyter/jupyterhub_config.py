@@ -1432,13 +1432,20 @@ def pre_spawn_hook(spawner):
         if role == 'admin':
             check_call(['adduser', username.lower(), 'sudo'])
 
+    except Exception:
+        pass
+    
+    finally:
         # Create a directory for the user in the /notebooks directory and change the ownership
         user_directory = os.path.join('/notebooks', username.lower())
         os.makedirs(user_directory, exist_ok = True)
-        shutil.chown(user_directory, username.lower(), username.lower())
 
-    except Exception as e:
-        print(e)
+        try:
+            shutil.chown(user_directory, username.lower(), username.lower())
+
+        except Exception:
+            pass
+
 
 
 c.Spawner.pre_spawn_hook = pre_spawn_hook
