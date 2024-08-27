@@ -1434,18 +1434,17 @@ def pre_spawn_hook(spawner):
 
     except Exception:
         pass
-    
+
     finally:
         # Create a directory for the user in the /notebooks directory and change the ownership
         user_directory = os.path.join('/notebooks', username.lower())
-        os.makedirs(user_directory, exist_ok = True)
+        os.makedirs(user_directory, exist_ok=True)
 
         try:
             shutil.chown(user_directory, username.lower(), username.lower())
 
         except Exception:
             pass
-
 
 
 c.Spawner.pre_spawn_hook = pre_spawn_hook

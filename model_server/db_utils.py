@@ -38,6 +38,18 @@ def generate_api_key():
     key = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
     return f'mlil-{key}'
 
+# Function to verify if a password meets minimum requirements
+
+
+def password_meets_requirements(password):
+    return all(
+        [
+            any([letter in password for letter in string.ascii_lowercase]),
+            any([letter in password for letter in string.ascii_uppercase]),
+            any([number in password for number in string.digits])
+        ]
+    )
+
 # Function to generate a password
 
 
@@ -46,13 +58,7 @@ def generate_password():
     Generates a password
     """
     password = ''
-    while not all(
-        [
-            any([letter in password for letter in string.ascii_lowercase]),
-            any([letter in password for letter in string.ascii_uppercase]),
-            any([number in password for number in string.digits])
-        ]
-    ):
+    while not password_meets_requirements(password):
         password = ''.join(random.choices(
             string.ascii_letters + string.digits, k=12))
     return password
@@ -197,6 +203,9 @@ def fcreate_user(username, role, api_key=None, password=None):
     if password is None:
         password = generate_password()
 
+    if not password_meets_requirements(password):
+        raise ValueError('Password does not meet minimum requirements')
+
     # Validate the prospective role
     validate_role(role)
 
@@ -291,13 +300,8 @@ def fissue_new_password(username, password=None):
     if password is None:
         password = generate_password()
 
-    # Validate whether the password fits the minimum requirements
-    if len(password) < MINIMUM_PASSWORD_LENGTH:
-        raise ValueError('Password must contain at least 8 characters')
-    if not any([letter in password for letter in string.ascii_lowercase]):
-        raise ValueError('Password must contain at least one lowercase letter')
-    if not any([letter in password for letter in string.ascii_uppercase]):
-        raise ValueError('Password must contain at least one uppercase letter')
+    if not password_meets_requirements(password):
+        raise ValueError('Password does not meet minimum requirements')
 
     # Hash the key
     hashed_password = argon2.PasswordHasher().hash(password)

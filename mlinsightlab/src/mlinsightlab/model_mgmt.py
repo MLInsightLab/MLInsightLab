@@ -39,7 +39,8 @@ def _load_model(
         'model_version_or_alias': model_version_or_alias
     }
 
-    url = f"{url}/{LOAD_MODEL_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
+    url = f"{
+        url}/{LOAD_MODEL_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
 
     with requests.Session() as sess:
         resp = sess.get(
@@ -115,7 +116,8 @@ def _unload_model(
         'model_version_or_alias': model_version_or_alias
     }
 
-    url = f"{url}/{UNLOAD_MODEL_ENDPOINT/{model_name}/{model_flavor}/{model_version_or_alias}}"
+    url = f"{url}/{UNLOAD_MODEL_ENDPOINT/{model_name} /
+                   {model_flavor}/{model_version_or_alias}}"
 
     with requests.Session() as sess:
         resp = sess.delete(
@@ -177,7 +179,8 @@ def _predict(
         "params": params or {}
     }
 
-    url = f"{url}/{PREDICT_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
+    url = f"{
+        url}/{PREDICT_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
 
     with requests.Session() as sess:
         resp = sess.post(

@@ -348,7 +348,7 @@ def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
             'username': credentials.username,
             'role': role
         }
-    except ValueError as e:
+    except Exception as e:
         raise HTTPException(
             401,
             str(e)
@@ -370,7 +370,7 @@ def verify_credentials_password(credentials: HTTPBasicCredentials = Depends(secu
             'username': credentials.username,
             'role': role
         }
-    except ValueError as e:
+    except Exception as e:
         raise HTTPException(
             401,
             str(e)
@@ -444,21 +444,24 @@ def list_models(user_properties: dict = Depends(verify_credentials)):
     """
     List loaded models
     """
-    if LOADED_MODELS == {}:
-        return []
-    else:
-        to_return = []
-        for model_name in LOADED_MODELS.keys():
-            for model_flavor in LOADED_MODELS[model_name]:
-                for model_version_or_alias in LOADED_MODELS[model_name][model_flavor].keys():
-                    to_return.append(
-                        dict(
-                            model_name=model_name,
-                            model_flavor=model_flavor,
-                            model_version_or_alias=model_version_or_alias
+    try:
+        if LOADED_MODELS == {}:
+            return []
+        else:
+            to_return = []
+            for model_name in LOADED_MODELS.keys():
+                for model_flavor in LOADED_MODELS[model_name]:
+                    for model_version_or_alias in LOADED_MODELS[model_name][model_flavor].keys():
+                        to_return.append(
+                            dict(
+                                model_name=model_name,
+                                model_flavor=model_flavor,
+                                model_version_or_alias=model_version_or_alias
+                            )
                         )
-                    )
-        return to_return
+            return to_return
+    except Exception:
+        raise HTTPException(500, 'An unknown error occurred')
 
 # Delete a loaded model
 
@@ -513,7 +516,7 @@ def predict(model_name: str, model_flavor: str, model_version_or_alias: str | in
 
         # Model needs to be loaded
         raise HTTPException(
-            404, 'That model is not loaded. Please load the model by calling the /model/load endpoint first'
+            404, 'That model is not loaded. Please load the model by calling the /models/load endpoint first'
         )
 
     # Grab the data to predict on from the input body
@@ -561,12 +564,15 @@ def create_user(user_info: UserInfo, user_properties: dict = Depends(verify_cred
             'User does not have permissions'
         )
     else:
-        return fcreate_user(
-            user_info.username,
-            user_info.role,
-            user_info.api_key,
-            user_info.password
-        )
+        try:
+            return fcreate_user(
+                user_info.username,
+                user_info.role,
+                user_info.api_key,
+                user_info.password
+            )
+        except Exception as e:
+            raise HTTPException(500, f'The following error occurred: {str(e)}')
 
 # Delete User
 
@@ -587,9 +593,12 @@ def delete_user(username, user_properties: dict = Depends(verify_credentials)):
             'User does not have permissions'
         )
     else:
-        return fdelete_user(
-            username
-        )
+        try:
+            return fdelete_user(
+                username
+            )
+        except Exception:
+            raise HTTPException(500, 'An unknown error occurred')
 
 # Issue new API key for user
 
@@ -671,7 +680,10 @@ def get_user_role(username: str, user_properties: dict = Depends(verify_credenti
             'User does not have permissions'
         )
 
-    return fget_user_role(username)
+    try:
+        return fget_user_role(username)
+    except Exception:
+        raise HTTPException(500, 'An unknown error occurred')
 
 # Update user role
 
@@ -693,10 +705,14 @@ def update_user_role(username: str, new_role=Body(embed=True), user_properties: 
             403,
             'User does not have permissions'
         )
-    return fupdate_user_role(
-        username,
-        new_role
-    )
+
+    try:
+        return fupdate_user_role(
+            username,
+            new_role
+        )
+    except Exception:
+        raise HTTPException(500, 'An unknown error occurred')
 
 # List users
 
@@ -711,4 +727,8 @@ def list_users(user_properties: dict = Depends(verify_credentials)):
             403,
             'User does not have permissions'
         )
-    return flist_users()
+
+    try:
+        return flist_users()
+    except Exception:
+        raise HTTPException(500, 'An unknown error occurred')
