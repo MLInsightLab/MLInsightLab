@@ -17,7 +17,7 @@ def _load_model(
     NOT MEANT TO BE CALLED BY THE END USER
 
     Loads a saved model into memory.
-    Called within the MLIL_client class.
+    Called within the MLILClient class.
 
     Parameters
     ----------
@@ -39,8 +39,7 @@ def _load_model(
         'model_version_or_alias': model_version_or_alias
     }
 
-    url = f"{
-        url}/{LOAD_MODEL_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
+    url = f"{url}/{LOAD_MODEL_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
 
     with requests.Session() as sess:
         resp = sess.get(
@@ -61,7 +60,7 @@ def _list_models(
     NOT MEANT TO BE CALLED BY THE END USER
 
     Lists all *loaded* models. To view unloaded models, check the MLFlow UI.
-    Called within the MLIL_client class.
+    Called within the MLILClient class.
 
     Parameters
     ----------
@@ -94,7 +93,7 @@ def _unload_model(
     NOT MEANT TO BE CALLED BY THE END USER
 
     Removes a loaded model from memory.
-    Called within the MLIL_client class.
+    Called within the MLILClient class.
 
     Parameters
     ----------
@@ -116,8 +115,7 @@ def _unload_model(
         'model_version_or_alias': model_version_or_alias
     }
 
-    url = f"{url}/{UNLOAD_MODEL_ENDPOINT/{model_name} /
-                   {model_flavor}/{model_version_or_alias}}"
+    url = f"{url}/{UNLOAD_MODEL_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
 
     with requests.Session() as sess:
         resp = sess.delete(
@@ -146,7 +144,7 @@ def _predict(
 
     Calls the 'predict' function of the specified MLFlow model.
 
-    Called within the MLIL_client class.
+    Called within the MLILClient class.
 
     Parameters
     ----------
@@ -179,8 +177,7 @@ def _predict(
         "params": params or {}
     }
 
-    url = f"{
-        url}/{PREDICT_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
+    url = f"{url}/{PREDICT_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
 
     with requests.Session() as sess:
         resp = sess.post(

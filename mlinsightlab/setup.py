@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="mlinsightlab",
-    version="0.0.1",
+    version="0.0.2",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     install_requires=[
@@ -13,7 +13,7 @@ setup(
     description="Your Open Source Serverless Data Science Platform",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/jacobrenn/MLInsightLab/mlil",
+    url="https://github.com/jacobrenn/MLInsightLab/tree/main/mlinsightlab",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",

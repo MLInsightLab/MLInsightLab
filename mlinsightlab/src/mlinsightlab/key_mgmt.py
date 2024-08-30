@@ -6,39 +6,35 @@ import requests
 
 def _create_api_key(
     url: str,
-    creds: dict,
-    username: str
+    username: str,
+    password: str
 ):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
     Create a new API key for a user.
-    Called within the MLIL_client class.
+    Called within the MLILClient class.
 
     Parameters
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds:
-        Dictionary that must contain keys "username" and "key", and associated values.
     username: str
         The user's display name and login credential
-    role: str
-        The role to be given to the user
     password: str
-        Password for user login
+        Password for user verification
     """
 
     json_data = {
         'username': username
     }
 
-    url = f"{url}/{NEW_API_KEY_ENDPOINT}"
+    url = f"{url}/{NEW_API_KEY_ENDPOINT}/{username}"
 
     with requests.Session() as sess:
         resp = sess.put(
             url,
-            auth=(creds['username'], creds['key']),
+            auth=(username, password),
             json=json_data
         )
     if not resp.ok:

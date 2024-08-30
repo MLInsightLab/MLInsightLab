@@ -1,4 +1,5 @@
 from typing import Union, List, Optional
+from pathlib import Path
 import pandas as pd
 import warnings
 import requests
@@ -6,7 +7,7 @@ import getpass
 import json
 import os
 
-from .endpoints import ENDPOINTS
+#from .endpoints import *
 
 from .MLILException import MLILException
 from .user_mgmt import _create_user, _delete_user, _verify_password, _issue_new_password, _get_user_role, _update_user_role, _list_users
@@ -31,16 +32,19 @@ class MLILClient:
         Parameters
         ----------
         """
+
+        self.config_path = Path((f"{Path.home()}/.mlil/config.json"))
+
         if auth is None:
             auth = self.login()
 
         self.username = auth.get('username')
         self.api_key = auth.get('key')
-        # Use URL from auth if available, otherwise use the provided url
         self.url = auth.get('url') or url
+        self.password = auth.get('password')
 
-        if not self.username or not self.api_key:
-            raise ValueError("Both username and API key are required.")
+        if not self.username or not self.api_key or not self.password:
+            raise ValueError("You must provide your username, password, and API key.")
 
         if not self.url:
             raise ValueError(
@@ -48,15 +52,65 @@ class MLILClient:
 
         self.creds = {'username': self.username, 'key': self.api_key}
 
-    def login(self):
-        # Implement login logic here
-        # This method should return a dictionary with 'username', 'key', and 'url'
-        # For example:
-        username = input("Enter username: ")
-        api_key = getpass.getpass("Enter API key: ")
-        url = input("Enter platform URL: ")
-        return {'username': username, 'key': api_key, 'url': url}
+    """
+    ###########################################################################
+    ########################## Login Operations ################################
+    ###########################################################################
+    """
 
+    def login(self):
+        if self.config_path.exists():
+            use_stored = input("Found stored credentials. Use them? (y/n): ").lower() == 'y'
+            if use_stored:
+                return self.load_stored_credentials()
+
+        url = input("Enter platform URL: ")
+        username = input("Enter username: ")
+        password = getpass.getpass("Enter password: ")
+        api_key = getpass.getpass("Enter API key (or leave blank to generate new): ")
+
+        if not api_key:
+            generate_new = input("Generate new API key? (y/n): ").lower() == 'y'
+            if generate_new:
+                api_key = self.issue_api_key(username=username, password=password, url=url)
+
+        resp = self.verify_password(url=url, creds={"username": username, "key": api_key}, username=username, password=password)
+
+        if resp.ok:
+            print(f"User verified...welcome {username}!")
+        else:
+            print('User not verified.')
+            raise MLILException(str(resp.json()))
+
+        auth = {'username': username, 'key': api_key, 'url': url, 'password': password}
+        self.save_credentials(auth)
+        return auth
+    
+    def load_stored_credentials(self):
+        """
+        Loads stored credentials from the config file.
+        """
+        with open(self.config_path, 'r') as f:
+            return json.load(f)
+    
+    def save_credentials(self, auth):
+        """
+        Saves credentials to the config file.
+        """
+        self.config_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.config_path, 'w') as f:
+            json.dump(auth, f)
+    
+    def purge_credentials(self):
+        """
+        Enables user to delete the file containing cached credentials.
+        """
+        purge_creds = input("Are you sure you want to delete your saved credentials? This cannot be undone. (y/n): ").lower() == 'y'
+        if purge_creds:
+            if os.path.exists(self.config_path):
+                os.remove(self.config_path)
+            else:
+                print("No credentials file found.")
     """
     ###########################################################################
     ########################## User Operations ################################
@@ -77,7 +131,7 @@ class MLILClient:
         Create a user within the platform.
 
         >>> import mlil
-        >>> client = mlil.MLIL_client()
+        >>> client = mlil.MLILClient()
         >>> client.create_user()
 
         Parameters
@@ -122,7 +176,7 @@ class MLILClient:
         Delete a user of the platform.
 
         >>> import mlil
-        >>> client = mlil.MLIL_client()
+        >>> client = mlil.MLILClient()
         >>> client.delete_user()
 
         Parameters
@@ -132,7 +186,7 @@ class MLILClient:
         creds:
             Dictionary that must contain keys "username" and "key", and associated values.
         username: str
-            The display name of the user to be deleted
+            The display name of the user to be deleted.
         """
         if url is None:
             url = self.url
@@ -153,17 +207,17 @@ class MLILClient:
 
     def verify_password(
         self,
+        password: str,
         url: str = None,
         creds: dict = None,
         username: str = None,
-        password: str = None,
         verbose: bool = False
     ):
         """
         Verify a user's password.
 
         >>> import mlil
-        >>> client = mlil.MLIL_client()
+        >>> client = mlil.MLILClient()
         >>> client.verify_password()
 
         Parameters
@@ -175,7 +229,7 @@ class MLILClient:
         username: str
             The user's display name and login credential
         password: str
-            Password for user login
+            Password for user login.
         """
         if url is None:
             url = self.url
@@ -194,11 +248,12 @@ class MLILClient:
                 print(
                     f'Something went wrong, request returned a satus code {resp.status_code}')
 
-        return resp.json()
+        return resp
 
     def issue_new_password(
         self,
         new_password: str,
+        overwrite_password: bool = True,
         url: str = None,
         creds: dict = None,
         username: str = None,
@@ -208,19 +263,26 @@ class MLILClient:
         Create a new a password for an existing user.
 
         >>> import mlil
-        >>> client = mlil.MLIL_client()
+        >>> client = mlil.MLILClient()
         >>> client.issue_new_password()
 
         Parameters
         ----------
+
+        new_password: str
+            New password for user authentication.
+            It must have:
+            - At least 8 characters
+            - At least 1 uppercase character
+            - At least 1 lowercase character
+        overwrite_password: bool = True
+            Whether or not to overwrite the password in the config file. Defaults to True.
         url: str
             String containing the URL of your deployment of the platform.
         creds:
             Dictionary that must contain keys "username" and "key", and associated values.
         username: str
             The user's display name and login credential
-        new_password: str
-            New password for user authentication
         """
         if url is None:
             url = self.url
@@ -231,6 +293,16 @@ class MLILClient:
 
         resp = _issue_new_password(
             url, creds, username, new_password=new_password)
+        
+        if resp.ok:
+            self.password = new_password
+        else:
+            return MLILException(str(resp.json()))
+        
+        if overwrite_password:
+            auth = {'username': self.username, 'key': self.api_key, 'url': url, 'password': new_password}
+            print(f'Your password has been overwritten.')
+            self.save_credentials(auth)
 
         if verbose:
             if resp.status_code == 200:
@@ -253,7 +325,7 @@ class MLILClient:
         Check a user's role.
 
         >>> import mlil
-        >>> client = mlil.MLIL_client()
+        >>> client = mlil.MLILClient()
         >>> client.get_user_role()
 
         Parameters
@@ -294,7 +366,7 @@ class MLILClient:
         Update a user's role.
 
         >>> import mlil
-        >>> client = mlil.MLIL_client()
+        >>> client = mlil.MLILClient()
         >>> client.update_user_role()
 
         Parameters
@@ -335,7 +407,7 @@ class MLILClient:
         Update a user's role.
 
         >>> import mlil
-        >>> client = mlil.MLIL_client()
+        >>> client = mlil.MLILClient()
         >>> client.create_user()
 
         Parameters
@@ -370,8 +442,10 @@ class MLILClient:
     def issue_api_key(
         self,
         username: str,
+        password: str,
         url: str = None,
         creds: dict = None,
+        overwrite_api_key: bool = True,
         verbose: bool = False
     ):
         """
@@ -381,25 +455,31 @@ class MLILClient:
         ----------
         url: str
             String containing the URL of your deployment of the platform.
-        creds:
-            Dictionary that must contain keys "username" and "key", and associated values.
         username: str
             The display name of the user for whom you're creating a key.
-        role: str
-            The role to be given to the user
         password: str
-            Password for user login
+            Password for user verification.
+        overwrite_api_key: bool = True
+            Overwrites the API key stored in the credentials cached in config.js
         """
         if url is None:
             url = self.url
-        if creds is None:
-            creds = self.creds
+        if username is None:
+            username = self.username
+        if password is None:
+            password = self.password
 
-        resp = _create_api_key(url, creds, username=username)
+        resp = _create_api_key(url, username=username, password = password)
+
+        self.api_key = resp
+
+        if overwrite_api_key:
+            auth = {'username': username, 'key': self.api_key, 'url': url, 'password': password}
+            self.save_credentials(auth)
 
         if verbose:
             if resp.status_code == 200:
-                print(f'{username} can now get back to work.')
+                print(f'New key granted. Please only use this power for good.')
             else:
                 print(
                     f'Something went wrong, request returned a satus code {resp.status_code}')
@@ -425,7 +505,7 @@ class MLILClient:
         Loads a saved model into memory within the platform.
 
         >>> import mlil
-        >>> client = mlil.MLIL_client()
+        >>> client = mlil.MLILClient()
         >>> client.load_model(model_name, model_flavor, model_version_or_alias)
 
         Parameters
@@ -456,7 +536,7 @@ class MLILClient:
 
         if verbose:
             if resp.status_code == 200:
-                print(f'{model_name} is locked and loaded.')
+                print(f'{model_name} is loading. This may take a few minutes, so go grab a doughnut. Mmmmmmm…doughnuts…')
             else:
                 print(
                     f'Something went wrong, request returned a satus code {resp.status_code}')
@@ -473,7 +553,7 @@ class MLILClient:
         Lists all *loaded* models. To view unloaded models, check the MLFlow UI.
 
         >>> import mlil
-        >>> client = mlil.MLIL_client()
+        >>> client = mlil.MLILClient()
         >>> client.create_user()
 
         Parameters
@@ -513,7 +593,7 @@ class MLILClient:
         Removes a loaded model from memory.
 
         >>> import mlil
-        >>> client = mlil.MLIL_client()
+        >>> client = mlil.MLILClient()
         >>> client.unload_model()
 
         Parameters
@@ -545,7 +625,7 @@ class MLILClient:
 
         if verbose:
             if resp.status_code == 200:
-                print(f'These are your models, Simba, as far as the eye can see.')
+                print(f'{model_name} has been unloaded from memory.')
             else:
                 print(
                     f'Something went wrong, request returned a satus code {resp.status_code}')
@@ -569,7 +649,7 @@ class MLILClient:
         Calls the 'predict' function of the specified MLFlow model.
 
         >>> import mlil
-        >>> client = mlil.MLIL_client()
+        >>> client = mlil.MLILClient()
         >>> client.predict()
 
         Parameters

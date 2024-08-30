@@ -16,7 +16,7 @@ def _create_user(
     NOT MEANT TO BE CALLED BY THE END USER
 
     Create a user within the platform.
-    Called within the MLIL_client class.
+    Called within the MLILClient class.
 
     Parameters
     ----------
@@ -66,7 +66,7 @@ def _delete_user(
     NOT MEANT TO BE CALLED BY THE END USER
 
     Delete a user within the platform.
-    Called within the MLIL_client class.
+    Called within the MLILClient class.
 
     Parameters
     ----------
@@ -82,7 +82,7 @@ def _delete_user(
         'username': username
     }
 
-    url = f"{url}/{DELETE_USER_ENDPOINT}"
+    url = f"{url}/{DELETE_USER_ENDPOINT}/{username}"
 
     with requests.Session() as sess:
         resp = sess.delete(
@@ -105,7 +105,7 @@ def _verify_password(
     NOT MEANT TO BE CALLED BY THE END USER
 
     Verify a user's password.
-    Called within the MLIL_client class.
+    Called within the MLILClient class.
 
     Parameters
     ----------
@@ -147,7 +147,7 @@ def _issue_new_password(
     NOT MEANT TO BE CALLED BY THE END USER
 
     Create a new a password for an existing user.
-    Called within the MLIL_client class.
+    Called within the MLILClient class.
 
     Parameters
     ----------
@@ -166,7 +166,7 @@ def _issue_new_password(
         'new_password': new_password
     }
 
-    url = f"{url}/{NEW_PASSWORD_ENDPOINT}"
+    url = f"{url}/{NEW_PASSWORD_ENDPOINT}/{username}"
 
     with requests.Session() as sess:
         resp = sess.put(
@@ -188,7 +188,7 @@ def _get_user_role(
     NOT MEANT TO BE CALLED BY THE END USER
 
     Check a user's role.
-    Called within the MLIL_client class.
+    Called within the MLILClient class.
 
     Parameters
     ----------
@@ -204,7 +204,7 @@ def _get_user_role(
         'username': username
     }
 
-    url = f"{url}/{GET_USER_ROLE_ENDPOINT}"
+    url = f"{url}/{GET_USER_ROLE_ENDPOINT}/{username}"
 
     with requests.Session() as sess:
         resp = sess.get(
@@ -227,7 +227,7 @@ def _update_user_role(
     NOT MEANT TO BE CALLED BY THE END USER
 
     Update a user's role.
-    Called within the MLIL_client class.
+    Called within the MLILClient class.
 
     Parameters
     ----------
@@ -246,7 +246,7 @@ def _update_user_role(
         'new_role': new_role
     }
 
-    url = f"{url}/{UPDATE_USER_ROLE_ENDPOINT}"
+    url = f"{url}/{UPDATE_USER_ROLE_ENDPOINT}/{username}"
 
     with requests.Session() as sess:
         resp = sess.put(
@@ -267,7 +267,7 @@ def _list_users(
     NOT MEANT TO BE CALLED BY THE END USER
 
     Update a user's role.
-    Called within the MLIL_client class.
+    Called within the MLILClient class.
 
     Parameters
     ----------
