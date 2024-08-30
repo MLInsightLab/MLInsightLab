@@ -72,7 +72,7 @@ def fload_model(
 
     if model_flavor not in ALLOWED_MODEL_FLAVORS:
         raise ValueError(
-            f'Only "pyfunc" and "sklearn" model flavors supported, got {model_flavor}')
+            f'Only "pyfunc", "sklearn", and "transformers" model flavors supported, got {model_flavor}')
 
     try:
 
@@ -100,17 +100,18 @@ def fload_model(
             model = mlflow.sklearn.load_model(model_uri)
 
         # Load the model if it is requested to be a transformers model
-        if mlflow.transformers.is_gpu_available():
-            # NOTE: This loads the model to GPU automatically
-            # TODO: Change this so that it can be done more intelligently
-            model = mlflow.transformers.load_model(
-                model_uri,
-                kwargs={
-                    'device_map': 'auto'
-                }
-            )
-        else:
-            model = mlflow.transformers.load_model(model_uri)
+        elif model_flavor == TRANSFORMERS_FLAVOR:
+            if mlflow.transformers.is_gpu_available():
+                # NOTE: This loads the model to GPU automatically
+                # TODO: Change this so that it can be done more intelligently
+                model = mlflow.transformers.load_model(
+                    model_uri,
+                    kwargs={
+                        'device_map': 'auto'
+                    }
+                )
+            else:
+                model = mlflow.transformers.load_model(model_uri)
 
         return model
 
