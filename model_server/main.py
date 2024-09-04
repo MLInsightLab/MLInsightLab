@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, Body, BackgroundTasks
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from transformers import pipeline, BitsAndBytesConfig
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 import numpy as np
@@ -16,11 +17,13 @@ setup_database()
 ALLOWED_MODEL_FLAVORS = [
     'pyfunc',
     'sklearn',
-    'transformers'
+    'transformers',
+    'hfhub'
 ]
 PYFUNC_FLAVOR = ALLOWED_MODEL_FLAVORS[0]
 SKLEARN_FLAVOR = ALLOWED_MODEL_FLAVORS[1]
 TRANSFORMERS_FLAVOR = ALLOWED_MODEL_FLAVORS[2]
+HUGGINGFACE_FLAVOR = ALLOWED_MODEL_FLAVORS[3]
 
 # Global variables for prediction functions
 ALLOWED_PREDICT_FUNCTIONS = [
@@ -37,7 +40,10 @@ def fload_model(
     model_name: str,
     model_flavor: str,
     model_version: str | int | None = None,
-    model_alias: str | None = None
+    model_alias: str | None = None,
+    requirements: str | None = None,
+    quantization_kwargs: dict | None = None,
+    **kwargs
 ):
     f"""
     Load a model from the MLFlow server
@@ -52,6 +58,12 @@ def fload_model(
         The version of the model
     model_alias : str or None (default None)
         The alias of the model, without the `@` character
+    requirements : str or None (default None)
+        Any pip requirements for loading the model
+    quantization_kwargs : dict or None (default None)
+        Quantization keyword arguments. NOTE: Only applies for hfhub models
+    **kwargs : additional keyword arguments
+        Additional keyword arguments. NOTE: Only applies to hfhub models
 
     Notes
     -----
@@ -67,29 +79,42 @@ def fload_model(
     - MlflowException, when the model cannot be loaded
     """
 
-    if not (model_version or model_alias):
+    if not (model_version or model_alias) and model_flavor != HUGGINGFACE_FLAVOR:
         raise ValueError('Model version or model alias must be provided')
 
     if model_flavor not in ALLOWED_MODEL_FLAVORS:
         raise ValueError(
-            f'Only "pyfunc", "sklearn", and "transformers" model flavors supported, got {model_flavor}')
+            f'Only "pyfunc", "sklearn", "transformers", and "hfhub" model flavors supported, got {model_flavor}')
 
     try:
+        
+        # If the model is not a huggingface model, then format the model uri
+        if model_flavor != HUGGINGFACE_FLAVOR:
+            if model_version:
+                model_uri = f'models:/{model_name}/{model_version}'
+            elif model_alias:
+                model_uri = f'models:/{model_name}@{model_alias}'
 
-        if model_version:
-            model_uri = f'models:/{model_name}/{model_version}'
-        elif model_alias:
-            model_uri = f'models:/{model_name}@{model_alias}'
-
-        # Install dependencies for the model
-        subprocess.run(
-            [
-                'pip',
-                'install',
-                '-r',
-                mlflow.pyfunc.get_model_dependencies(model_uri)
-            ]
-        )
+            # Install dependencies for the model from mlflow
+            subprocess.run(
+                [
+                    'pip',
+                    'install',
+                    '-r',
+                    mlflow.pyfunc.get_model_dependencies(model_uri)
+                ]
+            )
+        
+        # Install requirements for the model if it's a huggingface model
+        else:
+            if requirements:
+                subprocess.run(
+                    [
+                        'pip',
+                        'install',
+                        requirements
+                    ]
+                )
 
         # Load the model if it is requested to be a pyfunc model
         if model_flavor == PYFUNC_FLAVOR:
@@ -112,6 +137,14 @@ def fload_model(
                 )
             else:
                 model = mlflow.transformers.load_model(model_uri)
+        
+        # Load the model if it is a huggingface model
+        elif model_flavor == HUGGINGFACE_FLAVOR:
+            if quantization_kwargs:
+                bnb_config = BitsAndBytesConfig(**quantization_kwargs)
+                kwargs['quantization_config'] = bnb_config
+            
+            model = pipeline(**kwargs)
 
         return model
 
@@ -138,45 +171,85 @@ try:
         model_name = model_info['model_name']
         model_flavor = model_info['model_flavor']
         model_version_or_alias = model_info['model_version_or_alias']
+        
+        requirements = model_info.get('requirements')
+        quantization_kwargs = model_info.get('quantization_kwargs')
+        kwargs = model_info.get('kwargs')
 
         try:
             model = fload_model(
                 model_name,
                 model_flavor,
-                model_version_or_alias
+                model_version_or_alias,
+                requirements = requirements,
+                quantization_kwargs = quantization_kwargs,
+                **kwargs
             )
             if not LOADED_MODELS.get(model_name):
                 LOADED_MODELS[model_name] = {
                     model_flavor: {
-                        model_version_or_alias: model
+                        model_version_or_alias: {
+                            'model' : model,
+                            'requirements' : requirements,
+                            'quantization_kwargs' : quantization_kwargs,
+                            'kwargs' : kwargs
+                        }
                     }
                 }
             elif not LOADED_MODELS[model_name].get(model_flavor):
                 LOADED_MODELS[model_name][model_flavor] = {
-                    model_version_or_alias: model
+                    model_version_or_alias: {
+                        'model' : model,
+                        'requirements' : requirements,
+                        'quantization_kwargs' : quantization_kwargs,
+                        'kwargs' : kwargs
+                    }
                 }
             elif not LOADED_MODELS[model_flavor].get(model_version_or_alias):
-                LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
+                LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = {
+                    'model' : model,
+                    'requirements' : requirements,
+                    'quantization_kwargs' : quantization_kwargs,
+                    'kwargs' : kwargs
+                }
 
         except Exception:
             try:
                 model = fload_model(
                     model_name,
                     model_flavor,
-                    model_alias=model_version_or_alias
+                    model_alias=model_version_or_alias,
+                    requirements = requirements,
+                    quantization_kwargs = quantization_kwargs,
+                    **kwargs
                 )
                 if not LOADED_MODELS.get(model_name):
                     LOADED_MODELS[model_name] = {
                         model_flavor: {
-                            model_version_or_alias: model
+                            model_version_or_alias: {
+                                'model' : model,
+                                'requirements' : requirements,
+                                'quantization_kwargs' : quantization_kwargs,
+                                'kwargs' : kwargs
+                            }
                         }
                     }
                 elif not LOADED_MODELS[model_name].get(model_flavor):
                     LOADED_MODELS[model_name][model_flavor] = {
-                        model_version_or_alias: model
+                        model_version_or_alias: {
+                            'model' : model,
+                            'requirements' : requirements,
+                            'quantization_kwargs' : quantization_kwargs,
+                            'kwargs' : kwargs
+                        }
                     }
                 elif not LOADED_MODELS[model_flavor].get(model_version_or_alias):
-                    LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
+                    LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = {
+                        'model' : model,
+                        'requirements' : requirements,
+                        'quantization_kwargs' : quantization_kwargs,
+                        'kwargs' : kwargs
+                    }
             except Exception:
                 raise ValueError('Model not able to be loaded')
 
@@ -191,11 +264,17 @@ def save_models_to_cache():
         for model_name in LOADED_MODELS.keys():
             for model_flavor in LOADED_MODELS[model_name]:
                 for model_version_or_alias in LOADED_MODELS[model_name][model_flavor].keys():
+                    requirements = LOADED_MODELS[model_name][model_flavor][model_version_or_alias]['requirements']
+                    quantization_kwargs = LOADED_MODELS[model_name][model_flavor][model_version_or_alias]['quantization_kwargs']
+                    kwargs = LOADED_MODELS[model_name][model_flavor][model_version_or_alias]['kwargs']
                     to_save.append(
                         dict(
                             model_name=model_name,
                             model_flavor=model_flavor,
-                            model_version_or_alias=model_version_or_alias
+                            model_version_or_alias=model_version_or_alias,
+                            requirements = requirements,
+                            quantization_kwargs = quantization_kwargs,
+                            kwargs = kwargs
                         )
                     )
     with open(SERVED_MODEL_CACHE_FILE, 'w') as f:
@@ -208,6 +287,10 @@ class PredictRequest(BaseModel):
     dtype: str = None
     params: dict = None
 
+class LoadRequest(BaseModel):
+    requirements: str | None = None
+    quantization_kwargs: dict | None = None
+    kwargs: dict | None = None
 
 class UserInfo(BaseModel):
     username: str
@@ -223,19 +306,32 @@ class VerifyPasswordInfo(BaseModel):
 # Function to load a model in the background
 
 
-def load_model_background(model_name: str, model_flavor: str, model_version_or_alias: str | int):
+def load_model_background(
+        model_name: str,
+        model_flavor: str,
+        model_version_or_alias: str | int,
+        requirements: str | None,
+        quantization_kwargs: dict | None,
+        **kwargs
+    ):
     try:
         model = fload_model(
             model_name,
             model_flavor,
-            model_version=model_version_or_alias
+            model_version=model_version_or_alias,
+            requirements = requirements,
+            quantization_kwargs = quantization_kwargs,
+            **kwargs
         )
     except Exception:
         try:
             model = fload_model(
                 model_name,
                 model_flavor,
-                model_alias=model_version_or_alias
+                model_alias=model_version_or_alias,
+                requirements = requirements,
+                quantization_kwargs = quantization_kwargs,
+                **kwargs
             )
         except Exception as e:
             raise ValueError('Model not able to be loaded')
@@ -243,15 +339,30 @@ def load_model_background(model_name: str, model_flavor: str, model_version_or_a
     if not LOADED_MODELS.get(model_name):
         LOADED_MODELS[model_name] = {
             model_flavor: {
-                model_version_or_alias: model
+                model_version_or_alias: {
+                    'model' : model,
+                    'requirements' : requirements,
+                    'quantization_kwargs' : quantization_kwargs,
+                    'kwargs' : kwargs
+                }
             }
         }
     elif not LOADED_MODELS[model_name].get(model_flavor):
         LOADED_MODELS[model_name][model_flavor] = {
-            model_version_or_alias: model
+            model_version_or_alias: {
+                'model' : model,
+                'requirements' : requirements,
+                'quantization_kwargs' : quantization_kwargs,
+                'kwargs' : kwargs
+            }
         }
     elif not LOADED_MODELS[model_name][model_flavor].get(model_version_or_alias):
-        LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = model
+        LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = {
+            'model' : model,
+            'requirements' : requirements,
+            'quantization_kwargs' : quantization_kwargs,
+            'kwargs' : kwargs
+        }
 
     save_models_to_cache()
 
@@ -287,7 +398,7 @@ def predict_model(
         try:
             if model_flavor == PYFUNC_FLAVOR:
                 results = model.predict(to_predict, params=params)
-            elif model_flavor == TRANSFORMERS_FLAVOR:
+            elif model_flavor in [TRANSFORMERS_FLAVOR, HUGGINGFACE_FLAVOR]:
                 if params:
                     results = model(to_predict, **params)
                 else:
@@ -300,8 +411,11 @@ def predict_model(
                     to_predict = to_predict.reshape(-1, 1)
                 if model_flavor == PYFUNC_FLAVOR:
                     results = model.predict(to_predict, params=params)
-                elif model_flavor == TRANSFORMERS_FLAVOR:
-                    results = model(to_predict, **params)
+                elif model_flavor in [TRANSFORMERS_FLAVOR, HUGGINGFACE_FLAVOR]:
+                    if params:
+                        results = model(to_predict, **params)
+                    else:
+                        results = model(to_predict)
                 elif model_flavor == SKLEARN_FLAVOR:
                     results = model.predict(to_predict)
             except Exception as e:
@@ -411,8 +525,8 @@ def redirect_docs():
     return RedirectResponse(url='/api/docs')
 
 
-@app.get('/models/load/{model_name}/{model_flavor}/{model_version_or_alias}')
-def load_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, background_tasks: BackgroundTasks, user_properties: dict = Depends(verify_credentials)):
+@app.post('/models/load/{model_name}/{model_flavor}/{model_version_or_alias}')
+def load_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, body : LoadRequest, background_tasks: BackgroundTasks, user_properties: dict = Depends(verify_credentials)):
     """
     Load a model into local memory
 
@@ -424,13 +538,18 @@ def load_model(model_name: str, model_flavor: str, model_version_or_alias: str |
         The flavor of the model
     model_version_or_alias : str or int
         The version or alias of the model
+    body : LoadRequest
+        Additional parameters to load the model
     """
 
     background_tasks.add_task(
         load_model_background,
         model_name,
         model_flavor,
-        model_version_or_alias
+        model_version_or_alias,
+        body.requirements,
+        body.quantization_kwargs,
+        **body.kwargs
     )
 
     return {
@@ -512,7 +631,7 @@ def predict(model_name: str, model_flavor: str, model_version_or_alias: str | in
 
     # Try to load the model, assuming it has already been loaded
     try:
-        model = LOADED_MODELS[model_name][model_flavor][model_version_or_alias]
+        model = LOADED_MODELS[model_name][model_flavor][model_version_or_alias]['model']
     except Exception:
 
         # Model needs to be loaded
@@ -522,7 +641,7 @@ def predict(model_name: str, model_flavor: str, model_version_or_alias: str | in
 
     # Grab the data to predict on from the input body
     try:
-        if model_flavor != TRANSFORMERS_FLAVOR:
+        if model_flavor not in [TRANSFORMERS_FLAVOR, HUGGINGFACE_FLAVOR]:
             to_predict = np.array(body.data)
             if body.dtype:
                 to_predict = to_predict.astype(body.dtype)
