@@ -542,15 +542,25 @@ def load_model(model_name: str, model_flavor: str, model_version_or_alias: str |
         Additional parameters to load the model
     """
 
-    background_tasks.add_task(
-        load_model_background,
-        model_name,
-        model_flavor,
-        model_version_or_alias,
-        body.requirements,
-        body.quantization_kwargs,
-        **body.kwargs
-    )
+    try:
+        background_tasks.add_task(
+            load_model_background,
+            model_name,
+            model_flavor,
+            model_version_or_alias,
+            body.requirements,
+            body.quantization_kwargs,
+            **body.kwargs
+        )
+    except Exception:
+        background_tasks.add_task(
+            load_model_background,
+            model_name,
+            model_flavor,
+            model_version_or_alias,
+            body.requirements,
+            body.quantization_kwargs
+        )
 
     return {
         'Processing': True
