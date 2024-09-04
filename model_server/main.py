@@ -142,7 +142,9 @@ def fload_model(
         elif model_flavor == HUGGINGFACE_FLAVOR:
             if quantization_kwargs:
                 bnb_config = BitsAndBytesConfig(**quantization_kwargs)
-                kwargs['quantization_config'] = bnb_config
+                if not kwargs.get('model_kwargs'):
+                    kwargs['model_kwargs'] = {}
+                kwargs['model_kwargs']['quantization_config'] = bnb_config
             
             model = pipeline(**kwargs)
 
