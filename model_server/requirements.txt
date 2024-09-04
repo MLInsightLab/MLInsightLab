@@ -1,4 +1,5 @@
 transformers
+bitsandbytes
 torchvision
 argon2-cffi
 accelerate
