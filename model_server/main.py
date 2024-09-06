@@ -6,7 +6,9 @@ from pydantic import BaseModel
 import numpy as np
 import subprocess
 import mlflow
+import signal
 import json
+import os
 
 from db_utils import setup_database, validate_user_key, validate_user_password, fcreate_user, fdelete_user, fissue_new_api_key, fissue_new_password, fget_user_role, fupdate_user_role, flist_users, SERVED_MODEL_CACHE_FILE
 
@@ -335,7 +337,7 @@ def load_model_background(
                 quantization_kwargs = quantization_kwargs,
                 **kwargs
             )
-        except Exception as e:
+        except Exception:
             raise ValueError('Model not able to be loaded')
 
     if not LOADED_MODELS.get(model_name):
@@ -864,3 +866,19 @@ def list_users(user_properties: dict = Depends(verify_credentials)):
         return flist_users()
     except Exception:
         raise HTTPException(500, 'An unknown error occurred')
+    
+@app.get('/reset')
+def reset(user_properties: dict = Depends(verify_credentials)):
+    """
+    Reset the API, redeploying all models
+    """
+    if user_properties['role'] != 'admin':
+        raise HTTPException(
+            403,
+            'User does not have permissions'
+        )
+    
+    os.kill(os.getpid(), signal.SIGTERM)
+    return {
+        'success' : True
+    }
