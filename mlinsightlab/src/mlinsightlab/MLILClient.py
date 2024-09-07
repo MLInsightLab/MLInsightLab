@@ -13,6 +13,7 @@ from .MLILException import MLILException
 from .user_mgmt import _create_user, _delete_user, _verify_password, _issue_new_password, _get_user_role, _update_user_role, _list_users
 from .key_mgmt import _create_api_key
 from .model_mgmt import _load_model, _unload_model, _list_models, _predict
+from .platform_mgmt import _reset_platform
 
 
 class MLILClient:
@@ -22,25 +23,39 @@ class MLILClient:
 
     def __init__(
         self,
+        use_cached_credentials: bool = False,
         auth: dict = None,
-        url: str = None
+        cache_credentials: bool = False
     ):
         """
         Initializes the class and sets configuration variables.
-        MVP design is to pass in dict of with the following k-v pairs:
-        {'username' : username, 'key' : your api key}
+        
         Parameters
         ----------
+        use_cached_credentials: bool = False
+            Login using credentials that have been previosuly cached on your system.
+            Bypasses the interactive login flow.
+        auth: dict = None
+            Dictionary of credentials to use for the instantiated client.
+            Must be of structure:
+            {
+                'username':username,
+                'key':your api key,
+                'password':your user password,
+                'url':the base URL of your platform
+            }
+        cache_credentials: bool = False
+            If you provided an auth dictionary, whether you would like to cache those credentials for future use.
         """
 
         self.config_path = Path((f"{Path.home()}/.mlil/config.json"))
 
         if auth is None:
-            auth = self.login()
+            auth = self._login(use_cached_credentials=use_cached_credentials)
 
         self.username = auth.get('username')
         self.api_key = auth.get('key')
-        self.url = auth.get('url') or url
+        self.url = auth.get('url')
         self.password = auth.get('password')
 
         if not self.username or not self.api_key or not self.password:
@@ -52,50 +67,66 @@ class MLILClient:
 
         self.creds = {'username': self.username, 'key': self.api_key}
 
+        if cache_credentials:
+            _save_credentials(auth)
+
     """
     ###########################################################################
     ########################## Login Operations ################################
     ###########################################################################
     """
 
-    def login(self):
-        if self.config_path.exists():
-            use_stored = input("Found stored credentials. Use them? (y/n): ").lower() == 'y'
-            if use_stored:
-                return self.load_stored_credentials()
+    def _login(self, use_cached_credentials):
+        """
+        Authenticates user.
 
-        url = input("Enter platform URL: ")
-        username = input("Enter username: ")
-        password = getpass.getpass("Enter password: ")
-        api_key = getpass.getpass("Enter API key (or leave blank to generate new): ")
-
-        if not api_key:
-            generate_new = input("Generate new API key? (y/n): ").lower() == 'y'
-            if generate_new:
-                api_key = self.issue_api_key(username=username, password=password, url=url)
-
-        resp = self.verify_password(url=url, creds={"username": username, "key": api_key}, username=username, password=password)
-
-        if resp.ok:
-            print(f"User verified...welcome {username}!")
+        Not meant to be called by the user directly.
+        """
+        if use_cached_credentials:
+            if self.config_path.exists():
+                return self._load_stored_credentials()
         else:
-            print('User not verified.')
-            raise MLILException(str(resp.json()))
+            if self.config_path.exists():
+                use_stored = input("Found stored credentials. Use them? (y/n): ").lower() == 'y'
+                if use_stored:
+                    return self._load_stored_credentials()
 
-        auth = {'username': username, 'key': api_key, 'url': url, 'password': password}
-        self.save_credentials(auth)
-        return auth
+            url = input("Enter platform URL: ")
+            username = input("Enter username: ")
+            password = getpass.getpass("Enter password: ")
+            api_key = getpass.getpass("Enter API key (or leave blank to generate new): ")
+
+            if not api_key:
+                generate_new = input("Generate new API key? (y/n): ").lower() == 'y'
+                if generate_new:
+                    api_key = self.issue_api_key(username=username, password=password, url=url)
+
+            resp = self.verify_password(url=url, creds={"username": username, "key": api_key}, username=username, password=password)
+
+            if resp.ok:
+                print(f"User verified...welcome {username}!")
+            else:
+                print('User not verified.')
+                raise MLILException(str(resp.json()))
+
+            auth = {'username': username, 'key': api_key, 'url': url, 'password': password}
+            self._save_credentials(auth)
+            return auth
     
-    def load_stored_credentials(self):
+    def _load_stored_credentials(self):
         """
         Loads stored credentials from the config file.
+
+        This function is not meant to be called by the user directly.
         """
         with open(self.config_path, 'r') as f:
             return json.load(f)
     
-    def save_credentials(self, auth):
+    def _save_credentials(self, auth):
         """
         Saves credentials to the config file.
+
+        This function is not meant to be called by the user directly.
         """
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.config_path, 'w') as f:
@@ -302,7 +333,7 @@ class MLILClient:
         if overwrite_password:
             auth = {'username': self.username, 'key': self.api_key, 'url': url, 'password': new_password}
             print(f'Your password has been overwritten.')
-            self.save_credentials(auth)
+            self._save_credentials(auth)
 
         if verbose:
             if resp.status_code == 200:
@@ -475,7 +506,7 @@ class MLILClient:
 
         if overwrite_api_key:
             auth = {'username': username, 'key': self.api_key, 'url': url, 'password': password}
-            self.save_credentials(auth)
+            self._save_credentials(auth)
 
         if verbose:
             if resp.status_code == 200:
@@ -497,9 +528,12 @@ class MLILClient:
         model_name: str,
         model_flavor: str,
         model_version_or_alias: str,
+        requirements: str = None,
+        quantization_kwargs: dict = None,
         url: str = None,
         creds: dict = None,
-        verbose: bool = False
+        verbose: bool = False,
+        **kwargs
     ):
         """
         Loads a saved model into memory within the platform.
@@ -510,16 +544,26 @@ class MLILClient:
 
         Parameters
         ----------
+        model_name: str
+            The name of the model to load
+        model_flavor: str
+            The flavor of the model. It can be one of:
+                1. 'pyfunc'
+                2. 'sklearn'
+                3. 'transformers'
+                4. 'hfhub'
+        model_version_or_alias: str
+            The version of the model that you wish to load (from MLFlow).
+        requirements: str = Nonw
+            Any pip requirements for loading the model.
+        quantization_kwargs : dict or None (default None)
+            Quantization keyword arguments. NOTE: Only applies for hfhub models
+        **kwargs : additional keyword arguments
+            Additional keyword arguments. NOTE: Only applies to hfhub models
         url: str
             String containing the URL of your deployment of the platform.
         creds:
             Dictionary that must contain keys "username" and "key", and associated values.
-        model_name: str
-            The name of the model to load
-        model_flavor: str
-            The flavor of the model, e.g. "transformers", "pyfunc", etc.
-        model_version_or_alias: str
-            The version of the model that you wish to load (from MLFlow).
         """
 
         if url is None:
@@ -527,11 +571,20 @@ class MLILClient:
         if creds is None:
             creds = self.creds
 
+        load_request = {}
+        if requirements:
+            load_request["requirements"] = requirements
+        if quantization_kwargs:
+            load_request["quantization_kwargs"] = quantization_kwargs
+        if kwargs:
+            load_request["kwargs"] = kwargs
+
         resp = _load_model(url,
                            creds,
                            model_name=model_name,
                            model_flavor=model_flavor,
-                           model_version_or_alias=model_version_or_alias
+                           model_version_or_alias=model_version_or_alias,
+                           load_request = load_request
                            )
 
         if verbose:
@@ -541,7 +594,7 @@ class MLILClient:
                 print(
                     f'Something went wrong, request returned a satus code {resp.status_code}')
 
-        return resp.json()
+        return resp
 
     def list_models(
         self,
@@ -605,7 +658,11 @@ class MLILClient:
         model_name: str
             The name of the model to unload.
         model_flavor: str
-            The flavor of the model, e.g. "transformers", "pyfunc", etc.
+            The flavor of the model. It can be one of:
+                1. 'pyfunc'
+                2. 'sklearn'
+                3. 'transformers'
+                4. 'hfhub'
         model_version_or_alias: str
             The version of the model that you wish to unload (from MLFlow).
         """
@@ -661,9 +718,13 @@ class MLILClient:
         model_name: str
             The name of the model to be invoked.
         model_flavor: str
-            The flavor of the model, e.g. "transformers", "pyfunc", etc.
+            The flavor of the model, which can be one of:
+                1. 'pyfunc'
+                2. 'sklearn'
+                3. 'transformers'
+                4. 'hfhub'
         model_version_or_alias: str
-            The version of the model that you wish to invoke (from MLFlow).
+            The version of the model that you wish to invoke. 
         data: Union[str, List[str]]
             The input data for prediction. Can be a single string or a list of strings.
         predict_function: str, optional
@@ -698,3 +759,51 @@ class MLILClient:
                     f'Something went wrong, request returned a satus code {resp.status_code}')
 
         return resp.json()
+    """
+    ###########################################################################
+    ########################## Admin Operations ################################
+    ###########################################################################
+    """
+    def reset_platform(       
+        self,
+        failsafe: bool = True,
+        url: str = None,
+        creds: dict = None,
+        verbose: bool = False
+        ):
+        """
+        Resets the MLIL platform to "factory" settings. Only do this IF YOU ARE SURE YOU WANT / NEED TO.
+        >>> import mlil
+        >>> client = mlil.MLILClient()
+        >>> client.reset_platform()
+
+        Parameters
+        ----------
+        failsafe: bool = True
+            This is a safety catch that prompts the user to confirm before they reset the platform.
+            Should only be set to False if you are scripting and/or know what you are doing.
+        url: str
+            String containing the URL of your deployment of the platform.
+        creds:
+            Dictionary that must contain keys "username" and "key", and associated values.
+        """
+
+        if url is None:
+            url = self.url
+        if creds is None:
+            creds = self.creds
+
+        if not failsafe:
+            really_reset = True
+        else:
+            really_reset = input("Are you sure you want to reset the platform? This cannot be undone. (y/n): ").lower() == 'y'
+        if really_reset:
+            resp = _reset_platform(url=url, creds=creds)
+
+        if verbose:
+            if resp.status_code == 200:
+                print(f'You have become death, destroyer of, well, your platform configuration...')
+            else:
+                print(
+                    f'Something went wrong, request returned a satus code {resp.status_code}')
+        return resp

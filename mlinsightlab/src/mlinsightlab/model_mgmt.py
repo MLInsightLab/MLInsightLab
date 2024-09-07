@@ -11,7 +11,8 @@ def _load_model(
     creds: dict,
     model_name: str,
     model_flavor: str,
-    model_version_or_alias: str
+    model_version_or_alias: str,
+    load_request: dict
 ):
     """
     NOT MEANT TO BE CALLED BY THE END USER
@@ -31,21 +32,18 @@ def _load_model(
         The flavor of the model, e.g. "transformers", "pyfunc", etc.
     model_version_or_alias: str
         The version of the model that you wish to load (from MLFlow).
+    load_request : dict = None
+        A dictionary containing additional parameters for loading the model,
+        including 'requirements', 'quantization_kwargs', and 'kwargs'.
     """
-
-    json_data = {
-        'model_name': model_name,
-        'model_flavor': model_flavor,
-        'model_version_or_alias': model_version_or_alias
-    }
 
     url = f"{url}/{LOAD_MODEL_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
 
     with requests.Session() as sess:
-        resp = sess.get(
+        resp = sess.post(
             url,
             auth=(creds['username'], creds['key']),
-            json=json_data
+            json=load_request
         )
     if not resp.ok:
         raise MLILException(str(resp.json()))
