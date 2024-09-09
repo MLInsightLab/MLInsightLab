@@ -119,7 +119,6 @@ def _unload_model(
         resp = sess.delete(
             url,
             auth=(creds['username'], creds['key']),
-            json=json_data
         )
     if not resp.ok:
         raise MLILException(str(resp.json()))
@@ -172,7 +171,7 @@ def _predict(
         "data": data,
         "predict_function": predict_function,
         "dtype": dtype,
-        "params": params or {}
+        "params": params if params else {}
     }
 
     url = f"{url}/{PREDICT_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
