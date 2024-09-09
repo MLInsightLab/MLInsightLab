@@ -232,7 +232,7 @@ class MLILClient:
                     f'user {username} is now off the platform! Good riddance!')
             else:
                 print(
-                    f'Something went wrong, request returned a satus code {resp.status_code}')
+                    f'Something went wrong, request returned a status code {resp.status_code}')
 
         return resp.json()
 
