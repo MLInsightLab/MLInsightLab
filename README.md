@@ -75,7 +75,7 @@ This project is a comprehensive Docker Compose setup for MLInsightLab. It integr
     ```
 
 3. **(Optional) Configure SSL Certificates**
-   If you would like the Lab to be deployed using SSL termination, you will need to have your certificate `.pem` files saved to the directory `{path-to-mlinsightlab-directory}/certs`
+   If you would like the Lab to be deployed using SSL termination, you will need to have your certificate `.pem` files saved to the directory `/path/to/mlinsightlab/directory/certs`
 
    This can be accomplished by physically saving the files to this directory, or by having the files saved via a symbolic link.
 
@@ -128,7 +128,7 @@ docker-compose -f {chosen-docker-compose-file} logs {service-name}
 For example, to view the logs for the JupyterHub service:
 
 ```bash
-docker-compose -f {chosen-docker-compose-file} logs juptyer
+docker-compose -f {chosen-docker-compose-file} logs jupyter
 ```
 
 ## Security Considerations
