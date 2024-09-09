@@ -882,3 +882,35 @@ def reset(user_properties: dict = Depends(verify_credentials)):
     return {
         'success' : True
     }
+
+@app.get('/system/resource-usage')
+def get_usage(user_properties: dict = Depends(verify_credentials)):
+    """
+    Get system resource usage, in terms of free CPU and GPU memory (if GPU-enabled)
+    """
+
+    if user_properties['role'] != 'admin':
+        raise HTTPException(
+            403,
+            'User does not have permissions'
+        )
+    
+    try:
+        cpu_memory_output = subprocess.run(['free', '-h'], check = True, capture_output = True)
+        cpu_memory_output = cpu_memory_output.stdout.decode('utf-8')
+    except Exception:
+        raise HTTPException(
+            500,
+            'An unknown error occurred'
+        )
+    
+    try:
+        gpu_memory_output = subprocess.run(['nvidia-smi'], check = True, capture_output = True)
+        gpu_memory_output = gpu_memory_output.stdout.decode('utf-8')
+    except Exception:
+        gpu_memory_output = 'No GPU status detected'
+
+    return {
+        'cpu_memory_usage' : cpu_memory_output,
+        'gpu_memory_usage' : gpu_memory_output
+    }
