@@ -6,6 +6,7 @@ services:
     command: dask-scheduler
     volumes:
       - ${NOTEBOOK_MOUNT}
+      - ${DATA_MOUNT}
     networks:
       - network
 
@@ -17,6 +18,7 @@ services:
     command: dask-worker ${DASK_SCHEDULER_ADDRESS}
     volumes:
       - ${NOTEBOOK_MOUNT}
+      - ${DATA_MOUNT}
     deploy:
       replicas: 4
     networks:
@@ -29,6 +31,7 @@ services:
       - dask-worker
       - model-server
     volumes:
+      - ${DATA_MOUNT}
       - ${NOTEBOOK_MOUNT}
       - ${JUPYTERHUB_DATABASE_MOUNT}
       - ${JUPYTERHUB_ETC_MOUNT}
@@ -63,6 +66,7 @@ services:
     depends_on:
       - mlflow
     volumes:
+      - ${DATA_MOUNT}
       - ${MODEL_SERVER_CACHE_MOUNT}
       - ${MODEL_SERVER_DB_MOUNT}
     environment:
@@ -120,6 +124,7 @@ volumes:
   jupyter_home:
   jupyter_etc:
   notebooks:
+  data:
 
 networks:
   network:
