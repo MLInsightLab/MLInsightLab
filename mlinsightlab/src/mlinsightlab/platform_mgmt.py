@@ -3,10 +3,11 @@ from .MLILException import MLILException
 from .endpoints import RESET_ENDPOINT
 import requests
 
+
 def _reset_platform(
     url: str,
     creds: dict
-    ):
+):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 

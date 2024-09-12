@@ -6,6 +6,7 @@ from pydantic import BaseModel
 import numpy as np
 import subprocess
 import mlflow
+import base64
 import signal
 import json
 import os
@@ -34,6 +35,8 @@ ALLOWED_PREDICT_FUNCTIONS = [
 ]
 PREDICT = ALLOWED_PREDICT_FUNCTIONS[0]
 PREDICT_PROBA = ALLOWED_PREDICT_FUNCTIONS[1]
+
+DATA_DIRECTORY = '/data/'
 
 # Load_model function that allows to load model from either alias or version
 
@@ -89,7 +92,7 @@ def fload_model(
             f'Only "pyfunc", "sklearn", "transformers", and "hfhub" model flavors supported, got {model_flavor}')
 
     try:
-        
+
         # If the model is not a huggingface model, then format the model uri
         if model_flavor != HUGGINGFACE_FLAVOR:
             if model_version:
@@ -106,7 +109,7 @@ def fload_model(
                     mlflow.pyfunc.get_model_dependencies(model_uri)
                 ]
             )
-        
+
         # Install requirements for the model if it's a huggingface model
         else:
             if requirements:
@@ -139,7 +142,7 @@ def fload_model(
                 )
             else:
                 model = mlflow.transformers.load_model(model_uri)
-        
+
         # Load the model if it is a huggingface model
         elif model_flavor == HUGGINGFACE_FLAVOR:
             if quantization_kwargs:
@@ -147,7 +150,7 @@ def fload_model(
                 if not kwargs.get('model_kwargs'):
                     kwargs['model_kwargs'] = {}
                 kwargs['model_kwargs']['quantization_config'] = bnb_config
-            
+
             model = pipeline(**kwargs)
 
         return model
@@ -175,7 +178,7 @@ try:
         model_name = model_info['model_name']
         model_flavor = model_info['model_flavor']
         model_version_or_alias = model_info['model_version_or_alias']
-        
+
         requirements = model_info.get('requirements')
         quantization_kwargs = model_info.get('quantization_kwargs')
         kwargs = model_info.get('kwargs')
@@ -185,36 +188,36 @@ try:
                 model_name,
                 model_flavor,
                 model_version_or_alias,
-                requirements = requirements,
-                quantization_kwargs = quantization_kwargs,
+                requirements=requirements,
+                quantization_kwargs=quantization_kwargs,
                 **kwargs
             )
             if not LOADED_MODELS.get(model_name):
                 LOADED_MODELS[model_name] = {
                     model_flavor: {
                         model_version_or_alias: {
-                            'model' : model,
-                            'requirements' : requirements,
-                            'quantization_kwargs' : quantization_kwargs,
-                            'kwargs' : kwargs
+                            'model': model,
+                            'requirements': requirements,
+                            'quantization_kwargs': quantization_kwargs,
+                            'kwargs': kwargs
                         }
                     }
                 }
             elif not LOADED_MODELS[model_name].get(model_flavor):
                 LOADED_MODELS[model_name][model_flavor] = {
                     model_version_or_alias: {
-                        'model' : model,
-                        'requirements' : requirements,
-                        'quantization_kwargs' : quantization_kwargs,
-                        'kwargs' : kwargs
+                        'model': model,
+                        'requirements': requirements,
+                        'quantization_kwargs': quantization_kwargs,
+                        'kwargs': kwargs
                     }
                 }
             elif not LOADED_MODELS[model_flavor].get(model_version_or_alias):
                 LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = {
-                    'model' : model,
-                    'requirements' : requirements,
-                    'quantization_kwargs' : quantization_kwargs,
-                    'kwargs' : kwargs
+                    'model': model,
+                    'requirements': requirements,
+                    'quantization_kwargs': quantization_kwargs,
+                    'kwargs': kwargs
                 }
 
         except Exception:
@@ -223,36 +226,36 @@ try:
                     model_name,
                     model_flavor,
                     model_alias=model_version_or_alias,
-                    requirements = requirements,
-                    quantization_kwargs = quantization_kwargs,
+                    requirements=requirements,
+                    quantization_kwargs=quantization_kwargs,
                     **kwargs
                 )
                 if not LOADED_MODELS.get(model_name):
                     LOADED_MODELS[model_name] = {
                         model_flavor: {
                             model_version_or_alias: {
-                                'model' : model,
-                                'requirements' : requirements,
-                                'quantization_kwargs' : quantization_kwargs,
-                                'kwargs' : kwargs
+                                'model': model,
+                                'requirements': requirements,
+                                'quantization_kwargs': quantization_kwargs,
+                                'kwargs': kwargs
                             }
                         }
                     }
                 elif not LOADED_MODELS[model_name].get(model_flavor):
                     LOADED_MODELS[model_name][model_flavor] = {
                         model_version_or_alias: {
-                            'model' : model,
-                            'requirements' : requirements,
-                            'quantization_kwargs' : quantization_kwargs,
-                            'kwargs' : kwargs
+                            'model': model,
+                            'requirements': requirements,
+                            'quantization_kwargs': quantization_kwargs,
+                            'kwargs': kwargs
                         }
                     }
                 elif not LOADED_MODELS[model_flavor].get(model_version_or_alias):
                     LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = {
-                        'model' : model,
-                        'requirements' : requirements,
-                        'quantization_kwargs' : quantization_kwargs,
-                        'kwargs' : kwargs
+                        'model': model,
+                        'requirements': requirements,
+                        'quantization_kwargs': quantization_kwargs,
+                        'kwargs': kwargs
                     }
             except Exception:
                 raise ValueError('Model not able to be loaded')
@@ -269,20 +272,88 @@ def save_models_to_cache():
             for model_flavor in LOADED_MODELS[model_name]:
                 for model_version_or_alias in LOADED_MODELS[model_name][model_flavor].keys():
                     requirements = LOADED_MODELS[model_name][model_flavor][model_version_or_alias]['requirements']
-                    quantization_kwargs = LOADED_MODELS[model_name][model_flavor][model_version_or_alias]['quantization_kwargs']
+                    quantization_kwargs = LOADED_MODELS[model_name][model_flavor][
+                        model_version_or_alias]['quantization_kwargs']
                     kwargs = LOADED_MODELS[model_name][model_flavor][model_version_or_alias]['kwargs']
                     to_save.append(
                         dict(
                             model_name=model_name,
                             model_flavor=model_flavor,
                             model_version_or_alias=model_version_or_alias,
-                            requirements = requirements,
-                            quantization_kwargs = quantization_kwargs,
-                            kwargs = kwargs
+                            requirements=requirements,
+                            quantization_kwargs=quantization_kwargs,
+                            kwargs=kwargs
                         )
                     )
     with open(SERVED_MODEL_CACHE_FILE, 'w') as f:
         json.dump(to_save, f)
+
+
+def upload_data_to_fs(
+        filename: str,
+        file_text: str | None = None,
+        file_bytes: str | None = None,
+        overwrite: bool = False
+):
+
+    # Determine if text or bytes is to be used (only one can be specified)
+    if file_text and file_bytes:
+        raise ValueError('Only file_text or file_bytes should be specified')
+
+    # Ensure that the data directory leads
+    if not filename.startswith(DATA_DIRECTORY):
+        filename = os.path.join(
+            DATA_DIRECTORY,
+            filename.lstrip('/').strip()
+        )
+
+    # If the file exists and overwrite False, then raise an Exception
+    if os.path.exists(filename) and not overwrite:
+        raise FileExistsError(
+            'Data file already exists and overwrite was not set to True')
+
+    # Create any intermediate directories if needed
+    directory = os.path.dirname(filename)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # Determine the content of the file
+    if file_text:
+        file_content = file_text
+        with open(filename, 'w') as f:
+            f.write(file_content)
+    else:
+        file_content = base64.b64decode(
+            file_bytes.encode('utf-8')
+        )
+        with open(filename, 'wb') as f:
+            f.write(file_content)
+
+    return filename
+
+
+def download_data_from_fs(
+        filename: str,
+        as_bytes: bool = False
+):
+    if not filename.startswith(DATA_DIRECTORY):
+        filename = os.path.join(
+            DATA_DIRECTORY,
+            filename.lstrip('/').strip()
+        )
+
+    if not os.path.exists(filename):
+        raise FileNotFoundError('File does not exist')
+
+    if as_bytes:
+        with open(filename, 'rb') as f:
+            content = f.read()
+        content = base64.b64encode(content).decode('utf-8')
+    else:
+        with open(filename, 'r') as f:
+            content = f.read()
+
+    return content
 
 
 class PredictRequest(BaseModel):
@@ -291,16 +362,30 @@ class PredictRequest(BaseModel):
     dtype: str = None
     params: dict = None
 
+
 class LoadRequest(BaseModel):
     requirements: str | None = None
     quantization_kwargs: dict | None = None
     kwargs: dict | None = None
+
 
 class UserInfo(BaseModel):
     username: str
     role: str
     api_key: str | None = None
     password: str | None = None
+
+
+class DataUploadRequest(BaseModel):
+    filename: str
+    file_text: str | None = None
+    file_bytes: str | None = None
+    overwrite: bool = False
+
+
+class DataDownloadRequest(BaseModel):
+    filename: str
+    as_bytes: bool = False
 
 
 class VerifyPasswordInfo(BaseModel):
@@ -311,20 +396,20 @@ class VerifyPasswordInfo(BaseModel):
 
 
 def load_model_background(
-        model_name: str,
-        model_flavor: str,
-        model_version_or_alias: str | int,
-        requirements: str | None,
-        quantization_kwargs: dict | None,
-        **kwargs
-    ):
+    model_name: str,
+    model_flavor: str,
+    model_version_or_alias: str | int,
+    requirements: str | None,
+    quantization_kwargs: dict | None,
+    **kwargs
+):
     try:
         model = fload_model(
             model_name,
             model_flavor,
             model_version=model_version_or_alias,
-            requirements = requirements,
-            quantization_kwargs = quantization_kwargs,
+            requirements=requirements,
+            quantization_kwargs=quantization_kwargs,
             **kwargs
         )
     except Exception:
@@ -333,8 +418,8 @@ def load_model_background(
                 model_name,
                 model_flavor,
                 model_alias=model_version_or_alias,
-                requirements = requirements,
-                quantization_kwargs = quantization_kwargs,
+                requirements=requirements,
+                quantization_kwargs=quantization_kwargs,
                 **kwargs
             )
         except Exception:
@@ -344,28 +429,28 @@ def load_model_background(
         LOADED_MODELS[model_name] = {
             model_flavor: {
                 model_version_or_alias: {
-                    'model' : model,
-                    'requirements' : requirements,
-                    'quantization_kwargs' : quantization_kwargs,
-                    'kwargs' : kwargs
+                    'model': model,
+                    'requirements': requirements,
+                    'quantization_kwargs': quantization_kwargs,
+                    'kwargs': kwargs
                 }
             }
         }
     elif not LOADED_MODELS[model_name].get(model_flavor):
         LOADED_MODELS[model_name][model_flavor] = {
             model_version_or_alias: {
-                'model' : model,
-                'requirements' : requirements,
-                'quantization_kwargs' : quantization_kwargs,
-                'kwargs' : kwargs
+                'model': model,
+                'requirements': requirements,
+                'quantization_kwargs': quantization_kwargs,
+                'kwargs': kwargs
             }
         }
     elif not LOADED_MODELS[model_name][model_flavor].get(model_version_or_alias):
         LOADED_MODELS[model_name][model_flavor][model_version_or_alias] = {
-            'model' : model,
-            'requirements' : requirements,
-            'quantization_kwargs' : quantization_kwargs,
-            'kwargs' : kwargs
+            'model': model,
+            'requirements': requirements,
+            'quantization_kwargs': quantization_kwargs,
+            'kwargs': kwargs
         }
 
     save_models_to_cache()
@@ -530,7 +615,7 @@ def redirect_docs():
 
 
 @app.post('/models/load/{model_name}/{model_flavor}/{model_version_or_alias}')
-def load_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, body : LoadRequest, background_tasks: BackgroundTasks, user_properties: dict = Depends(verify_credentials)):
+def load_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, body: LoadRequest, background_tasks: BackgroundTasks, user_properties: dict = Depends(verify_credentials)):
     """
     Load a model into local memory
 
@@ -866,7 +951,8 @@ def list_users(user_properties: dict = Depends(verify_credentials)):
         return flist_users()
     except Exception:
         raise HTTPException(500, 'An unknown error occurred')
-    
+
+
 @app.get('/reset')
 def reset(user_properties: dict = Depends(verify_credentials)):
     """
@@ -877,11 +963,12 @@ def reset(user_properties: dict = Depends(verify_credentials)):
             403,
             'User does not have permissions'
         )
-    
+
     os.kill(os.getpid(), signal.SIGTERM)
     return {
-        'success' : True
+        'success': True
     }
+
 
 @app.get('/system/resource-usage')
 def get_usage(user_properties: dict = Depends(verify_credentials)):
@@ -894,23 +981,70 @@ def get_usage(user_properties: dict = Depends(verify_credentials)):
             403,
             'User does not have permissions'
         )
-    
+
     try:
-        cpu_memory_output = subprocess.run(['free', '-h'], check = True, capture_output = True)
+        cpu_memory_output = subprocess.run(
+            ['free', '-h'], check=True, capture_output=True)
         cpu_memory_output = cpu_memory_output.stdout.decode('utf-8')
     except Exception:
         raise HTTPException(
             500,
             'An unknown error occurred'
         )
-    
+
     try:
-        gpu_memory_output = subprocess.run(['nvidia-smi'], check = True, capture_output = True)
+        gpu_memory_output = subprocess.run(
+            ['nvidia-smi'], check=True, capture_output=True)
         gpu_memory_output = gpu_memory_output.stdout.decode('utf-8')
     except Exception:
         gpu_memory_output = 'No GPU status detected'
 
     return {
-        'cpu_memory_usage' : cpu_memory_output,
-        'gpu_memory_usage' : gpu_memory_output
+        'cpu_memory_usage': cpu_memory_output,
+        'gpu_memory_usage': gpu_memory_output
     }
+
+
+@app.post('/data/upload')
+def upload_file(body: DataUploadRequest, user_properties: dict = Depends(verify_credentials)):
+    if user_properties['role'] not in ['admin', 'data_scientist']:
+        raise HTTPException(
+            403,
+            'User does not have permissions'
+        )
+
+    try:
+        filename = upload_data_to_fs(
+            body.filename,
+            body.file_text,
+            body.file_bytes,
+            body.overwrite
+        )
+        return filename
+    except Exception as e:
+        raise HTTPException(
+            400,
+            f'The following error occurred: {str(e)}'
+        )
+
+
+@app.post('/data/download')
+def download_file(body: DataDownloadRequest, user_properties: dict = Depends(verify_credentials)):
+    if user_properties['role'] not in ['admin', 'data_scientist']:
+        raise HTTPException(
+            403,
+            'User does not have permissions'
+        )
+
+    try:
+        content = download_data_from_fs(
+            body.filename,
+            body.as_bytes
+        )
+        return content
+
+    except Exception as e:
+        raise HTTPException(
+            400,
+            f'The following error occurred: {str(e)}'
+        )

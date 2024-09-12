@@ -7,7 +7,7 @@ import getpass
 import json
 import os
 
-#from .endpoints import *
+# from .endpoints import *
 
 from .MLILException import MLILException
 from .user_mgmt import _create_user, _delete_user, _verify_password, _issue_new_password, _get_user_role, _update_user_role, _list_users
@@ -29,7 +29,7 @@ class MLILClient:
     ):
         """
         Initializes the class and sets configuration variables.
-        
+
         Parameters
         ----------
         use_cached_credentials: bool = False
@@ -59,7 +59,8 @@ class MLILClient:
         self.password = auth.get('password')
 
         if not self.username or not self.api_key or not self.password:
-            raise ValueError("You must provide your username, password, and API key.")
+            raise ValueError(
+                "You must provide your username, password, and API key.")
 
         if not self.url:
             raise ValueError(
@@ -87,21 +88,26 @@ class MLILClient:
                 return self._load_stored_credentials()
         else:
             if self.config_path.exists():
-                use_stored = input("Found stored credentials. Use them? (y/n): ").lower() == 'y'
+                use_stored = input(
+                    "Found stored credentials. Use them? (y/n): ").lower() == 'y'
                 if use_stored:
                     return self._load_stored_credentials()
 
             url = input("Enter platform URL: ")
             username = input("Enter username: ")
             password = getpass.getpass("Enter password: ")
-            api_key = getpass.getpass("Enter API key (or leave blank to generate new): ")
+            api_key = getpass.getpass(
+                "Enter API key (or leave blank to generate new): ")
 
             if not api_key:
-                generate_new = input("Generate new API key? (y/n): ").lower() == 'y'
+                generate_new = input(
+                    "Generate new API key? (y/n): ").lower() == 'y'
                 if generate_new:
-                    api_key = self.issue_api_key(username=username, password=password, url=url)
+                    api_key = self.issue_api_key(
+                        username=username, password=password, url=url)
 
-            resp = self.verify_password(url=url, creds={"username": username, "key": api_key}, username=username, password=password)
+            resp = self.verify_password(url=url, creds={
+                                        "username": username, "key": api_key}, username=username, password=password)
 
             if resp.ok:
                 print(f"User verified...welcome {username}!")
@@ -109,10 +115,11 @@ class MLILClient:
                 print('User not verified.')
                 raise MLILException(str(resp.json()))
 
-            auth = {'username': username, 'key': api_key, 'url': url, 'password': password}
+            auth = {'username': username, 'key': api_key,
+                    'url': url, 'password': password}
             self._save_credentials(auth)
             return auth
-    
+
     def _load_stored_credentials(self):
         """
         Loads stored credentials from the config file.
@@ -121,7 +128,7 @@ class MLILClient:
         """
         with open(self.config_path, 'r') as f:
             return json.load(f)
-    
+
     def _save_credentials(self, auth):
         """
         Saves credentials to the config file.
@@ -131,12 +138,13 @@ class MLILClient:
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.config_path, 'w') as f:
             json.dump(auth, f)
-    
+
     def purge_credentials(self):
         """
         Enables user to delete the file containing cached credentials.
         """
-        purge_creds = input("Are you sure you want to delete your saved credentials? This cannot be undone. (y/n): ").lower() == 'y'
+        purge_creds = input(
+            "Are you sure you want to delete your saved credentials? This cannot be undone. (y/n): ").lower() == 'y'
         if purge_creds:
             if os.path.exists(self.config_path):
                 os.remove(self.config_path)
@@ -324,14 +332,15 @@ class MLILClient:
 
         resp = _issue_new_password(
             url, creds, username, new_password=new_password)
-        
+
         if resp.ok:
             self.password = new_password
         else:
             return MLILException(str(resp.json()))
-        
+
         if overwrite_password:
-            auth = {'username': self.username, 'key': self.api_key, 'url': url, 'password': new_password}
+            auth = {'username': self.username, 'key': self.api_key,
+                    'url': url, 'password': new_password}
             print(f'Your password has been overwritten.')
             self._save_credentials(auth)
 
@@ -500,12 +509,13 @@ class MLILClient:
         if password is None:
             password = self.password
 
-        resp = _create_api_key(url, username=username, password = password)
+        resp = _create_api_key(url, username=username, password=password)
 
         self.api_key = resp
 
         if overwrite_api_key:
-            auth = {'username': username, 'key': self.api_key, 'url': url, 'password': password}
+            auth = {'username': username, 'key': self.api_key,
+                    'url': url, 'password': password}
             self._save_credentials(auth)
 
         if verbose:
@@ -584,12 +594,13 @@ class MLILClient:
                            model_name=model_name,
                            model_flavor=model_flavor,
                            model_version_or_alias=model_version_or_alias,
-                           load_request = load_request
+                           load_request=load_request
                            )
 
         if verbose:
             if resp.status_code == 200:
-                print(f'{model_name} is loading. This may take a few minutes, so go grab a doughnut. Mmmmmmm…doughnuts…')
+                print(
+                    f'{model_name} is loading. This may take a few minutes, so go grab a doughnut. Mmmmmmm…doughnuts…')
             else:
                 print(
                     f'Something went wrong, request returned a satus code {resp.status_code}')
@@ -724,7 +735,7 @@ class MLILClient:
                 3. 'transformers'
                 4. 'hfhub'
         model_version_or_alias: str
-            The version of the model that you wish to invoke. 
+            The version of the model that you wish to invoke.
         data: Union[str, List[str]]
             The input data for prediction. Can be a single string or a list of strings.
         predict_function: str, optional
@@ -764,13 +775,14 @@ class MLILClient:
     ########################## Admin Operations ################################
     ###########################################################################
     """
-    def reset_platform(       
+
+    def reset_platform(
         self,
         failsafe: bool = True,
         url: str = None,
         creds: dict = None,
         verbose: bool = False
-        ):
+    ):
         """
         Resets the MLIL platform to "factory" settings. Only do this IF YOU ARE SURE YOU WANT / NEED TO.
         >>> import mlil
@@ -796,13 +808,15 @@ class MLILClient:
         if not failsafe:
             really_reset = True
         else:
-            really_reset = input("Are you sure you want to reset the platform? This cannot be undone. (y/n): ").lower() == 'y'
+            really_reset = input(
+                "Are you sure you want to reset the platform? This cannot be undone. (y/n): ").lower() == 'y'
         if really_reset:
             resp = _reset_platform(url=url, creds=creds)
 
         if verbose:
             if resp.status_code == 200:
-                print(f'You have become death, destroyer of, well, your platform configuration...')
+                print(
+                    f'You have become death, destroyer of, well, your platform configuration...')
             else:
                 print(
                     f'Something went wrong, request returned a satus code {resp.status_code}')
