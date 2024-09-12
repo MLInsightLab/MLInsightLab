@@ -162,6 +162,9 @@ def fload_model(
 
 
 def load_models_from_cache():
+    """
+    Load models from the cache directory
+    """
     try:
         with open(SERVED_MODEL_CACHE_FILE, 'r') as f:
             return json.load(f)
@@ -266,6 +269,9 @@ except Exception:
 
 # Function to save models to cache
 def save_models_to_cache():
+    """
+    Save models to the cache directory
+    """
     to_save = []
     if LOADED_MODELS != {}:
         for model_name in LOADED_MODELS.keys():
@@ -295,6 +301,25 @@ def upload_data_to_fs(
         file_bytes: str | None = None,
         overwrite: bool = False
 ):
+    """
+    Upload data to the data store
+
+    Parameters:
+    -----------
+    filename : str
+        The name of the file, either with or without /data prepended
+    file_text : str or None (default None)
+        The text of the file, if it is a text file
+    file_bytes : str or None (default None)
+        The bytes of the file, encoded base64 and then to utf-8, if a binary file
+    overwrite : bool (default False)
+        Whether to overwrite the file if it already exists
+
+    Returns
+    -------
+    filename : str
+        The final filename of the file, on disk
+    """
 
     # Determine if text or bytes is to be used (only one can be specified)
     if file_text and file_bytes:
@@ -336,6 +361,21 @@ def download_data_from_fs(
         filename: str,
         as_bytes: bool = False
 ):
+    """
+    Download a file from the file system
+
+    Parameters
+    ----------
+    filename : str
+        The name of the file
+    as_bytes : bool (default False)
+        Whether the file is a binary file or not
+
+    Returns
+    -------
+    content : str
+        The content of the file, as a string (needs to be coded to bytes if a binary file)
+    """
     if not filename.startswith(DATA_DIRECTORY):
         filename = os.path.join(
             DATA_DIRECTORY,
@@ -403,6 +443,9 @@ def load_model_background(
     quantization_kwargs: dict | None,
     **kwargs
 ):
+    """
+    Load a model in the background
+    """
     try:
         model = fload_model(
             model_name,
@@ -611,6 +654,9 @@ def verify_password(body: VerifyPasswordInfo, user_properties: dict = Depends(ve
 
 @app.get('/', include_in_schema=False)
 def redirect_docs():
+    """
+    Redirect the main page to the docs site
+    """
     return RedirectResponse(url='/api/docs')
 
 
@@ -1007,6 +1053,19 @@ def get_usage(user_properties: dict = Depends(verify_credentials)):
 
 @app.post('/data/upload')
 def upload_file(body: DataUploadRequest, user_properties: dict = Depends(verify_credentials)):
+    """
+    Upload a file to the data store
+
+    Parameters
+    ----------
+    body : DataUploadRequest
+        Properties of the file to upload
+    
+    Returns
+    -------
+    filename : str
+        The full path to the file on disk, in the data directory
+    """
     if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(
             403,
@@ -1030,6 +1089,19 @@ def upload_file(body: DataUploadRequest, user_properties: dict = Depends(verify_
 
 @app.post('/data/download')
 def download_file(body: DataDownloadRequest, user_properties: dict = Depends(verify_credentials)):
+    """
+    Download a file from the data drive
+
+    Parameters
+    ----------
+    body : DataDownloadRequest
+        The information about the file to download
+
+    Returns
+    -------
+    content : str
+        The content of the file, as a string
+    """
     if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(
             403,
