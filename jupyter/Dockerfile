@@ -25,7 +25,7 @@ RUN pip install --no-cache-dir jupyterlab_iframe
 RUN pip install --no-cache-dir lckr_jupyterlab_variableinspector
 
 # Install the jupyterlab system monitor extension
-RUN pip install --no-cache-dir jupyterlab-system-monitor
+RUN pip install --no-cache-dir jupyter-resource-usage
 
 # Add sudo users to not require password for sudo
 RUN echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/root
