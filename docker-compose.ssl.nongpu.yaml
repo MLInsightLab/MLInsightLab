@@ -69,6 +69,7 @@ services:
       - ${DATA_MOUNT}
       - ${MODEL_SERVER_CACHE_MOUNT}
       - ${MODEL_SERVER_DB_MOUNT}
+      - ${VARIABLE_STORE_MOUNT}
     environment:
       - SERVED_MODEL_CACHE_DIR=${MODEL_SERVER_SERVED_MODEL_CACHE_DIR}
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
@@ -120,6 +121,7 @@ volumes:
   model_server_database:
   model_server_cache:
   jupyter_database:
+  variable_store:
   jupyter_cron:
   jupyter_home:
   jupyter_etc:

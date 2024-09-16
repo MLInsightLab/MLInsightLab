@@ -38,6 +38,17 @@ PREDICT_PROBA = ALLOWED_PREDICT_FUNCTIONS[1]
 
 DATA_DIRECTORY = '/data/'
 
+VARIABLE_STORE_DIRECTORY = '/variable_store/'
+VARIABLE_STORE_FILE = os.path.join(
+    VARIABLE_STORE_DIRECTORY, 'variable_store.json')
+
+# Load the variable store
+try:
+    with open(VARIABLE_STORE_FILE, 'r') as f:
+        variable_store = json.load(f)
+except Exception:
+    variable_store = {}
+
 # Load_model function that allows to load model from either alias or version
 
 
@@ -426,6 +437,11 @@ class DataUploadRequest(BaseModel):
 class DataDownloadRequest(BaseModel):
     filename: str
     as_bytes: bool = False
+
+
+class VariableSetRequest(BaseModel):
+    value: str | int | float | bool | dict | list
+    overwrite: bool = False
 
 
 class VerifyPasswordInfo(BaseModel):
@@ -1060,7 +1076,7 @@ def upload_file(body: DataUploadRequest, user_properties: dict = Depends(verify_
     ----------
     body : DataUploadRequest
         Properties of the file to upload
-    
+
     Returns
     -------
     filename : str
@@ -1119,4 +1135,124 @@ def download_file(body: DataDownloadRequest, user_properties: dict = Depends(ver
         raise HTTPException(
             400,
             f'The following error occurred: {str(e)}'
+        )
+
+
+@app.get('/variable-store/get/{variable}')
+def get_variable(variable, user_properties: dict = Depends(verify_credentials)):
+    """
+    Retrieve a variable from the variable store
+
+    Parameters
+    ----------
+    variable : str
+        The identifier of the variable
+    """
+    if user_properties['role'] not in ['admin', 'data_scientist']:
+        raise HTTPException(
+            403,
+            'User does not have permissions'
+        )
+
+    try:
+        return {
+            variable: variable_store[user_properties['username']][variable]
+        }
+    except Exception:
+        raise HTTPException(
+            404,
+            'User does not have a variable with that identifier saved'
+        )
+
+
+@app.get('/variable-store/list')
+def list_variables(user_properties: dict = Depends(verify_credentials)):
+    """
+    List your variables
+    """
+    if user_properties['role'] not in ['admin', 'data_scientist']:
+        raise HTTPException(
+            403,
+            'User does not have permissions'
+        )
+
+    # Try to return list of variable names
+    try:
+        return list(variable_store[user_properties['username']].keys())
+
+    # No variables for user, return empty list
+    except Exception:
+        return []
+
+
+@app.post('/variable-store/set/{variable}')
+def set_variable(variable, variable_properties: VariableSetRequest, user_properties: dict = Depends(verify_credentials)):
+    """
+    Set a variable
+
+    Parameters:
+    variable : str
+        The variable identifier
+    variable_properties : VariableSetRequest
+        JSON payload with the value for the variable and whether to overwrite the variable if it is already set
+    """
+    if user_properties['role'] not in ['admin', 'data_scientist']:
+        raise HTTPException(
+            403,
+            'User does not have permissions'
+        )
+
+    # Check if the variable exists and overwrite is False
+    if not variable_properties.overwrite:
+        try:
+            existing_variable = variable_store[user_properties['username']][variable]
+        except Exception:
+            existing_variable = None
+
+        if existing_variable:
+            raise HTTPException(
+                400,
+                'Variable already exists and overwrite was False'
+            )
+
+    # Now, try to write to the variable store, but be careful about edge cases
+    if not variable_store.get(user_properties['username']):
+        variable_store[user_properties['username']] = {
+            variable: variable_properties.value
+        }
+    else:
+        variable_store[user_properties['username']
+                       ][variable] = variable_properties.value
+
+    # Write the variable store to disk
+    with open(VARIABLE_STORE_FILE, 'w') as f:
+        json.dump(variable_store, f)
+
+    return {
+        'success': True
+    }
+
+
+@app.delete('/variable-store/delete/{variable}')
+def delete_variable(variable, user_properties: dict = Depends(verify_credentials)):
+    """
+    Delete a variable
+    """
+    if not user_properties['role'] in ['admin', 'data_scientist']:
+        raise HTTPException(
+            403,
+            'User does not have permissions'
+        )
+
+    # Try to delete the specified variable for the user and rewrite the variable store
+    try:
+        del variable_store[user_properties['username']][variable]
+        with open(VARIABLE_STORE_FILE, 'w') as f:
+            json.dump(variable_store, f)
+
+    # If any error occurs, return HTTPException with 404 code
+    except Exception:
+        raise HTTPException(
+            404,
+            'No variable to delete'
         )
