@@ -412,6 +412,7 @@ class PredictRequest(BaseModel):
     predict_function: str = 'predict'
     dtype: str = None
     params: dict = None
+    convert_to_numpy: bool = True
 
 
 class LoadRequest(BaseModel):
@@ -802,7 +803,7 @@ def predict(model_name: str, model_flavor: str, model_version_or_alias: str | in
 
     # Grab the data to predict on from the input body
     try:
-        if model_flavor not in [TRANSFORMERS_FLAVOR, HUGGINGFACE_FLAVOR]:
+        if model_flavor not in [TRANSFORMERS_FLAVOR, HUGGINGFACE_FLAVOR] and body.convert_to_numpy:
             to_predict = np.array(body.data)
             if body.dtype:
                 to_predict = to_predict.astype(body.dtype)
