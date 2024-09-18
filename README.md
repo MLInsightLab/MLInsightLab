@@ -43,10 +43,18 @@ This project is a comprehensive Docker Compose setup for MLInsightLab. It integr
    - Also provides authentication, user management, and server management endpoints.
 
 5. **Web UI**:
-   - Provides a simple user interface to access other resources
+   - Provides a simple user interface to access other resources.
 
 6. **Nginx**:
    - Acts as a reverse proxy to manage and secure HTTP/HTTPS requests.
+
+7. **Data Store**:
+   - The `/data` directory in the JupyterHub, Dask, and Model Server services are all shared, providing a location for data sharing.
+   - Data files can be uploaded and downloaded from the `/data` directory using the API.
+
+8. **Variable Store**:
+   - Store secure variables and other values to the Variable Store.
+   - Complete with API access.
 
 ## Quick Start Guide
 
