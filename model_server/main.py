@@ -1158,9 +1158,7 @@ def get_variable(body: VariableDownloadRequest, user_properties: dict = Depends(
         )
 
     try:
-        return {
-            body.value: variable_store[body.username][body.variable_name]
-        }
+        return variable_store[body.username][body.variable_name]
     except Exception:
         raise HTTPException(
             404,
@@ -1190,7 +1188,7 @@ def list_variables(body: VariableListRequest, user_properties: dict = Depends(ve
 
     # Try to return list of variable names
     try:
-        return list(variable_store[user_properties[body.username]].keys())
+        return list(variable_store[body.username].keys())
 
     # No variables for user, return empty list
     except Exception:
@@ -1254,7 +1252,7 @@ def set_variable(body: VariableSetRequest, user_properties: dict = Depends(verif
     }
 
 
-@app.delete('/variable-store/delete')
+@app.post('/variable-store/delete')
 def delete_variable(body : VariableDeleteRequest, user_properties: dict = Depends(verify_credentials)):
     """
     Delete a variable
@@ -1279,6 +1277,9 @@ def delete_variable(body : VariableDeleteRequest, user_properties: dict = Depend
         del variable_store[body.username][body.variable_name]
         with open(VARIABLE_STORE_FILE, 'w') as f:
             json.dump(variable_store, f)
+        return {
+            'success' : True
+        }
 
     # If any error occurs, return HTTPException with 404 code
     except Exception:
