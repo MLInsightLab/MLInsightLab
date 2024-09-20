@@ -67,7 +67,7 @@ def generate_password():
 
 
 def validate_role(role):
-    if role not in ['admin', 'data_scientist', 'user']:
+    if role not in ['admin', 'data_scientist', 'user', 'system']:
         raise ValueError('Not a valid role')
     return True
 
@@ -116,7 +116,7 @@ def validate_user_key(username, key):
 
     # Check for the system user
     if username == SYSTEM_USERNAME and key == SYSTEM_KEY:
-        return 'admin'
+        return 'system'
 
     # Query the database for the user's information
     con = sqlite3.connect(DB_FILE)
