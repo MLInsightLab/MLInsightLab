@@ -94,12 +94,18 @@
         .back-button:hover {
             background-color: #4a90e2;
         }
-        .eye-icon {
+        .show-button {
+            background-color: #357ABD;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
             cursor: pointer;
-            font-size: 20px;
-            margin-right: 10px;
-            display: inline-block;
-            vertical-align: middle;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        .show-button:hover {
+            background-color: #4a90e2;
         }
         .variable-value {
             margin-left: 10px;
@@ -123,9 +129,7 @@
             <tr>
                 <td>{{ var.variable }}</td>
                 <td>
-                    <span class="eye-icon" onclick="toggleVisibility('{{ var.variable }}')">
-                        &#128065; <!-- Eye icon (closed) -->
-                    </span>
+                    <button class="show-button" onclick="toggleVisibility('{{ var.variable }}')">Show</button>
                     <span id="{{ var.variable }}" class="variable-value" style="display: none;">
                         {{ var.variable_value }}
                     </span>
