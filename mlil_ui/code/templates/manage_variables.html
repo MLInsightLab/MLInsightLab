@@ -106,19 +106,10 @@
         <table>
             <tr>
                 <th>Variable Name</th>
-                <th>Value</th>
-                <th>Actions</th>
             </tr>
             {% for var in variables %}
             <tr>
-                <td>{{ var.name }}</td>
-                <td>{{ var.value }}</td>
-                <td>
-                    <!-- Form to delete a variable -->
-                    <form action="/user/variables/delete/{{ var.name }}" method="post" style="display:inline;">
-                        <button type="submit" class="button">Delete</button>
-                    </form>
-                </td>
+                <td>{{ var }}</td>
             </tr>
             {% endfor %}
         </table>

@@ -77,13 +77,13 @@
             <tr>
                 <th>Model Name</th>
                 <th>Flavor</th>
-                <th>Version</th>
+                <th>Version/Alias</th>
             </tr>
             {% for model in models %}
             <tr>
-                <td>{{ model.name }}</td>
-                <td>{{ model.flavor }}</td>
-                <td>{{ model.version }}</td>
+                <td>{{ model.model_name }}</td>
+                <td>{{ model.model_flavor }}</td>
+                <td>{{ model.model_version_or_alias }}</td>
             </tr>
             {% endfor %}
         </table>
