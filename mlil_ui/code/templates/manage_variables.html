@@ -94,6 +94,13 @@
         .back-button:hover {
             background-color: #4a90e2;
         }
+        .show-button {
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #4a90e2;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -106,10 +113,16 @@
         <table>
             <tr>
                 <th>Variable Name</th>
+                <th>Variable Value</th>
             </tr>
             {% for var in variables %}
             <tr>
-                <td>{{ var }}</td>
+                <td>{{ var.variable }}</td>
+                <td>
+                    <span class="hidden-value" style="display:none;">{{ var.variable_value }}</span>
+                    <span class="visible-value">******</span>
+                    <button class="show-button" onclick="toggleValue(this)">Show</button>
+                </td>
             </tr>
             {% endfor %}
         </table>
@@ -122,6 +135,22 @@
         <!-- Back to Dashboard Button -->
         <a href="/" class="back-button">Back to Dashboard</a>
     </div>
+
+    <script>
+        function toggleValue(button) {
+            const hiddenValue = button.previousElementSibling; // The hidden value
+            const visibleValue = hiddenValue.nextElementSibling; // The visible placeholder
+            if (hiddenValue.style.display === "none") {
+                hiddenValue.style.display = "inline"; // Show the actual value
+                visibleValue.style.display = "none"; // Hide the placeholder
+                button.textContent = "Hide"; // Change button text
+            } else {
+                hiddenValue.style.display = "none"; // Hide the actual value
+                visibleValue.style.display = "inline"; // Show the placeholder
+                button.textContent = "Show"; // Change button text
+            }
+        }
+    </script>
 
 </body>
 </html>

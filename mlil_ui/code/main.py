@@ -132,5 +132,16 @@ async def manage_variables(request: Request):
     username = request.session['user']
     response = requests.post(f'{API_URL}/variable-store/list', json={'username': username}, auth=(SYSTEM_USERNAME, SYSTEM_KEY))
     variables = response.json() if response.ok else []
+
+    variables_and_values = []
+    if len(variables) > 0:
+        for variable in variables:
+            variable_value = requests.post(f'{API_URL}/variable-store/get', json = {'username': username, 'variable_name' : variable}, auth = (SYSTEM_USERNAME, SYSTEM_KEY))
+            variables_and_values.append(
+                {
+                    'variable' : variable,
+                    'variable_value' : variable_value
+                }
+            )
     
-    return templates.TemplateResponse("manage_variables.html", {"request": request, "variables": variables})
+    return templates.TemplateResponse("manage_variables.html", {"request": request, "variables": variables_and_values})
