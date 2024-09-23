@@ -139,7 +139,7 @@
     <script>
         function toggleValue(button) {
             const hiddenValue = button.previousElementSibling; // The hidden value
-            const visibleValue = hiddenValue.nextElementSibling; // The visible placeholder
+            const visibleValue = button.previousElementSibling.previousElementSibling; // The visible placeholder
             if (hiddenValue.style.display === "none") {
                 hiddenValue.style.display = "inline"; // Show the actual value
                 visibleValue.style.display = "none"; // Hide the placeholder
