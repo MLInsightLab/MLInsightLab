@@ -94,12 +94,16 @@
         .back-button:hover {
             background-color: #4a90e2;
         }
-        .show-button {
+        .eye-icon {
             cursor: pointer;
-            background: none;
-            border: none;
-            color: #4a90e2;
-            text-decoration: underline;
+            font-size: 20px;
+            margin-right: 10px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .variable-value {
+            margin-left: 10px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -119,9 +123,12 @@
             <tr>
                 <td>{{ var.variable }}</td>
                 <td>
-                    <span class="hidden-value" style="display:none;">{{ var.variable_value }}</span>
-                    <span class="visible-value">******</span>
-                    <button class="show-button" onclick="toggleValue(this)">Show</button>
+                    <span class="eye-icon" onclick="toggleVisibility('{{ var.variable }}')">
+                        &#128065; <!-- Eye icon (closed) -->
+                    </span>
+                    <span id="{{ var.variable }}" class="variable-value" style="display: none;">
+                        {{ var.variable_value }}
+                    </span>
                 </td>
             </tr>
             {% endfor %}
@@ -137,17 +144,12 @@
     </div>
 
     <script>
-        function toggleValue(button) {
-            const hiddenValue = button.previousElementSibling; // The hidden value
-            const visibleValue = button.previousElementSibling.previousElementSibling; // The visible placeholder
-            if (hiddenValue.style.display === "none") {
-                hiddenValue.style.display = "inline"; // Show the actual value
-                visibleValue.style.display = "none"; // Hide the placeholder
-                button.textContent = "Hide"; // Change button text
+        function toggleVisibility(variableId) {
+            const variableValueElement = document.getElementById(variableId);
+            if (variableValueElement.style.display === 'none') {
+                variableValueElement.style.display = 'inline';
             } else {
-                hiddenValue.style.display = "none"; // Hide the actual value
-                visibleValue.style.display = "inline"; // Show the placeholder
-                button.textContent = "Show"; // Change button text
+                variableValueElement.style.display = 'none';
             }
         }
     </script>
