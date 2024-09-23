@@ -106,3 +106,31 @@ async def proxy_mlflow(path: str, request: Request):
     )
 
     return client_response
+
+@app.get("/user/settings", response_class=HTMLResponse)
+async def user_settings(request: Request):
+    if 'user' not in request.session or not check_inactivity(request):
+        return RedirectResponse(url="/login")
+    return templates.TemplateResponse("user_settings.html", {"request": request})
+
+
+@app.get("/models", response_class=HTMLResponse)
+async def list_models(request: Request):
+    if 'user' not in request.session or not check_inactivity(request):
+        return RedirectResponse(url="/login")
+
+    response = requests.get(f'{API_URL}/models/list', auth=(SYSTEM_USERNAME, SYSTEM_KEY))
+    models = response.json() if response.ok else []
+    
+    return templates.TemplateResponse("list_models.html", {"request": request, "models": models})
+
+@app.get("/variables", response_class=HTMLResponse)
+async def manage_variables(request: Request):
+    if 'user' not in request.session or not check_inactivity(request):
+        return RedirectResponse(url="/login")
+
+    username = request.session['user']
+    response = requests.post(f'{API_URL}/variable-store/list', json={'username': username}, auth=(SYSTEM_USERNAME, SYSTEM_KEY))
+    variables = response.json() if response.ok else []
+    
+    return templates.TemplateResponse("manage_variables.html", {"request": request, "variables": variables})

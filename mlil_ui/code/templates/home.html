@@ -9,24 +9,27 @@
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            padding: 20px;
         }
         .home-container {
             background-color: #ffffff;
             padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            width: 500px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
             text-align: center;
-            margin-top: 70px;
+            margin: 20px;
+            transition: transform 0.2s ease;
         }
         .home-container h2 {
             color: #4a90e2;
             margin-bottom: 30px;
-            font-size: 28px;
+            font-size: 32px;
         }
         .home-container a {
             display: block;
@@ -36,11 +39,12 @@
             color: #ffffff;
             text-decoration: none;
             border-radius: 6px;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
+            font-size: 18px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
         .home-container a:hover {
             background-color: #4a90e2;
+            transform: translateY(-2px);
         }
     </style>
 </head>
@@ -51,6 +55,8 @@
         <a href="/jupyter">Go To JupyterHub</a>
         <a href="/mlflow">Go to MLflow</a>
         <a href="/api">API Documentation</a>
+        <a href="/models">List Deployed Models</a>
+        <a href="/variables">Manage User Variables</a>
         <a href="/logout">Logout</a>
     </div>
     

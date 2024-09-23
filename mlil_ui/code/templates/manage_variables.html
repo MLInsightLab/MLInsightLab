@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage User Variables</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 700px;
+            text-align: center;
+            margin-top: 50px;
+        }
+        h2 {
+            color: #4a90e2;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #dddddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #357ABD;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .no-variables {
+            font-size: 20px;
+            color: #d9534f;
+            margin: 20px 0;
+        }
+        .form-container {
+            margin: 20px 0;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .button {
+            background-color: #357ABD;
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #4a90e2;
+        }
+        .back-button {
+            display: inline-block;
+            background-color: #357ABD;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #4a90e2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Manage User Variables</h2>
+
+        <!-- Table to display existing variables -->
+        {% if variables and variables|length > 0 %}
+        <table>
+            <tr>
+                <th>Variable Name</th>
+                <th>Value</th>
+                <th>Actions</th>
+            </tr>
+            {% for var in variables %}
+            <tr>
+                <td>{{ var.name }}</td>
+                <td>{{ var.value }}</td>
+                <td>
+                    <!-- Form to delete a variable -->
+                    <form action="/user/variables/delete/{{ var.name }}" method="post" style="display:inline;">
+                        <button type="submit" class="button">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <div class="no-variables">
+            No variables found.
+        </div>
+        {% endif %}
+
+        <!-- Back to Dashboard Button -->
+        <a href="/" class="back-button">Back to Dashboard</a>
+    </div>
+
+</body>
+</html>

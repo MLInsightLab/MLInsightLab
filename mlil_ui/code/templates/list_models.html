@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Deployed Models - MLInsightLab Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 700px;
+            text-align: center;
+            margin-top: 50px;
+        }
+        h2 {
+            color: #4a90e2;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #dddddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #357ABD;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .no-models {
+            font-size: 20px;
+            color: #d9534f;
+            margin: 20px 0;
+        }
+        .back-button {
+            background-color: #357ABD;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 16px;
+            display: inline-block;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #4a90e2;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <h2>Deployed Models</h2>
+
+        <table>
+            <tr>
+                <th>Model Name</th>
+                <th>Flavor</th>
+                <th>Version</th>
+            </tr>
+            {% for model in models %}
+            <tr>
+                <td>{{ model.name }}</td>
+                <td>{{ model.flavor }}</td>
+                <td>{{ model.version }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <!-- Back to Dashboard Button -->
+        <a href="/" class="back-button">Back to Dashboard</a>
+    </div>
+
+</body>
+</html>
