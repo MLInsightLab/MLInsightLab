@@ -136,7 +136,7 @@ async def manage_variables(request: Request):
     variables_and_values = []
     if len(variables) > 0:
         for variable in variables:
-            variable_value = requests.post(f'{API_URL}/variable-store/get', json = {'username': username, 'variable_name' : variable}, auth = (SYSTEM_USERNAME, SYSTEM_KEY))
+            variable_value = requests.post(f'{API_URL}/variable-store/get', json = {'username': username, 'variable_name' : variable}, auth = (SYSTEM_USERNAME, SYSTEM_KEY)).json()
             variables_and_values.append(
                 {
                     'variable' : variable,
