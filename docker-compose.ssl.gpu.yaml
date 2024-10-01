@@ -29,7 +29,7 @@ services:
     build: ./jupyter
     depends_on:
       - dask-worker
-      - model-server
+      - api-hub
     volumes:
       - ${DATA_MOUNT}
       - ${NOTEBOOK_MOUNT}
@@ -67,9 +67,9 @@ services:
     networks:
       - network
 
-  model-server:
+  api-hub:
     restart: always
-    build: ./model_server
+    build: ./api_hub
     depends_on:
       - mlflow
     volumes:
