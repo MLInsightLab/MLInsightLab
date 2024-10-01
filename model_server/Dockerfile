@@ -8,6 +8,7 @@ RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./db_utils.py /code/db_utils.py
+COPY ./utils.py /code/utils.py
 COPY ./main.py /code/main.py
 
 EXPOSE 4488
