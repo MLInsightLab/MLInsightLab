@@ -107,6 +107,7 @@ async def proxy_mlflow(path: str, request: Request):
 
     return client_response
 
+
 @app.get("/user/settings", response_class=HTMLResponse)
 async def user_settings(request: Request):
     if 'user' not in request.session or not check_inactivity(request):
@@ -119,10 +120,12 @@ async def list_models(request: Request):
     if 'user' not in request.session or not check_inactivity(request):
         return RedirectResponse(url="/login")
 
-    response = requests.get(f'{API_URL}/models/list', auth=(SYSTEM_USERNAME, SYSTEM_KEY))
+    response = requests.get(f'{API_URL}/models/list',
+                            auth=(SYSTEM_USERNAME, SYSTEM_KEY))
     models = response.json() if response.ok else []
-    
+
     return templates.TemplateResponse("list_models.html", {"request": request, "models": models})
+
 
 @app.get("/variables", response_class=HTMLResponse)
 async def manage_variables(request: Request):
@@ -130,18 +133,20 @@ async def manage_variables(request: Request):
         return RedirectResponse(url="/login")
 
     username = request.session['user']
-    response = requests.post(f'{API_URL}/variable-store/list', json={'username': username}, auth=(SYSTEM_USERNAME, SYSTEM_KEY))
+    response = requests.post(f'{API_URL}/variable-store/list',
+                             json={'username': username}, auth=(SYSTEM_USERNAME, SYSTEM_KEY))
     variables = response.json() if response.ok else []
 
     variables_and_values = []
     if len(variables) > 0:
         for variable in variables:
-            variable_value = requests.post(f'{API_URL}/variable-store/get', json = {'username': username, 'variable_name' : variable}, auth = (SYSTEM_USERNAME, SYSTEM_KEY)).json()
+            variable_value = requests.post(f'{API_URL}/variable-store/get', json={
+                                           'username': username, 'variable_name': variable}, auth=(SYSTEM_USERNAME, SYSTEM_KEY)).json()
             variables_and_values.append(
                 {
-                    'variable' : variable,
-                    'variable_value' : variable_value
+                    'variable': variable,
+                    'variable_value': variable_value
                 }
             )
-    
+
     return templates.TemplateResponse("manage_variables.html", {"request": request, "variables": variables_and_values})

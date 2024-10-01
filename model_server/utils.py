@@ -28,13 +28,14 @@ ALLOWED_PREDICT_FUNCTIONS = [
 PREDICT = ALLOWED_PREDICT_FUNCTIONS[0]
 PREDICT_PROBA = ALLOWED_PREDICT_FUNCTIONS[1]
 
-DATA_DIRECTORY = '/data/'
+DATA_DIRECTORY = os.environ['DATA_DIRECTORY']
 
-VARIABLE_STORE_DIRECTORY = '/variable_store/'
+VARIABLE_STORE_DIRECTORY = os.environ['VARIABLE_STORE_DIRECTORY']
 VARIABLE_STORE_FILE = os.path.join(
     VARIABLE_STORE_DIRECTORY, 'variable_store.json')
 
 # Load_model function that allows to load model from either alias or version
+
 
 def fload_model(
     model_name: str,
@@ -241,6 +242,7 @@ def predict_model(
         'prediction': results
     }
 
+
 def upload_data_to_fs(
         filename: str,
         file_bytes: str,
@@ -289,7 +291,7 @@ def upload_data_to_fs(
     def opener(path, flags):
         return os.open(path, flags, 0o776)
 
-    with open(filename, 'wb', opener = opener) as f:
+    with open(filename, 'wb', opener=opener) as f:
         f.write(file_content)
 
     return filename
@@ -325,6 +327,7 @@ def download_data_from_fs(
     content = base64.b64encode(content).decode('utf-8')
 
     return content
+
 
 class PredictRequest(BaseModel):
     data: list
@@ -363,12 +366,15 @@ class VariableSetRequest(BaseModel):
     overwrite: bool = False
     username: str | None = None
 
+
 class VariableDownloadRequest(BaseModel):
     variable_name: str | int | float | bool | dict | list
     username: str | None = None
 
+
 class VariableListRequest(BaseModel):
     username: str | None = None
+
 
 class VariableDeleteRequest(BaseModel):
     variable_name: str

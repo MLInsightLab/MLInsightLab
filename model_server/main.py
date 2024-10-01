@@ -144,10 +144,6 @@ def save_models_to_cache():
         json.dump(to_save, f)
 
 
-
-
-
-
 # Function to load a model in the background
 
 
@@ -779,7 +775,7 @@ def get_variable(body: VariableDownloadRequest, user_properties: dict = Depends(
 
     if body.username is None:
         body.username = user_properties['username']
-    
+
     if user_properties['role'] != 'system' and body.username != user_properties['username']:
         raise HTTPException(
             403,
@@ -805,7 +801,7 @@ def list_variables(body: VariableListRequest, user_properties: dict = Depends(ve
             403,
             'User does not have permissions'
         )
-    
+
     if body.username is None:
         body.username = user_properties['username']
 
@@ -840,7 +836,7 @@ def set_variable(body: VariableSetRequest, user_properties: dict = Depends(verif
             403,
             'User does not have permissions'
         )
-    
+
     if body.username is None:
         body.username = user_properties['username']
 
@@ -853,7 +849,8 @@ def set_variable(body: VariableSetRequest, user_properties: dict = Depends(verif
     # Check if the variable exists and overwrite is False
     if not body.overwrite:
         try:
-            existing_variable = variable_store[user_properties[body.username]][body.variable_name]
+            existing_variable = variable_store[user_properties[body.username]
+                                               ][body.variable_name]
         except Exception:
             existing_variable = None
 
@@ -882,7 +879,7 @@ def set_variable(body: VariableSetRequest, user_properties: dict = Depends(verif
 
 
 @app.post('/variable-store/delete')
-def delete_variable(body : VariableDeleteRequest, user_properties: dict = Depends(verify_credentials)):
+def delete_variable(body: VariableDeleteRequest, user_properties: dict = Depends(verify_credentials)):
     """
     Delete a variable
     """
@@ -891,7 +888,7 @@ def delete_variable(body : VariableDeleteRequest, user_properties: dict = Depend
             403,
             'User does not have permissions'
         )
-    
+
     if body.username is None:
         body.username = user_properties['username']
 
@@ -907,7 +904,7 @@ def delete_variable(body : VariableDeleteRequest, user_properties: dict = Depend
         with open(VARIABLE_STORE_FILE, 'w') as f:
             json.dump(variable_store, f)
         return {
-            'success' : True
+            'success': True
         }
 
     # If any error occurs, return HTTPException with 404 code
