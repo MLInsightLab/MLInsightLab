@@ -1,3 +1,4 @@
+python-jose[cryptography]
 transformers
 bitsandbytes
 torchvision

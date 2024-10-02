@@ -1,6 +1,8 @@
+from fastapi.security import HTTPBasic, HTTPBasicCredentials, OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi import FastAPI, HTTPException, Depends, Body, BackgroundTasks
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from datetime import datetime, timedelta, timezone
 from fastapi.responses import RedirectResponse
+from jose import JWTError, jwt
 import numpy as np
 import subprocess
 import signal
@@ -9,6 +11,13 @@ import os
 
 from db_utils import setup_database, validate_user_key, validate_user_password, fcreate_user, fdelete_user, fissue_new_api_key, fissue_new_password, fget_user_role, fupdate_user_role, flist_users, SERVED_MODEL_CACHE_FILE
 from utils import ALLOWED_MODEL_FLAVORS, PYFUNC_FLAVOR, SKLEARN_FLAVOR, TRANSFORMERS_FLAVOR, HUGGINGFACE_FLAVOR, VARIABLE_STORE_FILE, fload_model, load_models_from_cache, predict_model, upload_data_to_fs, download_data_from_fs, PredictRequest, LoadRequest, UserInfo, DataUploadRequest, DataDownloadRequest, VariableSetRequest, VariableDownloadRequest, VariableListRequest, VariableDeleteRequest, VerifyPasswordInfo
+
+# Load the secret key from environment variables and set up variables for JWT authentication
+SECRET_KEY = os.environ['SECRET_KEY']
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # Set up the database
 setup_database()
@@ -212,6 +221,16 @@ def load_model_background(
 
     return True
 
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
 
 # Initialize the app and Basic Auth
 app = FastAPI()
@@ -260,12 +279,57 @@ def verify_credentials_password(credentials: HTTPBasicCredentials = Depends(secu
             401,
             str(e)
         )
+    
+def verify_jwt_token(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        role: str = payload.get("role")
+        if username is None or role is None:
+            raise credentials_exception
+        return {"username": username, "role": role}
+    except JWTError:
+        raise credentials_exception
+    
+def verify_credentials_or_token(
+    api_key: str = Depends(security), token_data: dict = Depends(verify_jwt_token)
+):
+    """
+    Verify either API Key or JWT token.
+    """
+    if api_key:
+        # Use API Key-based validation
+        return verify_credentials(api_key)
+    else:
+        # Use JWT token validation
+        return token_data
+
+@app.post("/token")
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = validate_user_password(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=401, detail="Incorrect username or password"
+        )
+    
+    # Create JWT token with user details
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": form_data.username, "role": user["role"]},
+        expires_delta=access_token_expires,
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
 
 # Verify a user's password
 
 
 @app.post('/password/verify')
-def verify_password(body: VerifyPasswordInfo, user_properties: dict = Depends(verify_credentials)):
+def verify_password(body: VerifyPasswordInfo, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Verify a password
 
@@ -299,7 +363,7 @@ def redirect_docs():
 
 
 @app.post('/models/load/{model_name}/{model_flavor}/{model_version_or_alias}')
-def load_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, body: LoadRequest, background_tasks: BackgroundTasks, user_properties: dict = Depends(verify_credentials)):
+def load_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, body: LoadRequest, background_tasks: BackgroundTasks, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Load a model into local memory
 
@@ -343,7 +407,7 @@ def load_model(model_name: str, model_flavor: str, model_version_or_alias: str |
 
 
 @app.get('/models/list')
-def list_models(user_properties: dict = Depends(verify_credentials)):
+def list_models(user_properties: dict = Depends(verify_credentials_or_token)):
     """
     List loaded models
     """
@@ -370,7 +434,7 @@ def list_models(user_properties: dict = Depends(verify_credentials)):
 
 
 @app.delete('/models/unload/{model_name}/{model_flavor}/{model_version_or_alias}')
-def unload_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, user_properties: dict = Depends(verify_credentials)):
+def unload_model(model_name: str, model_flavor: str, model_version_or_alias: str | int, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Unload a model from memory
 
@@ -398,7 +462,7 @@ def unload_model(model_name: str, model_flavor: str, model_version_or_alias: str
 
 
 @app.post('/models/predict/{model_name}/{model_flavor}/{model_version_or_alias}')
-def predict(model_name: str, model_flavor: str, model_version_or_alias: str | int, body: PredictRequest, user_properties: dict = Depends(verify_credentials)):
+def predict(model_name: str, model_flavor: str, model_version_or_alias: str | int, body: PredictRequest, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Run prediction
 
@@ -452,7 +516,7 @@ def predict(model_name: str, model_flavor: str, model_version_or_alias: str | in
 
 
 @app.post('/users/create')
-def create_user(user_info: UserInfo, user_properties: dict = Depends(verify_credentials)):
+def create_user(user_info: UserInfo, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Create a user
 
@@ -481,7 +545,7 @@ def create_user(user_info: UserInfo, user_properties: dict = Depends(verify_cred
 
 
 @app.delete('/users/delete/{username}')
-def delete_user(username, user_properties: dict = Depends(verify_credentials)):
+def delete_user(username, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Delete a user
 
@@ -536,7 +600,7 @@ def issue_new_api_key(username, user_properties: dict = Depends(verify_credentia
 
 
 @app.put('/users/password/issue/{username}')
-def issue_new_password(username, new_password: str = Body(embed=True), user_properties: dict = Depends(verify_credentials)):
+def issue_new_password(username, new_password: str = Body(embed=True), user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Issue a new password for a user
 
@@ -568,7 +632,7 @@ def issue_new_password(username, new_password: str = Body(embed=True), user_prop
 
 
 @app.get('/users/role/{username}')
-def get_user_role(username: str, user_properties: dict = Depends(verify_credentials)):
+def get_user_role(username: str, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Get a user's role
 
@@ -592,7 +656,7 @@ def get_user_role(username: str, user_properties: dict = Depends(verify_credenti
 
 
 @app.put('/users/role/{username}')
-def update_user_role(username: str, new_role=Body(embed=True), user_properties: dict = Depends(verify_credentials)):
+def update_user_role(username: str, new_role=Body(embed=True), user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Update a user's role
 
@@ -621,7 +685,7 @@ def update_user_role(username: str, new_role=Body(embed=True), user_properties: 
 
 
 @app.get('/users/list')
-def list_users(user_properties: dict = Depends(verify_credentials)):
+def list_users(user_properties: dict = Depends(verify_credentials_or_token)):
     """
     List all users
     """
@@ -638,7 +702,7 @@ def list_users(user_properties: dict = Depends(verify_credentials)):
 
 
 @app.get('/reset')
-def reset(user_properties: dict = Depends(verify_credentials)):
+def reset(user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Reset the API, redeploying all models
     """
@@ -655,7 +719,7 @@ def reset(user_properties: dict = Depends(verify_credentials)):
 
 
 @app.get('/system/resource-usage')
-def get_usage(user_properties: dict = Depends(verify_credentials)):
+def get_usage(user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Get system resource usage, in terms of free CPU and GPU memory (if GPU-enabled)
     """
@@ -690,7 +754,7 @@ def get_usage(user_properties: dict = Depends(verify_credentials)):
 
 
 @app.post('/data/upload')
-def upload_file(body: DataUploadRequest, user_properties: dict = Depends(verify_credentials)):
+def upload_file(body: DataUploadRequest, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Upload a file to the data store
 
@@ -725,7 +789,7 @@ def upload_file(body: DataUploadRequest, user_properties: dict = Depends(verify_
 
 
 @app.post('/data/download')
-def download_file(body: DataDownloadRequest, user_properties: dict = Depends(verify_credentials)):
+def download_file(body: DataDownloadRequest, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Download a file from the data drive
 
@@ -759,7 +823,7 @@ def download_file(body: DataDownloadRequest, user_properties: dict = Depends(ver
 
 
 @app.post('/variable-store/get')
-def get_variable(body: VariableDownloadRequest, user_properties: dict = Depends(verify_credentials)):
+def get_variable(body: VariableDownloadRequest, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Retrieve a variable from the variable store
 
@@ -792,7 +856,7 @@ def get_variable(body: VariableDownloadRequest, user_properties: dict = Depends(
 
 
 @app.post('/variable-store/list')
-def list_variables(body: VariableListRequest, user_properties: dict = Depends(verify_credentials)):
+def list_variables(body: VariableListRequest, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     List Variables
     """
@@ -821,7 +885,7 @@ def list_variables(body: VariableListRequest, user_properties: dict = Depends(ve
 
 
 @app.post('/variable-store/set')
-def set_variable(body: VariableSetRequest, user_properties: dict = Depends(verify_credentials)):
+def set_variable(body: VariableSetRequest, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Set a variable
 
@@ -879,7 +943,7 @@ def set_variable(body: VariableSetRequest, user_properties: dict = Depends(verif
 
 
 @app.post('/variable-store/delete')
-def delete_variable(body: VariableDeleteRequest, user_properties: dict = Depends(verify_credentials)):
+def delete_variable(body: VariableDeleteRequest, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Delete a variable
     """
