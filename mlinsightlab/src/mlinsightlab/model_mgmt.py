@@ -24,7 +24,7 @@ def _load_model(
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds:
+    creds: dict
         Dictionary that must contain keys "username" and "key", and associated values.
     model_name: str
         The name of the model to load
@@ -120,7 +120,7 @@ def _unload_model(
     with requests.Session() as sess:
         resp = sess.delete(
             url,
-            auth=(creds['username'], creds['key']),
+            auth=(creds['username'], creds['key'])
         )
     if not resp.ok:
         raise MLILException(str(resp.json()))
