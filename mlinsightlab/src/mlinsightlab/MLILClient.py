@@ -13,7 +13,7 @@ from .MLILException import MLILException
 from .user_mgmt import _create_user, _delete_user, _verify_password, _issue_new_password, _get_user_role, _update_user_role, _list_users
 from .key_mgmt import _create_api_key
 from .model_mgmt import _load_model, _unload_model, _list_models, _predict
-from .platform_mgmt import _reset_platform
+from .platform_mgmt import _reset_platform, _get_platform_resource_usage
 from .data_mgmt import _upload_file, _download_file, _get_variable, _list_variables, _set_variable, _delete_variable
 
 
@@ -710,6 +710,7 @@ class MLILClient:
         predict_function: str = "predict",
         dtype: str = "string",
         params: Optional[dict] = None,
+        convert_to_numpy: bool = True
         url: str = None,
         creds: dict = None,
         verbose: bool = False
@@ -745,6 +746,8 @@ class MLILClient:
             The data type of the input. Default is "string".
         params: dict, optional
             Additional parameters for the prediction.
+        convert_to_numpy: bool = True
+            Whether to convert the data to a NumPy array.
         """
         if url is None:
             url = self.url
@@ -760,7 +763,8 @@ class MLILClient:
             data=data,
             predict_function=predict_function,
             dtype=dtype,
-            params=params
+            params=params,
+            convert_to_numpy=convert_to_numpy
         )
 
         if verbose:
@@ -818,6 +822,39 @@ class MLILClient:
             if resp.status_code == 200:
                 print(
                     f'You have become death, destroyer of, well, your platform configuration...')
+            else:
+                print(
+                    f'Something went wrong, request returned a satus code {resp.status_code}')
+        return resp
+
+    def get_resource_usage(
+        self,
+        url: str = None,
+        creds: dict = None,
+        verbose: bool = False
+    ):
+        """
+        Get system resource usage, in terms of free CPU and GPU memory (if GPU-enabled).
+        >>> import mlil
+        >>> client = mlil.MLILClient()
+        >>> client.get_resource_usage()
+
+        Parameters
+        ----------
+        This function takes no parameters.
+        """
+
+        if url is None:
+            url = self.url
+        if creds is None:
+            creds = self.creds
+
+        resp = _get_platform_resource_usage(url=url, creds=creds)
+
+        if verbose:
+            if resp.status_code == 200:
+                print(
+                    f'Vroom vroom!')
             else:
                 print(
                     f'Something went wrong, request returned a satus code {resp.status_code}')

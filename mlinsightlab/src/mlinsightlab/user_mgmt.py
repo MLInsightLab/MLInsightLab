@@ -5,7 +5,7 @@ import requests
 
 
 def _create_user(
-    url: str,
+    url: str,se
     creds: dict,
     username: str,
     role: str,
