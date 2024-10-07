@@ -23,7 +23,7 @@ app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 templates = Jinja2Templates(directory="templates")
 
 
-def authenticate(username: str, password: str):
+"""def authenticate(username: str, password: str):
     with requests.Session() as sess:
         resp = sess.post(
             f'{API_URL}/password/verify',
@@ -39,17 +39,17 @@ def authenticate(username: str, password: str):
             if role in ['admin', 'data_scientist']:
                 return True
         except Exception:
-            pass
+            pass"""
 
 
-def check_inactivity(request: Request):
+"""def check_inactivity(request: Request):
     last_active = request.session.get('last_active', None)
     if last_active:
         if time.time() - last_active > INACTIVITY_TIMEOUT:
             request.session.clear()
             return False
     request.session['last_active'] = time.time()
-    return True
+    return True"""
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -57,13 +57,13 @@ async def login_form(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 
-@app.post("/login")
+"""@app.post("/login")
 async def login(request: Request, username: str = Form(...), password: str = Form(...)):
     if authenticate(username, password):
         request.session['user'] = username
         request.session['last_active'] = time.time()
         return RedirectResponse(url="/", status_code=302)
-    return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})
+    return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})"""
 
 
 @app.get("/logout")
@@ -74,15 +74,15 @@ async def logout(request: Request):
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    if 'user' not in request.session or not check_inactivity(request):
-        return RedirectResponse(url="/login")
+    """if 'user' not in request.session or not check_inactivity(request):
+        return RedirectResponse(url="/login")"""
     return templates.TemplateResponse("home.html", {"request": request})
 
 
 @app.api_route("/mlflow/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy_mlflow(path: str, request: Request):
-    if 'user' not in request.session or not check_inactivity(request):
-        return RedirectResponse(url="/login")
+    """if 'user' not in request.session or not check_inactivity(request):
+        return RedirectResponse(url="/login")"""
 
     mlflow_url = urljoin(MLFLOW_TRACKING_URI, path)
     query_string = request.url.query
@@ -111,15 +111,15 @@ async def proxy_mlflow(path: str, request: Request):
 
 @app.get("/user/settings", response_class=HTMLResponse)
 async def user_settings(request: Request):
-    if 'user' not in request.session or not check_inactivity(request):
-        return RedirectResponse(url="/login")
+    """if 'user' not in request.session or not check_inactivity(request):
+        return RedirectResponse(url="/login")"""
     return templates.TemplateResponse("user_settings.html", {"request": request})
 
 
 @app.get("/models", response_class=HTMLResponse)
 async def list_models(request: Request):
-    if 'user' not in request.session or not check_inactivity(request):
-        return RedirectResponse(url="/login")
+    """if 'user' not in request.session or not check_inactivity(request):
+        return RedirectResponse(url="/login")"""
 
     response = requests.get(f'{API_URL}/models/list',
                             auth=(SYSTEM_USERNAME, SYSTEM_KEY))
@@ -130,10 +130,10 @@ async def list_models(request: Request):
 
 @app.get("/variables", response_class=HTMLResponse)
 async def manage_variables(request: Request):
-    if 'user' not in request.session or not check_inactivity(request):
-        return RedirectResponse(url="/login")
+    """if 'user' not in request.session or not check_inactivity(request):
+        return RedirectResponse(url="/login")"""
 
-    username = request.session['user']
+    """username = request.session['user']
     response = requests.post(f'{API_URL}/variable-store/list',
                              json={'username': username}, auth=(SYSTEM_USERNAME, SYSTEM_KEY))
     variables = response.json() if response.ok else []
@@ -148,6 +148,6 @@ async def manage_variables(request: Request):
                     'variable': variable,
                     'variable_value': variable_value
                 }
-            )
+            )"""
 
     return templates.TemplateResponse("manage_variables.html", {"request": request, "variables": variables_and_values})

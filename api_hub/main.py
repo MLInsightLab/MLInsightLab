@@ -313,7 +313,7 @@ def verify_credentials_or_token(
     """
     Verify either API Key (Basic Auth) or JWT token.
     """
-    if api_key.username and api_key.password:
+    if api_key and (api_key.username and api_key.password):
         # If API key credentials are provided
         return verify_credentials(api_key)
     elif token:
@@ -336,7 +336,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     # Create JWT token with user details
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": form_data.username, "role": user["role"]},
+        data={"sub": form_data.username, "role": user},
         expires_delta=access_token_expires,
     )
     return {"access_token": access_token, "token_type": "bearer"}

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ML Insight Lab Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -31,6 +32,11 @@
             margin-bottom: 30px;
             font-size: 32px;
         }
+        .home-container p {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 40px;
+        }
         .home-container a {
             display: block;
             margin: 15px 0;
@@ -46,19 +52,62 @@
             background-color: #4a90e2;
             transform: translateY(-2px);
         }
+        .home-container a i {
+            margin-right: 10px;
+        }
+        @media (max-width: 600px) {
+            .home-container {
+                padding: 20px;
+            }
+            .home-container h2 {
+                font-size: 28px;
+            }
+            .home-container a {
+                font-size: 16px;
+                padding: 12px;
+            }
+        }
     </style>
 </head>
 <body>
-    
     <div class="home-container">
         <h2>MLInsightLab Dashboard</h2>
-        <a href="/jupyter">Go To JupyterHub</a>
-        <a href="/mlflow">Go to MLflow</a>
-        <a href="/api">API Documentation</a>
-        <a href="/models">List Deployed Models</a>
-        <a href="/variables">Manage User Variables</a>
-        <a href="/logout">Logout</a>
+        <a href="/jupyter"><i class="fas fa-book"></i> Go To JupyterHub</a>
+        <a href="/mlflow"><i class="fas fa-chart-line"></i> Go to MLflow</a>
+        <a href="/api"><i class="fas fa-code"></i> API Documentation</a>
+        <a href="/models"><i class="fas fa-cubes"></i> List Deployed Models</a>
+        <a href="/variables"><i class="fas fa-sliders-h"></i> Manage User Variables</a>
+        <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
-    
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                // No token found, redirect to login
+                window.location.href = '/login';
+                return;
+            }
+
+            // Optional: Validate the token with a request to a protected route
+            try {
+                const response = await fetch('/api/users/list', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    // Invalid token or not authorized
+                    window.location.href = '/login';
+                }
+                // If response is ok, the token is valid, and the page can be rendered
+            } catch (error) {
+                // In case of error during the fetch (network issue, etc.), redirect to login
+                window.location.href = '/login';
+            }
+        });
+    </script>
 </body>
 </html>
