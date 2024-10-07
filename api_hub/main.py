@@ -1,10 +1,12 @@
 from fastapi.security import HTTPBasic, HTTPBasicCredentials, OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi import FastAPI, HTTPException, Depends, Body, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Depends, Body, BackgroundTasks, Request, Response
 from datetime import datetime, timedelta, timezone
 from fastapi.responses import RedirectResponse
+from urllib.parse import urljoin
 from jose import JWTError, jwt
 import numpy as np
 import subprocess
+import requests
 import signal
 import json
 import os
@@ -16,6 +18,9 @@ from utils import ALLOWED_MODEL_FLAVORS, PYFUNC_FLAVOR, SKLEARN_FLAVOR, TRANSFOR
 SECRET_KEY = os.environ['SECRET_KEY']
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+# The MLFlow tracking uri
+MLFLOW_TRACKING_URI = os.environ['MLFLOW_TRACKING_URI']
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -947,7 +952,7 @@ def delete_variable(body: VariableDeleteRequest, user_properties: dict = Depends
     """
     Delete a variable
     """
-    if not user_properties['role'] in ['admin', 'system', 'data_scientist']:
+    if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -977,3 +982,34 @@ def delete_variable(body: VariableDeleteRequest, user_properties: dict = Depends
             404,
             'No variable to delete'
         )
+    
+@app.add_api_route("/mlflow/{path:path}", methods = ['GET', 'POST', 'PUT', 'DELETE'])
+async def proxy_mlflow(path: str, request: Request, user_properties: dict = Depends(verify_credentials_or_token)):
+    if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
+        raise HTTPException(
+            403,
+            'User does not have permission'
+        )
+    
+    mlflow_url = urljoin(MLFLOW_TRACKING_URI, path)
+    query_string = request.url.query
+
+    response = requests.request(
+        method = request.method,
+        url = mlflow_url,
+        headers = {key: value for key, value
+                   in request.headers.items() if key != 'Host'},
+        params = query_string,
+        data = await request.body(),
+        cookies = request.cookies,
+        allow_redirects = False
+    )
+
+    client_response = Response(
+        content = response.content,
+        status_code = response.status_code,
+        headers = {key: value for key, value in response.headers.items()
+                   if key.lower() != 'transfer-encoding'}
+    )
+
+    return client_response

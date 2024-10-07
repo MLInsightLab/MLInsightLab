@@ -2,7 +2,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 import requests
 import os
 import time
@@ -84,7 +84,8 @@ async def proxy_mlflow(path: str, request: Request):
     if 'user' not in request.session or not check_inactivity(request):
         return RedirectResponse(url="/login")
 
-    mlflow_url = urljoin(MLFLOW_TRACKING_URI, path)
+    #mlflow_url = urljoin(MLFLOW_TRACKING_URI, path)
+    mlflow_url = f'/api/mlflow/{path}'
     query_string = request.url.query
 
     response = requests.request(
@@ -95,7 +96,8 @@ async def proxy_mlflow(path: str, request: Request):
         params=query_string,
         data=await request.body(),
         cookies=request.cookies,
-        allow_redirects=False
+        allow_redirects=False,
+        auth=(SYSTEM_USERNAME, SYSTEM_KEY)
     )
 
     client_response = Response(
