@@ -1,4 +1,5 @@
 python-jose[cryptography]
+python-multipart
 transformers
 bitsandbytes
 torchvision

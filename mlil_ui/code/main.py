@@ -84,8 +84,7 @@ async def proxy_mlflow(path: str, request: Request):
     if 'user' not in request.session or not check_inactivity(request):
         return RedirectResponse(url="/login")
 
-    #mlflow_url = urljoin(MLFLOW_TRACKING_URI, path)
-    mlflow_url = f'/api/mlflow/{path}'
+    mlflow_url = urljoin(MLFLOW_TRACKING_URI, path)
     query_string = request.url.query
 
     response = requests.request(

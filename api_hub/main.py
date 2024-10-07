@@ -22,7 +22,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 # The MLFlow tracking uri
 MLFLOW_TRACKING_URI = os.environ['MLFLOW_TRACKING_URI']
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error = False)
 
 # Set up the database
 setup_database()
@@ -239,7 +239,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 
 # Initialize the app and Basic Auth
 app = FastAPI()
-security = HTTPBasic()
+security = HTTPBasic(auto_error = False)
 
 # Function to verify user credentials
 
@@ -248,6 +248,8 @@ def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
     """
     Verify a user's API key credentials
     """
+    if not credentials:
+        return None
     try:
         role = validate_user_key(
             credentials.username,
@@ -286,6 +288,9 @@ def verify_credentials_password(credentials: HTTPBasicCredentials = Depends(secu
         )
     
 def verify_jwt_token(token: str = Depends(oauth2_scheme)):
+    if not token:
+        return None
+    
     credentials_exception = HTTPException(
         status_code=401,
         detail="Could not validate credentials",
@@ -302,17 +307,23 @@ def verify_jwt_token(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
     
 def verify_credentials_or_token(
-    api_key: str = Depends(security), token_data: dict = Depends(verify_jwt_token)
+    api_key: HTTPBasicCredentials = Depends(security),
+    token: str = Depends(oauth2_scheme),
 ):
     """
-    Verify either API Key or JWT token.
+    Verify either API Key (Basic Auth) or JWT token.
     """
-    if api_key:
-        # Use API Key-based validation
+    if api_key.username and api_key.password:
+        # If API key credentials are provided
         return verify_credentials(api_key)
+    elif token:
+        # If JWT token is provided
+        return verify_jwt_token(token)
     else:
-        # Use JWT token validation
-        return token_data
+        raise HTTPException(
+            status_code=401,
+            detail="No credentials provided"
+        )
 
 @app.post("/token")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -982,34 +993,3 @@ def delete_variable(body: VariableDeleteRequest, user_properties: dict = Depends
             404,
             'No variable to delete'
         )
-    
-@app.add_api_route("/mlflow/{path:path}", methods = ['GET', 'POST', 'PUT', 'DELETE'])
-async def proxy_mlflow(path: str, request: Request, user_properties: dict = Depends(verify_credentials_or_token)):
-    if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
-        raise HTTPException(
-            403,
-            'User does not have permission'
-        )
-    
-    mlflow_url = urljoin(MLFLOW_TRACKING_URI, path)
-    query_string = request.url.query
-
-    response = requests.request(
-        method = request.method,
-        url = mlflow_url,
-        headers = {key: value for key, value
-                   in request.headers.items() if key != 'Host'},
-        params = query_string,
-        data = await request.body(),
-        cookies = request.cookies,
-        allow_redirects = False
-    )
-
-    client_response = Response(
-        content = response.content,
-        status_code = response.status_code,
-        headers = {key: value for key, value in response.headers.items()
-                   if key.lower() != 'transfer-encoding'}
-    )
-
-    return client_response
