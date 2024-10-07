@@ -98,6 +98,7 @@
 
                 const data = await response.json();
                 // Store the token in local storage (or session storage as per your requirements)
+                localStorage.setItem('username', username);
                 localStorage.setItem('token', data.access_token);
                 // Redirect to the main home page after successful login
                 window.location.href = '/'; // Redirect to the home page

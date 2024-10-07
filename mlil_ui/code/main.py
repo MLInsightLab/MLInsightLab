@@ -150,4 +150,4 @@ async def manage_variables(request: Request):
                 }
             )"""
 
-    return templates.TemplateResponse("manage_variables.html", {"request": request, "variables": variables_and_values})
+    return templates.TemplateResponse("manage_variables.html", {"request": request})
