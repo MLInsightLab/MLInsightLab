@@ -77,31 +77,44 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            const formData = new URLSearchParams(); // Create a URLSearchParams object
+            // Login for session management
+            const formData = new URLSearchParams();
             formData.append('username', username);
             formData.append('password', password);
 
             try {
-                const response = await fetch('/api/token', {
+                // Send form to /login for session-based login
+                const sessionResponse = await fetch('/login', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded', // Correct Content-Type
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: formData, // Send the form data
+                    body: formData,
                 });
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    document.getElementById('error-message').innerText = errorData.detail || 'Login failed';
-                    return;
+                if (sessionResponse.redirected) {
+                    window.location.href = sessionResponse.url;  // Redirect to home if login succeeds
+                } else {
+                    document.getElementById('error-message').innerText = 'Invalid session credentials';
                 }
 
-                const data = await response.json();
-                // Store the token in local storage (or session storage as per your requirements)
-                localStorage.setItem('username', username);
-                localStorage.setItem('token', data.access_token);
-                // Redirect to the main home page after successful login
-                window.location.href = '/'; // Redirect to the home page
+                // Send form to /api/token for token-based login
+                const tokenResponse = await fetch('/api/token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData,
+                });
+
+                if (tokenResponse.ok) {
+                    const data = await tokenResponse.json();
+                    // Store the token in local storage or session storage
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('token', data.access_token);
+                } else {
+                    document.getElementById('error-message').innerText = 'Invalid token credentials';
+                }
             } catch (error) {
                 document.getElementById('error-message').innerText = 'An error occurred. Please try again.';
             }
