@@ -83,31 +83,39 @@
     <script>
         document.addEventListener("DOMContentLoaded", async function() {
             const token = localStorage.getItem('token');
+            
             if (!token) {
                 // No token found, redirect to login
+                console.error("No token found, redirecting to login.");
                 window.location.href = '/login';
                 return;
             }
-
-            // Optional: Validate the token with a request to a protected route
+    
             try {
+                // Make the request to validate the token
                 const response = await fetch('/api/users/list', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
-
+    
                 if (!response.ok) {
-                    // Invalid token or not authorized
+                    if (response.status === 401) {
+                        console.error("Invalid token, redirecting to login.");
+                    } else {
+                        console.error("Error validating token: ", response.status, response.statusText);
+                    }
+                    // Redirect to login if token is invalid or request fails
                     window.location.href = '/login';
                 }
-                // If response is ok, the token is valid, and the page can be rendered
             } catch (error) {
-                // In case of error during the fetch (network issue, etc.), redirect to login
+                console.error("Fetch error: ", error);
+                // In case of network or other errors, redirect to login
                 window.location.href = '/login';
             }
         });
     </script>
+    
 </body>
 </html>

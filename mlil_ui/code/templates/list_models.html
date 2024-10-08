@@ -66,6 +66,10 @@
         .back-button:hover {
             background-color: #4a90e2;
         }
+        #error-message {
+            color: #e74c3c;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -73,24 +77,76 @@
     <div class="container">
         <h2>Deployed Models</h2>
 
-        <table>
+        <table id="models-table">
             <tr>
                 <th>Model Name</th>
                 <th>Flavor</th>
                 <th>Version/Alias</th>
             </tr>
-            {% for model in models %}
-            <tr>
-                <td>{{ model.model_name }}</td>
-                <td>{{ model.model_flavor }}</td>
-                <td>{{ model.model_version_or_alias }}</td>
-            </tr>
-            {% endfor %}
         </table>
+
+        <p id="error-message" class="no-models"></p>
 
         <!-- Back to Dashboard Button -->
         <a href="/" class="back-button">Back to Dashboard</a>
     </div>
+
+    <script>
+        async function fetchModels() {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                // No token found, redirect to login page
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/models/list', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const models = await response.json();
+                    populateModelsTable(models);
+                } else if (response.status === 401) {
+                    // Token is invalid or expired, redirect to login
+                    window.location.href = '/login';
+                } else {
+                    document.getElementById('error-message').innerText = 'Failed to fetch models. Please try again later.';
+                }
+            } catch (error) {
+                document.getElementById('error-message').innerText = 'An error occurred. Please try again later.';
+            }
+        }
+
+        function populateModelsTable(models) {
+            const table = document.getElementById('models-table');
+
+            if (models.length === 0) {
+                document.getElementById('error-message').innerText = 'No deployed models found.';
+                return;
+            }
+
+            models.forEach(model => {
+                const row = table.insertRow();
+                const nameCell = row.insertCell(0);
+                const flavorCell = row.insertCell(1);
+                const versionCell = row.insertCell(2);
+
+                nameCell.innerText = model.model_name;
+                flavorCell.innerText = model.model_flavor;
+                versionCell.innerText = model.model_version_or_alias;
+            });
+        }
+
+        // Fetch models when the page loads
+        window.onload = fetchModels;
+    </script>
 
 </body>
 </html>
