@@ -85,6 +85,23 @@
         .back-button:hover {
             background-color: #4a90e2;
         }
+        .toggle-visibility {
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 16px;
+            color: #357ABD;
+        }
+        .copy-button {
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #4a90e2;
+            border: none;
+            background: none;
+        }
+        .copy-button:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -137,15 +154,12 @@
 
                 const result = await response.json();
 
-                // Check if the result contains an array of variable names
                 if (!result || !Array.isArray(result)) {
                     throw new Error('Invalid response format: variables array is missing.');
                 }
 
-                // Fetch values for each variable name
                 const variablesWithValues = await fetchVariableValues(result);
 
-                // Display the variables with their values
                 displayVariables(variablesWithValues);
             } catch (error) {
                 alert(error.message);
@@ -169,7 +183,6 @@
 
                     const result = await response.json();
 
-                    // Assuming the response returns the value in a field called 'variable_value'
                     variablesWithValues.push({
                         variable: variableName,
                         variable_value: result || 'No value'
@@ -187,26 +200,23 @@
         function displayVariables(variables) {
             const table = document.getElementById("variablesTable");
 
-            // Clear existing rows, except for the header
             while (table.rows.length > 1) {
                 table.deleteRow(1);
             }
 
-            // Ensure the "No variables" message exists before trying to modify its style
             const noVariablesRow = document.getElementById("no-variables-row");
 
             if (!variables || variables.length === 0) {
                 if (noVariablesRow) {
-                    noVariablesRow.style.display = ""; // Show no variables message
+                    noVariablesRow.style.display = "";
                 }
                 return;
             } else {
                 if (noVariablesRow) {
-                    noVariablesRow.style.display = "none"; // Hide no variables message
+                    noVariablesRow.style.display = "none";
                 }
             }
 
-            // Populate table with variables
             for (const varObj of variables) {
                 const row = table.insertRow();
                 const cellName = row.insertCell(0);
@@ -214,7 +224,44 @@
                 const cellActions = row.insertCell(2);
 
                 cellName.textContent = varObj.variable;
-                cellValue.textContent = varObj.variable_value;
+
+                // Create a span for the hidden value and a toggle button for visibility
+                const valueContainer = document.createElement('span');
+                valueContainer.textContent = '•••••••';  // Hide the value by default
+                valueContainer.classList.add('hidden-value');
+
+                const toggleButton = document.createElement('span');
+                toggleButton.innerHTML = '&#128065;'; // Eye icon (👁️)
+                toggleButton.classList.add('toggle-visibility');
+                toggleButton.onclick = function() {
+                    if (valueContainer.textContent === '•••••••') {
+                        valueContainer.textContent = varObj.variable_value; // Show value
+                        toggleButton.innerHTML = '&#128584;'; // Closed eye (🙈)
+                    } else {
+                        valueContainer.textContent = '•••••••'; // Hide value
+                        toggleButton.innerHTML = '&#128065;'; // Open eye (👁️)
+                    }
+                };
+
+                // Create the copy button
+                const copyButton = document.createElement('button');
+                copyButton.textContent = 'Copy';
+                copyButton.classList.add('copy-button');
+                copyButton.onclick = function() {
+                    navigator.clipboard.writeText(varObj.variable_value).then(() => {
+                        copyButton.textContent = 'Copied!';
+                        setTimeout(() => {
+                            copyButton.textContent = 'Copy';
+                        }, 2000);  // Reset text after 2 seconds
+                    });
+                };
+
+                // Append hidden value, toggle button, and copy button to the cell
+                cellValue.appendChild(valueContainer);
+                cellValue.appendChild(toggleButton);
+                cellValue.appendChild(copyButton);
+
+                // Add delete button
                 cellActions.innerHTML = `<button class="button" onclick="deleteVariable('${varObj.variable}')">Delete</button>`;
             }
         }
@@ -239,9 +286,9 @@
                 }
 
                 const result = await response.json();
-                fetchVariables(); // Refresh the list of variables
+                fetchVariables();
             } catch (error) {
-                alert(error.message); // Alert the user about the error
+                alert(error.message);
             }
         }
 
@@ -262,13 +309,12 @@
                 }
 
                 const result = await response.json();
-                fetchVariables(); // Refresh the list of variables
+                fetchVariables();
             } catch (error) {
-                alert(error.message); // Alert the user about the error
+                alert(error.message);
             }
         }
 
-        // Fetch variables when the page loads
         window.onload = fetchVariables;
     </script>
 </body>
