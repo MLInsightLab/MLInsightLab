@@ -1,4 +1,4 @@
-FROM python:3:12
+FROM python:3.12
 
 # Update software
 RUN apt update && apt upgrade -y && apt autoremove -y
