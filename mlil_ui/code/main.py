@@ -116,11 +116,7 @@ async def list_models(request: Request):
     if 'user' not in request.session or not check_inactivity(request):
         return RedirectResponse(url="/login")
 
-    response = requests.get(f'{API_URL}/models/list',
-                            auth=(SYSTEM_USERNAME, SYSTEM_KEY))
-    models = response.json() if response.ok else []
-
-    return templates.TemplateResponse("list_models.html", {"request": request, "models": models})
+    return templates.TemplateResponse("list_models.html", {"request": request})
 
 
 @app.get("/variables", response_class=HTMLResponse)
