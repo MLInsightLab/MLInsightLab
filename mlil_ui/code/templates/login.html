@@ -92,12 +92,6 @@
                     body: formData,
                 });
 
-                if (sessionResponse.redirected) {
-                    window.location.href = sessionResponse.url;  // Redirect to home if login succeeds
-                } else {
-                    document.getElementById('error-message').innerText = 'Invalid session credentials';
-                }
-
                 // Send form to /api/token for token-based login
                 const tokenResponse = await fetch('/api/token', {
                     method: 'POST',
@@ -114,6 +108,12 @@
                     localStorage.setItem('token', data.access_token);
                 } else {
                     document.getElementById('error-message').innerText = 'Invalid token credentials';
+                }
+
+                if (sessionResponse.redirected) {
+                    window.location.href = sessionResponse.url;  // Redirect to home if login succeeds
+                } else {
+                    document.getElementById('error-message').innerText = 'Invalid session credentials';
                 }
             } catch (error) {
                 document.getElementById('error-message').innerText = 'An error occurred. Please try again.';
