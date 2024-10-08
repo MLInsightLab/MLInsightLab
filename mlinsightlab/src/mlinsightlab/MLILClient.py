@@ -1,4 +1,4 @@
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Any
 from pathlib import Path
 import pandas as pd
 import warnings
@@ -13,7 +13,8 @@ from .MLILException import MLILException
 from .user_mgmt import _create_user, _delete_user, _verify_password, _issue_new_password, _get_user_role, _update_user_role, _list_users
 from .key_mgmt import _create_api_key
 from .model_mgmt import _load_model, _unload_model, _list_models, _predict
-from .platform_mgmt import _reset_platform
+from .platform_mgmt import _reset_platform, _get_platform_resource_usage
+from .data_mgmt import _upload_file, _download_file, _get_variable, _list_variables, _set_variable, _delete_variable
 
 
 class MLILClient:
@@ -709,6 +710,7 @@ class MLILClient:
         predict_function: str = "predict",
         dtype: str = "string",
         params: Optional[dict] = None,
+        convert_to_numpy: bool = True
         url: str = None,
         creds: dict = None,
         verbose: bool = False
@@ -744,6 +746,8 @@ class MLILClient:
             The data type of the input. Default is "string".
         params: dict, optional
             Additional parameters for the prediction.
+        convert_to_numpy: bool = True
+            Whether to convert the data to a NumPy array.
         """
         if url is None:
             url = self.url
@@ -759,7 +763,8 @@ class MLILClient:
             data=data,
             predict_function=predict_function,
             dtype=dtype,
-            params=params
+            params=params,
+            convert_to_numpy=convert_to_numpy
         )
 
         if verbose:
@@ -796,7 +801,7 @@ class MLILClient:
             Should only be set to False if you are scripting and/or know what you are doing.
         url: str
             String containing the URL of your deployment of the platform.
-        creds:
+        creds: dict = None
             Dictionary that must contain keys "username" and "key", and associated values.
         """
 
@@ -821,3 +826,306 @@ class MLILClient:
                 print(
                     f'Something went wrong, request returned a satus code {resp.status_code}')
         return resp
+
+    def get_resource_usage(
+        self,
+        url: str = None,
+        creds: dict = None,
+        verbose: bool = False
+    ):
+        """
+        Get system resource usage, in terms of free CPU and GPU memory (if GPU-enabled).
+        >>> import mlil
+        >>> client = mlil.MLILClient()
+        >>> client.get_resource_usage()
+
+        Parameters
+        ----------
+        This function takes no parameters.
+        """
+
+        if url is None:
+            url = self.url
+        if creds is None:
+            creds = self.creds
+
+        resp = _get_platform_resource_usage(url=url, creds=creds)
+
+        if verbose:
+            if resp.status_code == 200:
+                print(
+                    f'Vroom vroom!')
+            else:
+                print(
+                    f'Something went wrong, request returned a satus code {resp.status_code}')
+        return resp
+    """
+    ###########################################################################
+    ########################## Data Operations ################################
+    ###########################################################################
+    """
+    def upload_file(
+        self,
+        file_path: str,
+        file_name: str,
+        overwrite: bool = False,
+        verbose: bool = False,
+        url: str = None,
+        creds: dict = None
+    ):
+        """
+        Uploads a file to the MLIL data store.
+
+        >>> import mlil
+        >>> client = mlil.MLILClient()
+        >>> client.upload_file()
+
+        Parameters
+        ----------
+        file_path: str
+            The path of the file to be uploaded.
+        file_name: str
+            The name to give your file in the MLIL datastore.
+        overwrite: bool = False
+            Whether or not to delete any files called <filename> that
+            currently exist in MLIL. Defaults to False.
+        """
+
+        if url is None:
+            url = self.url
+        if creds is None:
+            creds = self.creds
+
+        resp = _upload_file(
+            url,
+            creds,
+            file_path=file_path,
+            file_name=file_name,
+            overwrite=overwrite
+        )
+
+        if verbose:
+            if resp.status_code == 200:
+                print(f'{file_name} has been loaded into the MLIL datastore.')
+            else:
+                print(
+                    f'Something went wrong, request returned a satus code {resp.status_code}')
+
+        return resp.json()    
+    
+    def download_file(
+        self,
+        file_name: str,
+        verbose: bool = False,
+        url: str = None,
+        creds: dict = None
+    ):
+        """
+        Downloads a file from the MLIL data store.
+
+        >>> import mlil
+        >>> client = mlil.MLILClient()
+        >>> client.download_data()
+
+        Parameters
+        ----------
+        file_name: str
+            The name of the file in the MLIL datastore you wish to download.
+        """
+
+        if url is None:
+            url = self.url
+        if creds is None:
+            creds = self.creds
+
+        resp = _download_file(
+            url,
+            creds,
+            file_name=file_name
+        )
+
+        if verbose:
+            if resp.status_code == 200:
+                print(f'{file_name} has been downloaded from the MLIL datastore.')
+            else:
+                print(
+                    f'Something went wrong, request returned a satus code {resp.status_code}')
+
+        return resp.json()  
+
+    def get_variable(
+        self,
+        variable_name: str,
+        verbose: bool = False,
+        url: str = None,
+        creds: dict = None
+    ):
+        """
+        Fetches a variable from the MLIL data store.
+
+        >>> import mlil
+        >>> client = mlil.MLILClient()
+        >>> client.get_variable()
+
+        Parameters
+        ----------
+        file_path: str
+            The path of the file to be uploaded.
+        variable_name: str
+            The name of the variable you wish to access.
+        """
+
+        if url is None:
+            url = self.url
+        if creds is None:
+            creds = self.creds
+
+        resp = _get_variable(
+            url,
+            creds,
+            variable_name=variable_name
+        )
+
+        if verbose:
+            if resp.status_code == 200:
+                print(f'{variable_name} has been fetched.')
+            else:
+                print(
+                    f'Something went wrong, request returned a satus code {resp.status_code}')
+
+        return resp.json()  
+
+    def list_variables(
+        self,
+        url: str = None,
+        creds: dict = None,
+        verbose: bool = False
+    ):
+        """
+        Lists all available variables in the MLIL variable store
+
+        >>> import mlil
+        >>> client = mlil.MLILClient()
+        >>> client.list_variables()
+
+        Parameters
+        ----------
+        This function takes no input parameters.
+        """
+
+        if url is None:
+            url = self.url
+        if creds is None:
+            creds = self.creds
+
+        resp = _list_variables(
+            url,
+            creds
+        )
+
+        if verbose:
+            if resp.status_code == 200:
+                print(f'Varying degrees of inter-variable variablility.')
+            else:
+                print(
+                    f'Something went wrong, request returned a satus code {resp.status_code}')
+
+        return resp.json()
+
+    def set_variable(
+        self,
+        variable_name: str,
+        value: Any,
+        overwrite: bool = False,
+        verbose: bool = False,
+        url: str = None,
+        creds: dict = None
+    ):
+        """
+        Creates a new variable in the MLIL variable store.
+
+        >>> import mlil
+        >>> client = mlil.MLILClient()
+        >>> client.set_variable()
+
+        Parameters
+        ----------
+        file_path: str
+            The path of the file to be uploaded.
+        variable_name: str
+            The name to give your variable in the MLIL datastore.
+        value: Any
+            Your variable. Can be of type string, integer, number, boolean, object, or array<any>.
+        overwrite: bool = False
+            Whether or not to delete any variables called <variable_name> that
+            currently exist in MLIL. Defaults to False.
+        """
+
+        if url is None:
+            url = self.url
+        if creds is None:
+            creds = self.creds
+
+        resp = _set_variable(
+            url,
+            creds,
+            variable_name=variable_name,
+            value=value,
+            overwrite=overwrite
+        )
+
+        if verbose:
+            if resp.status_code == 200:
+                print(f'{variable_name} has been uploaded to MLIL.')
+            else:
+                print(
+                    f'Something went wrong, request returned a satus code {resp.status_code}')
+
+        return resp.json()
+
+    def delete_variable(
+        self,
+        variable_name: str,
+        verbose: bool = False,
+        url: str = None,
+        creds: dict = None
+    ):
+        """
+        Creates a new variable in the MLIL variable store.
+
+        >>> import mlil
+        >>> client = mlil.MLILClient()
+        >>> client.delete_variable()
+
+        Parameters
+        ----------
+        file_path: str
+            The path of the file to be uploaded.
+        variable_name: str
+            The name to give your variable in the MLIL datastore.
+        value: Any
+            Your variable. Can be of type string, integer, number, boolean, object, or array<any>.
+        overwrite: bool = False
+            Whether or not to delete any variables called <variable_name> that
+            currently exist in MLIL. Defaults to False.
+        """
+
+        if url is None:
+            url = self.url
+        if creds is None:
+            creds = self.creds
+
+        resp = _delete_variable(
+            url,
+            creds,
+            variable_name=variable_name
+        )
+
+        if verbose:
+            if resp.status_code == 200:
+                print(f'{variable_name} has been removed from MLIL.')
+            else:
+                print(
+                    f'Something went wrong, request returned a satus code {resp.status_code}')
+
+        return resp.json()

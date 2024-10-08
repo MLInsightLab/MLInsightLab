@@ -1,50 +1,47 @@
-# Manage users and credentials
+# Helper functions to manage and interat with MLFlow models
 from .MLILException import MLILException
-from .endpoints import CREATE_USER_ENDPOINT, DELETE_USER_ENDPOINT, VERIFY_PASSWORD_ENDPOINT, NEW_PASSWORD_ENDPOINT, GET_USER_ROLE_ENDPOINT, UPDATE_USER_ROLE_ENDPOINT, LIST_USERS_ENDPOINT
+from .endpoints import FILE_UPLOAD, FILE_DOWNLOAD, GET_VARIABLE, LIST_VARIABLES, SET_VARIABLE, DELETE_VARIABLE
+from typing import Any
 import requests
 
-
-def _create_user(
-    url: str,se
+def _upload_file(
+    url: str,
     creds: dict,
-    username: str,
-    role: str,
-    api_key: str | None,
-    password: str | None
+    file_path: str,
+    file_name: str,
+    overwrite: bool = False
 ):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
-    Create a user within the platform.
+    Uploads a file to the MLIL platform's data store.
     Called within the MLILClient class.
 
     Parameters
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    cred:
+    creds: dict
         Dictionary that must contain keys "username" and "key", and associated values.
-    username: str
-        The user's display name and login credential
-    role: str
-        The role to be given to the user
-    api_key: str or NULL
-        An API key for the new user
-    password: str or NULL
-        Password for user login
+    file_path: str
+        Path to the file to be uploaded to MLIL.
+    file_name: str
+        The name to give your file in the MLIL datastore.
+    overwrite: bool
+        Whether or not to overwrite the file, if a file of the same name
+        already exists.
     """
 
+    url = f"{url}/{FILE_UPLOAD}"
+
+    with open(file_path, 'rb') as f:
+        file_bytes = f.read()
+
     json_data = {
-        'username': username,
-        'role': role
+        'filename': file_name,
+        'file_bytes': str(file_bytes),
+        'overwrite': overwrite
     }
-
-    if api_key:
-        json_data['api_key'] = api_key
-    if password:
-        json_data['password'] = password
-
-    url = f"{url}/{CREATE_USER_ENDPOINT}"
 
     with requests.Session() as sess:
         resp = sess.post(
@@ -52,79 +49,37 @@ def _create_user(
             auth=(creds['username'], creds['key']),
             json=json_data
         )
+
     if not resp.ok:
         raise MLILException(str(resp.json()))
     return resp
 
-
-def _delete_user(
+def _download_file(
     url: str,
     creds: dict,
-    username: str
+    file_name: str
 ):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
-    Delete a user within the platform.
+    Downloads a file from the MLIL platform's data store as a byte string.
     Called within the MLILClient class.
 
     Parameters
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds:
+    creds: dict
         Dictionary that must contain keys "username" and "key", and associated values.
-    username: str
-        The user's display name and login credential
+    file_name: str
+        The name of the file to download.
     """
+
+    url = f"{url}/{FILE_DOWNLOAD}"
 
     json_data = {
-        'username': username
+        'filename': file_name
     }
-
-    url = f"{url}/{DELETE_USER_ENDPOINT}/{username}"
-
-    with requests.Session() as sess:
-        resp = sess.delete(
-            url,
-            auth=(creds['username'], creds['key']),
-            json=json_data
-        )
-    if not resp.ok:
-        raise MLILException(str(resp.json()))
-    return resp
-
-
-def _verify_password(
-    url: str,
-    creds: dict,
-    username: str,
-    password: str
-):
-    """
-    NOT MEANT TO BE CALLED BY THE END USER
-
-    Verify a user's password.
-    Called within the MLILClient class.
-
-    Parameters
-    ----------
-    url: str
-        String containing the URL of your deployment of the platform.
-    creds:
-        Dictionary that must contain keys "username" and "key", and associated values.
-    username: str
-        The user's display name and login credential
-    password: str
-        Password for user login
-    """
-
-    json_data = {
-        'username': username,
-        'password': password
-    }
-
-    url = f"{url}/{VERIFY_PASSWORD_ENDPOINT}"
 
     with requests.Session() as sess:
         resp = sess.post(
@@ -132,158 +87,167 @@ def _verify_password(
             auth=(creds['username'], creds['key']),
             json=json_data
         )
+
     if not resp.ok:
         raise MLILException(str(resp.json()))
     return resp
 
-
-def _issue_new_password(
+def _get_variable(
     url: str,
     creds: dict,
-    username: str,
-    new_password: str
+    variable_name: str
 ):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
-    Create a new a password for an existing user.
+    Retrieve a variable from the MLIL variable store.
     Called within the MLILClient class.
 
     Parameters
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds:
+    creds: dict
         Dictionary that must contain keys "username" and "key", and associated values.
-    username: str
-        The user's display name and login credential
-    new_password: str
-        New password for user authentication
+    variable_name: str
+        The name of the variable to access.
     """
 
+    url = f"{url}/{GET_VARIABLE}"
+
     json_data = {
-        'username': username,
-        'new_password': new_password
+        'variable_name': variable_name,
+        'username' : creds['username']
     }
 
-    url = f"{url}/{NEW_PASSWORD_ENDPOINT}/{username}"
-
     with requests.Session() as sess:
-        resp = sess.put(
+        resp = sess.post(
             url,
             auth=(creds['username'], creds['key']),
             json=json_data
         )
-    if not resp.ok:
-        raise MLILException(resp.json())
-    return resp
 
-
-def _get_user_role(
-    url: str,
-    creds: dict,
-    username: str,
-):
-    """
-    NOT MEANT TO BE CALLED BY THE END USER
-
-    Check a user's role.
-    Called within the MLILClient class.
-
-    Parameters
-    ----------
-    url: str
-        String containing the URL of your deployment of the platform.
-    creds:
-        Dictionary that must contain keys "username" and "key", and associated values.
-    username: str
-        The user's display name and login credential.
-    """
-
-    json_data = {
-        'username': username
-    }
-
-    url = f"{url}/{GET_USER_ROLE_ENDPOINT}/{username}"
-
-    with requests.Session() as sess:
-        resp = sess.get(
-            url,
-            auth=(creds['username'], creds['key']),
-            json=json_data
-        )
     if not resp.ok:
         raise MLILException(str(resp.json()))
     return resp
 
-
-def _update_user_role(
+def _list_variables(
     url: str,
-    creds: dict,
-    username: str,
-    new_role: str
+    creds: dict
 ):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
-    Update a user's role.
+    Lists all variables associated with a user.
     Called within the MLILClient class.
 
     Parameters
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds:
+    creds: dict
         Dictionary that must contain keys "username" and "key", and associated values.
-    username: str
-        The user's display name and login credential
-    new_role: str
-        New role to attribute to the specified user
     """
 
+    url = f"{url}/{LIST_VARIABLES}"
+
     json_data = {
-        'username': username,
-        'new_role': new_role
+        'username' : creds['username']
     }
 
-    url = f"{url}/{UPDATE_USER_ROLE_ENDPOINT}/{username}"
-
     with requests.Session() as sess:
-        resp = sess.put(
+        resp = sess.post(
             url,
             auth=(creds['username'], creds['key']),
             json=json_data
         )
+
     if not resp.ok:
         raise MLILException(str(resp.json()))
     return resp
 
-
-def _list_users(
+def _set_variable(
     url: str,
     creds: dict,
+    variable_name: str,
+    value: Any,
+    overwrite: bool = False
 ):
     """
     NOT MEANT TO BE CALLED BY THE END USER
 
-    Update a user's role.
+    Creates a variable within the MLIL variable store.
     Called within the MLILClient class.
 
     Parameters
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds:
+    creds: dict
         Dictionary that must contain keys "username" and "key", and associated values.
+    variable_name: str
+        The name of the variable to set.
+    overwrite: bool = False
+        Whether to overwrite any variables that currently exist in MLIL and have the same name.
+    value: Any
+        Your variable. Can be of type string | integer | number | boolean | object | array<any>.
     """
 
-    url = f"{url}/{LIST_USERS_ENDPOINT}"
+    url = f"{url}/{SET_VARIABLE}"
+
+    json_data = {
+        'variable_name': variable_name,
+        'value' : value,
+        'overwrite': overwrite,
+        'username' : creds['username']
+    }
 
     with requests.Session() as sess:
-        resp = sess.get(
+        resp = sess.post(
             url,
             auth=(creds['username'], creds['key']),
+            json=json_data
         )
+
+    if not resp.ok:
+        raise MLILException(str(resp.json()))
+    return resp
+
+def _delete_variable(
+    url: str,
+    creds: dict,
+    variable_name: str
+):
+    """
+    NOT MEANT TO BE CALLED BY THE END USER
+
+    Removes a variable from the MLIL variable store.
+    Called within the MLILClient class.
+
+    Parameters
+    ----------
+    url: str
+        String containing the URL of your deployment of the platform.
+    creds: dict
+        Dictionary that must contain keys "username" and "key", and associated values.
+    variable_name: str
+        The name of the variable to delete.
+    """
+
+    url = f"{url}/{DELETE_VARIABLE}"
+
+    json_data = {
+        'variable_name': variable_name,
+        'username' : creds['username']
+    }
+
+    with requests.Session() as sess:
+        resp = sess.post(
+            url,
+            auth=(creds['username'], creds['key']),
+            json=json_data
+        )
+
     if not resp.ok:
         raise MLILException(str(resp.json()))
     return resp

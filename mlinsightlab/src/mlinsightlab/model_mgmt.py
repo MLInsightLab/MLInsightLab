@@ -24,7 +24,7 @@ def _load_model(
     ----------
     url: str
         String containing the URL of your deployment of the platform.
-    creds:
+    creds: dict
         Dictionary that must contain keys "username" and "key", and associated values.
     model_name: str
         The name of the model to load
@@ -37,8 +37,8 @@ def _load_model(
         including 'requirements', 'quantization_kwargs', and 'kwargs'.
     """
 
-    url = f"{
-        url}/{LOAD_MODEL_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
+    url = f"""{
+        url}/{LOAD_MODEL_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"""
 
     with requests.Session() as sess:
         resp = sess.post(
@@ -114,13 +114,13 @@ def _unload_model(
         'model_version_or_alias': model_version_or_alias
     }
 
-    url = f"{
-        url}/{UNLOAD_MODEL_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
+    url = f"""{
+        url}/{UNLOAD_MODEL_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"""
 
     with requests.Session() as sess:
         resp = sess.delete(
             url,
-            auth=(creds['username'], creds['key']),
+            auth=(creds['username'], creds['key'])
         )
     if not resp.ok:
         raise MLILException(str(resp.json()))
@@ -134,6 +134,7 @@ def _predict(
     model_flavor: str,
     model_version_or_alias: str,
     data: Union[str, List[str]],
+    convert_to_numpy: bool = True,
     predict_function: str = "predict",
     dtype: str = "string",
     params: Optional[dict] = None
@@ -159,6 +160,8 @@ def _predict(
         The version of the model that you wish to invoke (from MLFlow).
     data: Union[str, List[str]]
         The input data for prediction. Can be a single string or a list of strings.
+    convert_to_numpy: bool = True
+        Whether or not to convert inputs to a NumPy array.
     predict_function: str, optional
         The name of the prediction function to call. Default is "predict".
     dtype: str, optional
@@ -173,11 +176,12 @@ def _predict(
         "data": data,
         "predict_function": predict_function,
         "dtype": dtype,
-        "params": params if params else {}
+        "params": params if params else {},
+        "convert_to_numpy": convert_to_numpy
     }
 
-    url = f"{
-        url}/{PREDICT_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"
+    url = f"""{
+        url}/{PREDICT_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"""
 
     with requests.Session() as sess:
         resp = sess.post(
