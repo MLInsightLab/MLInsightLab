@@ -47,11 +47,6 @@
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
-        .no-variables {
-            font-size: 20px;
-            color: #d9534f;
-            margin: 20px 0;
-        }
         .form-container {
             margin: 20px 0;
             text-align: left;
@@ -90,23 +85,6 @@
         .back-button:hover {
             background-color: #4a90e2;
         }
-        .show-button {
-            background-color: #357ABD;
-            color: #ffffff;
-            border: none;
-            border-radius: 4px;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s ease;
-        }
-        .show-button:hover {
-            background-color: #4a90e2;
-        }
-        .variable-value {
-            margin-left: 10px;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
@@ -116,7 +94,7 @@
 
         <!-- Form to Set New Variable -->
         <div class="form-container">
-            <h3>Set New Variable</h3>
+            <h3>Set Variable</h3>
             <input type="text" id="newVariableName" placeholder="Variable Name" required>
             <input type="text" id="newVariableValue" placeholder="Variable Value" required>
             <button class="button" onclick="setVariable()">Set Variable</button>
@@ -140,108 +118,112 @@
 
     <script>
         let username = localStorage.getItem('username');
-    
+
+        // Fetch the list of variables from the API
         async function fetchVariables() {
-    try {
-        const response = await fetch('/api/variable-store/list', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({ 'username': username })
-        });
+            try {
+                const response = await fetch('/api/variable-store/list', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ username })
+                });
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch variables: ' + response.statusText);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch variables: ' + response.statusText);
+                }
+
+                const result = await response.json();
+
+                // Check if the result contains an array of variable names
+                if (!result || !Array.isArray(result)) {
+                    throw new Error('Invalid response format: variables array is missing.');
+                }
+
+                // Fetch values for each variable name
+                const variablesWithValues = await fetchVariableValues(result);
+
+                // Display the variables with their values
+                displayVariables(variablesWithValues);
+            } catch (error) {
+                alert(error.message);
+            }
         }
 
-        const result = await response.json();
+        // Fetch the value for each variable name from the API
+        async function fetchVariableValues(variableNames) {
+            const variablesWithValues = [];
 
-        // Check if the result contains an array of variable names
-        if (!result || !Array.isArray(result)) {
-            throw new Error('Invalid response format: variables array is missing.');
+            for (const variableName of variableNames) {
+                try {
+                    const response = await fetch('/api/variable-store/get', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({ 'username': username, variable_name: variableName })
+                    });
+
+                    const result = await response.json();
+
+                    // Assuming the response returns the value in a field called 'variable_value'
+                    variablesWithValues.push({
+                        variable: variableName,
+                        variable_value: result || 'No value'
+                    });
+
+                } catch (error) {
+                    console.error(`Error fetching value for variable ${variableName}: ${error.message}`);
+                }
+            }
+
+            return variablesWithValues;
         }
 
-        // Fetch values for each variable name
-        const variablesWithValues = await fetchVariableValues(result);
+        // Display variables and their values in the table
+        function displayVariables(variables) {
+            const table = document.getElementById("variablesTable");
 
-        // Display the variables with their values
-        displayVariables(variablesWithValues);
-    } catch (error) {
-        alert(error.message);
-    }
-}
+            // Clear existing rows, except for the header
+            while (table.rows.length > 1) {
+                table.deleteRow(1);
+            }
 
-async function fetchVariableValues(variableNames) {
-    const variablesWithValues = [];
+            // Ensure the "No variables" message exists before trying to modify its style
+            const noVariablesRow = document.getElementById("no-variables-row");
 
-    for (const variableName of variableNames) {
-        try {
-            const response = await fetch('/api/variable-store/get', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({ username, variable_name: variableName })
-            });
+            if (!variables || variables.length === 0) {
+                if (noVariablesRow) {
+                    noVariablesRow.style.display = ""; // Show no variables message
+                }
+                return;
+            } else {
+                if (noVariablesRow) {
+                    noVariablesRow.style.display = "none"; // Hide no variables message
+                }
+            }
 
-            const result = await response.json();
+            // Populate table with variables
+            for (const varObj of variables) {
+                const row = table.insertRow();
+                const cellName = row.insertCell(0);
+                const cellValue = row.insertCell(1);
+                const cellActions = row.insertCell(2);
 
-            // Assuming the response returns the value in a field called 'variable_value'
-            variablesWithValues.push({
-                variable: variableName,
-                variable_value: result.variable_value || 'No value'
-            });
-
-        } catch (error) {
-            console.error(`Error fetching value for variable ${variableName}: ${error.message}`);
+                cellName.textContent = varObj.variable;
+                cellValue.textContent = varObj.variable_value;
+                cellActions.innerHTML = `<button class="button" onclick="deleteVariable('${varObj.variable}')">Delete</button>`;
+            }
         }
-    }
 
-    return variablesWithValues;
-}
-
-function displayVariables(variables) {
-    const table = document.getElementById("variablesTable");
-
-    // Clear existing rows, except for the header
-    while (table.rows.length > 1) {
-        table.deleteRow(1);
-    }
-
-    // Check if variables is defined and has length property
-    if (!variables || variables.length === 0) {
-        document.getElementById("no-variables-row").style.display = ""; // Show no variables message
-        return;
-    } else {
-        document.getElementById("no-variables-row").style.display = "none"; // Hide no variables message
-    }
-
-    // Populate table with variables
-    for (const varObj of variables) {
-        const row = table.insertRow();
-        const cellName = row.insertCell(0);
-        const cellValue = row.insertCell(1);
-        const cellActions = row.insertCell(2);
-
-        cellName.textContent = varObj.variable;
-        cellValue.innerHTML = `
-            <button class="show-button" onclick="toggleVisibility('${varObj.variable}')">Show</button>
-            <span id="${varObj.variable}" class="variable-value" style="display: none;">${varObj.variable_value}</span>
-        `;
-        cellActions.innerHTML = `
-            <button class="button" onclick="deleteVariable('${varObj.variable}')">Delete</button>
-        `;
-    }
-}
-
-    
+        // Set a new variable using the provided name and value
         async function setVariable() {
             const variableName = document.getElementById("newVariableName").value;
             const variableValue = document.getElementById("newVariableValue").value;
-    
+
             try {
                 const response = await fetch('/api/variable-store/set', {
                     method: 'POST',
@@ -249,56 +231,45 @@ function displayVariables(variables) {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
-                    body: JSON.stringify({ username: username, variable_name: variableName, value: variableValue, overwrite: true })
+                    body: JSON.stringify({ 'username' : username, variable_name: variableName, value: variableValue, overwrite: true })
                 });
-    
+
                 if (!response.ok) {
                     throw new Error('Failed to set variable: ' + response.statusText);
                 }
-    
+
                 const result = await response.json();
-                alert(result.message);
                 fetchVariables(); // Refresh the list of variables
             } catch (error) {
                 alert(error.message); // Alert the user about the error
             }
         }
-    
+
+        // Delete a variable by its name
         async function deleteVariable(variableName) {
             try {
                 const response = await fetch('/api/variable-store/delete', {
-                    method: 'DELETE',
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
-                    body: JSON.stringify({ username, variable_name: variableName })
+                    body: JSON.stringify({ 'username' : username, variable_name: variableName })
                 });
-    
+
                 if (!response.ok) {
                     throw new Error('Failed to delete variable: ' + response.statusText);
                 }
-    
+
                 const result = await response.json();
-                alert(result.message);
                 fetchVariables(); // Refresh the list of variables
             } catch (error) {
                 alert(error.message); // Alert the user about the error
             }
         }
-    
-        function toggleVisibility(variableId) {
-            const variableValueElement = document.getElementById(variableId);
-            if (variableValueElement.style.display === 'none') {
-                variableValueElement.style.display = 'inline';
-            } else {
-                variableValueElement.style.display = 'none';
-            }
-        }
-    
+
         // Fetch variables when the page loads
         window.onload = fetchVariables;
     </script>
-
 </body>
 </html>
