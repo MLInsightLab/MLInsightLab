@@ -1,21 +1,21 @@
 from fastapi.security import HTTPBasic, HTTPBasicCredentials, OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi import FastAPI, HTTPException, Depends, Body, BackgroundTasks, Request, Response
+from fastapi import FastAPI, HTTPException, Depends, Body, BackgroundTasks
 from datetime import datetime, timedelta, timezone
 from fastapi.responses import RedirectResponse
-from urllib.parse import urljoin
 from jose import JWTError, jwt
 import numpy as np
 import subprocess
-import requests
+import secrets
 import signal
+import string
 import json
 import os
 
 from db_utils import setup_database, validate_user_key, validate_user_password, fcreate_user, fdelete_user, fissue_new_api_key, fissue_new_password, fget_user_role, fupdate_user_role, flist_users, SERVED_MODEL_CACHE_FILE
 from utils import ALLOWED_MODEL_FLAVORS, PYFUNC_FLAVOR, SKLEARN_FLAVOR, TRANSFORMERS_FLAVOR, HUGGINGFACE_FLAVOR, VARIABLE_STORE_FILE, fload_model, load_models_from_cache, predict_model, upload_data_to_fs, download_data_from_fs, PredictRequest, LoadRequest, UserInfo, DataUploadRequest, DataDownloadRequest, VariableSetRequest, VariableDownloadRequest, VariableListRequest, VariableDeleteRequest, VerifyPasswordInfo
 
-# Load the secret key from environment variables and set up variables for JWT authentication
-SECRET_KEY = os.environ['SECRET_KEY']
+# Set up variables for JWT authentication
+SECRET_KEY = ''.join([secrets.choice(string.ascii_letters) for _ in range(32)])
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

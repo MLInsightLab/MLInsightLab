@@ -87,7 +87,6 @@ services:
       - SYSTEM_KEY=${API_HUB_SYSTEM_KEY}
       - DATA_DIRECTORY=${API_HUB_DATA_DIRECTORY}
       - VARIABLE_STORE_DIRECTORY=${API_HUB_VARIABLE_STORE_DIRECTORY}
-      - SECRET_KEY=${UI_SECRET_KEY}
     deploy:
       resources:
         reservations:
@@ -106,7 +105,6 @@ services:
       - jupyter
     environment:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
-      - SECRET_KEY=${UI_SECRET_KEY}
       - API_URL=${API_URL}
       - SYSTEM_USERNAME=${API_HUB_SYSTEM_USERNAME}
       - SYSTEM_KEY=${API_HUB_SYSTEM_KEY}

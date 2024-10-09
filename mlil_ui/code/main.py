@@ -4,15 +4,18 @@ from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from urllib.parse import urljoin
 import requests
-import os
+import secrets
+import string
 import time
+import os
 
 MLFLOW_TRACKING_URI = os.environ['MLFLOW_TRACKING_URI']
-SECRET_KEY = os.environ['SECRET_KEY']
 API_URL = os.environ['API_URL']
 
 SYSTEM_USERNAME = os.environ['SYSTEM_USERNAME']
 SYSTEM_KEY = os.environ['SYSTEM_KEY']
+
+SECRET_KEY = ''.join([secrets.choice(string.ascii_letters) for _ in range(32)])
 
 # Timeout in seconds (5 minutes)
 INACTIVITY_TIMEOUT = 5 * 60
