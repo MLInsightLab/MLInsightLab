@@ -28,6 +28,17 @@
             margin-bottom: 30px;
             font-size: 28px;
         }
+        .search-container {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .search-container input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #dddddd;
+            font-size: 16px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -43,9 +54,28 @@
         th {
             background-color: #357ABD;
             color: white;
+            cursor: pointer;
+        }
+        th.sort-asc::after {
+            content: ' ▲';
+        }
+        th.sort-desc::after {
+            content: ' ▼';
         }
         tr:nth-child(even) {
             background-color: #f2f2f2;
+        }
+        .action-button {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .action-button:hover {
+            background-color: #c9302c;
         }
         .no-models {
             font-size: 20px;
@@ -70,6 +100,10 @@
             color: #e74c3c;
             margin-top: 20px;
         }
+        #success-message {
+            color: #5cb85c;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -77,26 +111,37 @@
     <div class="container">
         <h2>Deployed Models</h2>
 
+        <!-- Search Filter -->
+        <div class="search-container">
+            <input type="text" id="search-box" placeholder="Search models...">
+        </div>
+
         <table id="models-table">
             <tr>
-                <th>Model Name</th>
-                <th>Flavor</th>
-                <th>Version/Alias</th>
+                <th onclick="sortTable('model_name')">Model Name</th>
+                <th onclick="sortTable('model_flavor')">Flavor</th>
+                <th onclick="sortTable('model_version_or_alias')">Version/Alias</th>
+                <th>Actions</th> <!-- Add column for actions -->
             </tr>
         </table>
 
         <p id="error-message" class="no-models"></p>
+        <p id="success-message"></p>
 
         <!-- Back to Dashboard Button -->
         <a href="/" class="back-button">Back to Dashboard</a>
     </div>
 
     <script>
+        let modelsData = []; // Store fetched models for search and sorting
+
+        // Fetch models when the page loads
+        window.onload = fetchModels;
+
         async function fetchModels() {
             const token = localStorage.getItem('token');
 
             if (!token) {
-                // No token found, redirect to login page
                 window.location.href = '/login';
                 return;
             }
@@ -112,9 +157,9 @@
 
                 if (response.ok) {
                     const models = await response.json();
+                    modelsData = models;  // Save the fetched models for future use
                     populateModelsTable(models);
                 } else if (response.status === 401) {
-                    // Token is invalid or expired, redirect to login
                     window.location.href = '/login';
                 } else {
                     document.getElementById('error-message').innerText = 'Failed to fetch models. Please try again later.';
@@ -124,8 +169,14 @@
             }
         }
 
+        // Populate the models table
         function populateModelsTable(models) {
             const table = document.getElementById('models-table');
+
+            // Remove previous rows
+            while (table.rows.length > 1) {
+                table.deleteRow(1);
+            }
 
             if (models.length === 0) {
                 document.getElementById('error-message').innerText = 'No deployed models found.';
@@ -137,15 +188,93 @@
                 const nameCell = row.insertCell(0);
                 const flavorCell = row.insertCell(1);
                 const versionCell = row.insertCell(2);
+                const actionCell = row.insertCell(3); // New cell for action buttons
 
                 nameCell.innerText = model.model_name;
                 flavorCell.innerText = model.model_flavor;
                 versionCell.innerText = model.model_version_or_alias;
+
+                // Add Remove button
+                const removeButton = document.createElement('button');
+                removeButton.classList.add('action-button');
+                removeButton.innerText = 'Remove';
+                removeButton.onclick = () => removeModel(model.model_name, model.model_flavor, model.model_version_or_alias);
+                actionCell.appendChild(removeButton);
             });
         }
 
-        // Fetch models when the page loads
-        window.onload = fetchModels;
+        // Search functionality
+        document.getElementById('search-box').addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            const filteredModels = modelsData.filter(model =>
+                model.model_name.toLowerCase().includes(query) ||
+                model.model_flavor.toLowerCase().includes(query) ||
+                model.model_version_or_alias.toLowerCase().includes(query)
+            );
+            populateModelsTable(filteredModels);
+        });
+
+        // Sorting functionality
+        let currentSortField = '';
+        let currentSortOrder = 'asc';
+
+        function sortTable(field) {
+            const tableHeaders = document.querySelectorAll('th');
+            tableHeaders.forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
+
+            if (currentSortField === field) {
+                currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortField = field;
+                currentSortOrder = 'asc';
+            }
+
+            const sortedModels = modelsData.sort((a, b) => {
+                let valA = a[field].toLowerCase();
+                let valB = b[field].toLowerCase();
+
+                if (valA < valB) return currentSortOrder === 'asc' ? -1 : 1;
+                if (valA > valB) return currentSortOrder === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            populateModelsTable(sortedModels);
+
+            const header = document.querySelector(`th[onclick="sortTable('${field}')"]`);
+            header.classList.add(currentSortOrder === 'asc' ? 'sort-asc' : 'sort-desc');
+        }
+
+        // Remove model functionality
+        async function removeModel(modelName, modelFlavor, modelVersionOrAlias) {
+            const token = localStorage.getItem('token');
+            const confirmation = confirm(`Are you sure you want to remove the model: ${modelName}?`);
+
+            if (!confirmation) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/models/unload/${modelName}/${modelFlavor}/${modelVersionOrAlias}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    document.getElementById('success-message').innerText = `Model '${modelName}' has been successfully removed.`;
+                    // Refresh the model list after removal
+                    fetchModels();
+                } else if (response.status === 401) {
+                    document.getElementById('error-message').innerText = 'You are not authorized to remove this model.';
+                } else {
+                    document.getElementById('error-message').innerText = 'Failed to remove model. Please try again later.';
+                }
+            } catch (error) {
+                document.getElementById('error-message').innerText = 'An error occurred while removing the model. Please try again later.';
+            }
+        }
     </script>
 
 </body>
