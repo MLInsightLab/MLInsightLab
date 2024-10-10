@@ -395,6 +395,12 @@ def load_model(model_name: str, model_flavor: str, model_version_or_alias: str |
         Additional parameters to load the model
     """
 
+    if user_properties['role'] not in ['admin', 'data_scientist', 'system']:
+        raise HTTPException(
+            403,
+            'User does not have permission'
+        )
+
     try:
         background_tasks.add_task(
             load_model_background,
@@ -463,6 +469,13 @@ def unload_model(model_name: str, model_flavor: str, model_version_or_alias: str
     model_version_or_alias : str or int
         The version or alias of the model
     """
+
+    if user_properties['role'] not in ['admin', 'data_scientist', 'system']:
+        raise HTTPException(
+            403,
+            'User does not have permission'
+        )
+
     try:
         del LOADED_MODELS[model_name][model_flavor][model_version_or_alias]
 
