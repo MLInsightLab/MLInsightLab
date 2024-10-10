@@ -54,13 +54,17 @@
         th {
             background-color: #357ABD;
             color: white;
-            cursor: pointer;
+            cursor: pointer; /* Indicate the header is clickable */
+            position: relative; /* Position for arrow indicators */
         }
         th.sort-asc::after {
-            content: ' ▲';
+            content: ' ▲'; /* Ascending indicator */
         }
         th.sort-desc::after {
-            content: ' ▼';
+            content: ' ▼'; /* Descending indicator */
+        }
+        th:hover {
+            background-color: #286090; /* Highlight on hover */
         }
         tr:nth-child(even) {
             background-color: #f2f2f2;
