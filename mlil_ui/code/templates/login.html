@@ -3,38 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>MLInsightLab Login</title>
     <link rel="icon" href="/static/logo.png" type="image/png"> <!-- Favicon -->
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f4f4;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             height: 100vh;
             margin: 0;
         }
         .login-container {
             background-color: #ffffff;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            width: 50vw;  /* Make the login container wider */
+            max-width: 500px; /* Ensure it doesn't get too wide */
             text-align: center;
-            margin-top: 50px;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center contents */
+        }
+        .login-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
         }
         .login-container h2 {
             color: #4a90e2;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
         }
         .login-container input[type="text"],
         .login-container input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
+            width: 90%; /* Wider input fields */
+            padding: 12px;
+            margin: 15px 0;
             border: 1px solid #cccccc;
-            border-radius: 4px;
+            border-radius: 6px;
+            transition: border-color 0.3s ease;
+            font-size: 1rem;
+            background-color: #f9f9f9;
+            text-align: center; /* Center the placeholder text */
         }
         .login-container input[type="text"]:focus,
         .login-container input[type="password"]:focus {
@@ -44,31 +59,75 @@
         .login-container input[type="submit"] {
             background-color: #357ABD;
             color: #ffffff;
-            padding: 10px;
+            padding: 12px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            width: 100%;
-            margin-top: 20px;
+            width: 90%; /* Wider button to match input fields */
+            margin-top: 25px;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
         }
         .login-container input[type="submit"]:hover {
             background-color: #4a90e2;
         }
         .warning-message {
             color: #e74c3c;
-            margin-top: 20px;
+            margin-top: 25px;
+            font-size: 0.9rem;
         }
         .logo {
-            width: 150px; /* Adjust the size as needed */
-            margin-bottom: 20px; /* Space below the logo */
+            width: 100px;
+            margin-bottom: 30px;
             border-radius: 50%;
             overflow: hidden;
+        }
+        /* Add smooth animations */
+        .login-container input, .login-container h2, .logo, input[type="submit"] {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        .logo {
+            animation-delay: 0.1s;
+        }
+        h2 {
+            animation-delay: 0.2s;
+        }
+        input[type="text"], input[type="password"] {
+            animation-delay: 0.3s;
+        }
+        input[type="submit"] {
+            animation-delay: 0.4s;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .login-container {
+                width: 75vw; /* Adjust width for smaller screens */
+            }
+        }
+        @media (max-width: 400px) {
+            .login-container {
+                width: 90vw; /* Adjust width for small mobile devices */
+                padding: 30px;
+            }
+            .login-container input[type="text"],
+            .login-container input[type="password"],
+            .login-container input[type="submit"] {
+                width: 100%; /* Full width for small screens */
+            }
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <img src="/static/logo.png" alt="Logo" class="logo"> <!-- Logo in the top left -->
+        <img src="/static/logo.png" alt="Logo" class="logo">
         <h2>ML Insight Lab Login</h2>
         <form id="loginForm">
             <input type="text" id="username" name="username" placeholder="Username" required><br>

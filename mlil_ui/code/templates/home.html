@@ -3,69 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ML Insight Lab Dashboard</title>
+    <title>MLInsightLab Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="/static/logo.png" type="image/png"> <!-- Favicon -->
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
-            padding: 20px;
         }
+
         .home-container {
             background-color: #ffffff;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 50px 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 600px;
             text-align: center;
-            margin: 20px;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .home-container h2 {
+
+        .home-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .logo {
+            width: 130px;
+            margin-bottom: 20px;
+            border-radius: 50%;
+            border: 2px solid #4a90e2;
+        }
+
+        h2 {
             color: #4a90e2;
-            margin-bottom: 30px;
-            font-size: 32px;
+            margin-bottom: 25px;
+            font-size: 34px;
+            font-weight: bold;
+            letter-spacing: 1px;
         }
-        .home-container p {
+
+        p {
             color: #333;
             font-size: 20px;
             margin-bottom: 40px;
         }
+
         .home-container a {
-            display: block;
-            margin: 15px 0;
-            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 25px;
+            margin-bottom: 20px;
             background-color: #357ABD;
             color: #ffffff;
             text-decoration: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 18px;
+            font-weight: 500;
             transition: background-color 0.3s ease, transform 0.2s ease;
+            cursor: pointer;
         }
-        .home-container a:hover {
-            background-color: #4a90e2;
-            transform: translateY(-2px);
-        }
+
         .home-container a i {
             margin-right: 10px;
-        }.logo {
-            width: 150px;
-            margin-bottom: 20px;
-            border-radius: 50%;
-            overflow: hidden;
+            font-size: 20px;
         }
+
+        .home-container a:hover {
+            background-color: #4a90e2;
+            transform: translateY(-3px);
+        }
+
+        /* Responsive adjustments */
         @media (max-width: 600px) {
             .home-container {
-                padding: 20px;
+                padding: 30px 20px;
             }
-            .home-container h2 {
+            h2 {
                 font-size: 28px;
             }
             .home-container a {
@@ -73,6 +94,7 @@
                 padding: 12px;
             }
         }
+
     </style>
 </head>
 <body>
