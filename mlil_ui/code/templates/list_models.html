@@ -81,6 +81,20 @@
         .action-button:hover {
             background-color: #c9302c;
         }
+        .reset-button {
+            background-color: #c9302c; /* Reset button color */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px; /* Space above button */
+        }
+        .reset-button:hover {
+            background-color: #a5282a; /* Darker shade on hover */
+        }
         .no-models {
             font-size: 20px;
             color: #d9534f;
@@ -131,6 +145,9 @@
 
         <p id="error-message" class="no-models"></p>
         <p id="success-message"></p>
+
+        <!-- Restart Server Button -->
+        <button class="reset-button" onclick="resetDeployment()">Restart Deployment Server</button>
 
         <!-- Back to Dashboard Button -->
         <a href="/" class="back-button">Back to Dashboard</a>
@@ -251,11 +268,9 @@
         // Remove model functionality
         async function removeModel(modelName, modelFlavor, modelVersionOrAlias) {
             const token = localStorage.getItem('token');
-            const confirmation = confirm(`Are you sure you want to remove the model: ${modelName}?`);
+            const confirmation = confirm(`Are you sure you want to remove model '${modelName}'?`);
 
-            if (!confirmation) {
-                return;
-            }
+            if (!confirmation) return;
 
             try {
                 const response = await fetch(`/api/models/unload/${modelName}/${modelFlavor}/${modelVersionOrAlias}`, {
@@ -268,8 +283,7 @@
 
                 if (response.ok) {
                     document.getElementById('success-message').innerText = `Model '${modelName}' has been successfully removed.`;
-                    // Refresh the model list after removal
-                    fetchModels();
+                    fetchModels(); // Refresh the model list after removal
                 } else if (response.status === 401) {
                     document.getElementById('error-message').innerText = 'You are not authorized to remove this model.';
                 } else {
@@ -277,6 +291,31 @@
                 }
             } catch (error) {
                 document.getElementById('error-message').innerText = 'An error occurred while removing the model. Please try again later.';
+            }
+        }
+
+        // Reset deployment server functionality
+        async function resetDeployment() {
+            const token = localStorage.getItem('token');
+
+            try {
+                const response = await fetch('/api/reset', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    document.getElementById('success-message').innerText = 'Deployment server has been successfully restarted.';
+                } else if (response.status === 401) {
+                    document.getElementById('error-message').innerText = 'You are not authorized to restart the server.';
+                } else {
+                    document.getElementById('error-message').innerText = 'Failed to restart the deployment server. Please try again later.';
+                }
+            } catch (error) {
+                document.getElementById('error-message').innerText = 'An error occurred while restarting the server. Please try again later.';
             }
         }
     </script>
