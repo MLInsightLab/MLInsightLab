@@ -1,7 +1,8 @@
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from starlette.middleware.sessions import SessionMiddleware
-from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI, Request, Form
 from urllib.parse import urljoin
 import requests
 import secrets
@@ -25,6 +26,7 @@ app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
 templates = Jinja2Templates(directory="templates")
 
+app.mount('/static', StaticFiles(directory = 'static'), name = 'static')
 
 def authenticate(username: str, password: str):
     with requests.Session() as sess:

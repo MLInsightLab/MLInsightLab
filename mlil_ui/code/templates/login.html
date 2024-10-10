@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="icon" href="/static/logo.png" type="image/png"> <!-- Favicon -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -57,10 +58,17 @@
             color: #e74c3c;
             margin-top: 20px;
         }
+        .logo {
+            width: 150px; /* Adjust the size as needed */
+            margin-bottom: 20px; /* Space below the logo */
+            border-radius: 50%;
+            overflow: hidden;
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
+        <img src="/static/logo.png" alt="Logo" class="logo"> <!-- Logo in the top left -->
         <h2>ML Insight Lab Login</h2>
         <form id="loginForm">
             <input type="text" id="username" name="username" placeholder="Username" required><br>
