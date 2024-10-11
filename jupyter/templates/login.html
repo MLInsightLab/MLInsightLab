@@ -87,10 +87,6 @@
       text-decoration: underline;
     }
 
-    #insecure-login-warning {
-      color: #e74c3c; /* Warning Color */
-      font-weight: bold;
-    }
 
     .hidden {
       display: none !important;
@@ -105,10 +101,6 @@
         {{ custom_html | safe }}
       {% elif login_service %}
         <div class="service-login">
-          <p id='insecure-login-warning' class='hidden'>
-            Warning: MLInsightLab seems to be served over an unsecured HTTP connection.
-            We strongly recommend enabling HTTPS for the platform.
-          </p>
           <a role="button"
              class='btn btn-jupyter btn-lg'
              href='{{ authenticator_login_url | safe }}'>Sign in with {{ login_service }}</a>
@@ -121,10 +113,6 @@
             <h2>MLInsightLab JupyterHub Sign In</h2>
           </div>
           <div class='auth-form-body'>
-            <p id='insecure-login-warning' class='hidden'>
-              Warning: MLInsightLab seems to be served over an unsecured HTTP connection.
-              We strongly recommend enabling HTTPS for the platform.
-            </p>
             {% if login_error %}<p class="login_error">{{ login_error }}</p>{% endif %}
             <input type="hidden" name="_xsrf" value="{{ xsrf }}" />
             <label for="username_input">Username:</label>
