@@ -11,32 +11,49 @@
             font-family: 'Arial', sans-serif;
             background-color: #f4f4f4;
             margin: 0;
-            padding: 0;
             display: flex;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
         }
 
-        .home-container {
-            background-color: #ffffff;
-            padding: 50px 40px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        .sidebar {
+            background-color: #357ABD;
+            padding: 20px;
+            width: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
-        .home-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .logo {
-            width: 130px;
+        .sidebar a {
+            color: white;
+            text-decoration: none;
             margin-bottom: 20px;
+            font-size: 18px;
+            display: block;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #4a90e2;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .content-header {
+            text-align: center;
+        }
+
+        .content-header img {
+            width: 100px;
+            margin-bottom: 10px;
             border-radius: 50%;
             border: 2px solid #4a90e2;
         }
@@ -44,72 +61,138 @@
         h2 {
             color: #4a90e2;
             margin-bottom: 25px;
-            font-size: 34px;
+            font-size: 28px;
             font-weight: bold;
-            letter-spacing: 1px;
         }
 
-        p {
-            color: #333;
-            font-size: 20px;
-            margin-bottom: 40px;
+        .dashboard-tiles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
         }
 
-        .home-container a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 15px 25px;
-            margin-bottom: 20px;
-            background-color: #357ABD;
-            color: #ffffff;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 500;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+        .dashboard-tile {
+            background-color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
         }
 
-        .home-container a i {
-            margin-right: 10px;
-            font-size: 20px;
+        .dashboard-tile:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
         }
 
-        .home-container a:hover {
-            background-color: #4a90e2;
-            transform: translateY(-3px);
+        .dashboard-tile i {
+            font-size: 30px;
+            margin-bottom: 10px;
+            color: #357ABD;
+        }
+
+        .dashboard-tile p {
+            font-size: 18px;
+            color: #333;
+        }
+
+        /* Tabs section */
+        .tabs-content {
+            margin-top: 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         /* Responsive adjustments */
-        @media (max-width: 600px) {
-            .home-container {
-                padding: 30px 20px;
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 150px;
             }
-            h2 {
-                font-size: 28px;
-            }
-            .home-container a {
-                font-size: 16px;
-                padding: 12px;
+            .dashboard-tiles {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
+        @media (max-width: 500px) {
+            .dashboard-tiles {
+                grid-template-columns: repeat(1, 1fr);
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="home-container">
-        <img src="/static/logo.png" alt="Logo" class="logo">
-        <h2>ML Insight Lab Dashboard</h2>
-        <a href="/jupyter"><i class="fas fa-book"></i> Go To JupyterHub</a>
-        <a href="/mlflow"><i class="fas fa-chart-line"></i> Go to MLflow</a>
-        <a href="/api"><i class="fas fa-code"></i> API Documentation</a>
-        <a href="/models"><i class="fas fa-cubes"></i> List Deployed Models</a>
-        <a href="/variables"><i class="fas fa-sliders-h"></i> Manage User Variables</a>
+
+    <div class="sidebar">
+        <div>
+            <a href="#" class="tab-link" data-tab="models"><i class="fas fa-cubes"></i> Deployed Models</a>
+            <a href="#" class="tab-link" data-tab="variables"><i class="fas fa-sliders-h"></i> User Variables</a>
+        </div>
         <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 
+    <div class="main-content">
+        <div class="content-header">
+            <img src="/static/logo.png" alt="Logo">
+            <h2>ML Insight Lab Dashboard</h2>
+        </div>
+
+        <!-- Dashboard Tiles -->
+        <div class="dashboard-tiles">
+            <div class="dashboard-tile" onclick="openInNewWindow('/jupyter')">
+                <i class="fas fa-book"></i>
+                <p>Go To JupyterHub</p>
+            </div>
+            <div class="dashboard-tile" onclick="openInNewWindow('/mlflow')">
+                <i class="fas fa-chart-line"></i>
+                <p>Go to MLflow</p>
+            </div>
+            <div class="dashboard-tile" onclick="openInNewWindow('/api')">
+                <i class="fas fa-code"></i>
+                <p>API Documentation</p>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tabs-content">
+            <div id="models" class="tab-content">
+                <h3>Deployed Models</h3>
+                <p>List of deployed models...</p>
+            </div>
+            <div id="variables" class="tab-content">
+                <h3>User Variables</h3>
+                <p>Manage your variables...</p>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // JavaScript for tab switching
+        document.querySelectorAll('.tab-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tabId = link.getAttribute('data-tab');
+                
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Open links in a new window securely
+        function openInNewWindow(url) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
         document.addEventListener("DOMContentLoaded", async function() {
             const token = localStorage.getItem('token');
             
