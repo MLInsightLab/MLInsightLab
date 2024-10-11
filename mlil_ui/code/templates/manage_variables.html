@@ -4,200 +4,178 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MLInsightLab Variables</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="/static/logo.png" type="image/png"> <!-- Favicon -->
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Arial', sans-serif;
             background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
+            display: flex;
+            height: 100vh;
         }
+
+        .sidebar {
+            background-color: #357ABD;
+            padding: 20px;
+            width: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-size: 18px;
+            display: block;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #4a90e2;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
         .container {
             background-color: #ffffff;
-            padding: 50px;
-            border-radius: 12px;
+            padding: 40px;
+            border-radius: 16px;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            width: 60vw;
+            width: 100%;
             max-width: 800px;
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
+            margin: 0 auto;
         }
-        .container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-        }
+
         h2 {
             color: #4a90e2;
-            margin-bottom: 30px;
-            font-size: 1.8rem;
-            letter-spacing: 1px;
+            font-size: 34px;
+            margin-bottom: 25px;
+            font-weight: bold;
         }
-        h3 {
-            color: #357ABD;
-            font-size: 1.4rem;
+
+        .logo {
+            width: 120px;
             margin-bottom: 20px;
-            text-align: left;
+            border-radius: 50%;
+            border: 2px solid #4a90e2;
         }
+
+        .form-container {
+            margin-bottom: 30px;
+        }
+
+        input[type="text"] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #357ABD;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #4a90e2;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            text-align: left;
+            margin-bottom: 20px;
         }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
         th, td {
             padding: 12px;
-            border: 1px solid #dddddd;
-            transition: background-color 0.3s ease;
-        }
-        th {
-            background-color: #357ABD;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        td {
-            font-size: 1rem;
-        }
-        td button {
-            padding: 8px 16px;
-            background-color: #e74c3c;
-            color: #ffffff;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        td button:hover {
-            background-color: #c0392b;
-        }
-        .form-container {
-            margin: 20px 0;
             text-align: left;
         }
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
-            background-color: #f9f9f9;
+
+        th {
+            background-color: #f4f4f4;
         }
-        input[type="text"]:focus {
-            border-color: #4a90e2;
-            outline: none;
+
+        td {
+            background-color: #fff;
         }
-        .button {
-            background-color: #357ABD;
-            color: #ffffff;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s ease;
-            display: block;
-            margin: 0 auto;
+
+
+        .hidden-value {
+            margin-right: 10px;
         }
-        .button:hover {
-            background-color: #4a90e2;
-        }
-        .back-button {
-            display: inline-block;
-            background-color: #357ABD;
-            color: #ffffff;
-            text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            font-size: 1rem;
-            margin-top: 25px;
-            transition: background-color 0.3s ease;
-        }
-        .back-button:hover {
-            background-color: #4a90e2;
-        }
+
         .toggle-visibility {
             cursor: pointer;
-            margin-left: 10px;
-            font-size: 16px;
-            color: #357ABD;
+            margin-right: 10px;
         }
+
         .copy-button {
             margin-left: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            color: #4a90e2;
-            border: none;
-            background: none;
         }
-        .copy-button:hover {
-            text-decoration: underline;
-        }
-        .logo {
-            width: 100px;
-            margin-bottom: 30px;
-            border-radius: 50%;
-            overflow: hidden;
-        }
-        /* Mobile responsiveness */
-        @media (max-width: 768px) {
-            .container {
-                width: 80vw;
-            }
-            .container table, .container h3 {
-                font-size: 0.9rem;
-            }
-            .button, .back-button {
-                padding: 10px 16px;
-                font-size: 0.9rem;
-            }
-        }
-        @media (max-width: 400px) {
-            .container {
-                width: 90vw;
-                padding: 30px;
-            }
-            .button, .back-button {
-                width: 100%;
-                font-size: 0.9rem;
-                padding: 12px;
-            }
-        }
+
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <img src="/static/logo.png" alt="Logo" class="logo">
-        <h2>Manage User Variables</h2>
-
-        <!-- Form to Set New Variable -->
-        <div class="form-container">
-            <h3>Set Variable</h3>
-            <input type="text" id="newVariableName" placeholder="Variable Name" required>
-            <input type="text" id="newVariableValue" placeholder="Variable Value" required>
-            <button class="button" onclick="setVariable()">Set Variable</button>
+    <div class="sidebar">
+        <div>
+            <a href="/"><i class="fas fa-home"></i> Home</a>
+            <a href="/models"><i class="fas fa-cubes"></i> Models</a>
+            <a href="/variables"><i class="fas fa-sliders-h"></i> User Variables</a>
         </div>
+        <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
 
-        <!-- Table to display existing variables -->
-        <table id="variablesTable">
-            <tr>
-                <th>Variable Name</th>
-                <th>Variable Value</th>
-                <th>Actions</th>
-            </tr>
-            <tr id="no-variables-row" style="display: none;">
-                <td colspan="3">No variables found.</td>
-            </tr>
-        </table>
+    <div class="main-content">
+        <div class="container">
+            <img src="/static/logo.png" alt="Logo" class="logo">
+            <h2>Manage User Variables</h2>
 
-        <!-- Back to Dashboard Button -->
-        <a href="/" class="back-button">Back to Dashboard</a>
+            <!-- Form to Set New Variable -->
+            <div class="form-container">
+                <h3>Set Variable</h3>
+                <input type="text" id="newVariableName" placeholder="Variable Name" required>
+                <input type="text" id="newVariableValue" placeholder="Variable Value" required>
+                <button class="button" onclick="setVariable()">Set Variable</button>
+            </div>
+
+            <!-- Table to display existing variables -->
+            <table id="variablesTable">
+                <tr>
+                    <th>Variable Name</th>
+                    <th>Variable Value</th>
+                    <th>Actions</th>
+                </tr>
+                <tr id="no-variables-row" style="display: none;">
+                    <td colspan="3">No variables found.</td>
+                </tr>
+            </table>
+
+        </div>
     </div>
 
     <script>
@@ -384,5 +362,8 @@
 
         window.onload = fetchVariables;
     </script>
+        </div>
+    </div>
+
 </body>
 </html>

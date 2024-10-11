@@ -4,17 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MLInsightLab Deployed Models</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="/static/logo.png" type="image/png"> <!-- Favicon -->
     <style>
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f4f4;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            background-color: #357ABD;
+            padding: 20px;
+            width: 200px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            margin: 0;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-size: 18px;
+            display: block;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #4a90e2;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             padding: 20px;
-            min-height: 100vh;
         }
 
         .container {
@@ -26,11 +56,7 @@
             max-width: 800px;
             text-align: center;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            margin: 0 auto;
         }
 
         .logo {
@@ -123,7 +149,7 @@
             background-color: #c9302c;
         }
 
-        .reset-button, .back-button {
+        .reset-button {
             padding: 12px 24px;
             font-size: 16px;
             border: none;
@@ -140,15 +166,6 @@
 
         .reset-button:hover {
             background-color: #a5282a;
-        }
-
-        .back-button {
-            background-color: #357ABD;
-            text-decoration: none;
-        }
-
-        .back-button:hover {
-            background-color: #4a90e2;
         }
 
         .no-models, #error-message {
@@ -180,40 +197,49 @@
                 padding: 10px;
             }
 
-            .reset-button, .back-button {
+            .reset-button {
                 font-size: 14px;
             }
         }
     </style>
 </head>
 <body>
-    
-    <div class="container">
-        <img src="/static/logo.png" alt="Logo" class="logo">
-        <h2>Deployed Models</h2>
 
-        <!-- Search Filter -->
-        <div class="search-container">
-            <input type="text" id="search-box" placeholder="Search models...">
+    <div class="sidebar">
+        <div>
+            <a href="/"><i class="fas fa-home"></i> Home</a>
+            <a href="/models"><i class="fas fa-cubes"></i> Models</a>
+            <a href="/variables"><i class="fas fa-sliders-h"></i> User Variables</a>
         </div>
+        <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
 
-        <table id="models-table">
-            <tr>
-                <th onclick="sortTable('model_name')">Model Name</th>
-                <th onclick="sortTable('model_flavor')">Flavor</th>
-                <th onclick="sortTable('model_version_or_alias')">Version/Alias</th>
-                <th>Actions</th> <!-- Add column for actions -->
-            </tr>
-        </table>
+    <div class="main-content">
+        <div class="container">
+            <img src="/static/logo.png" alt="Logo" class="logo">
+            <h2>Deployed Models</h2>
 
-        <p id="error-message" class="no-models"></p>
-        <p id="success-message"></p>
+            <!-- Search Filter -->
+            <div class="search-container">
+                <input type="text" id="search-box" placeholder="Search models...">
+            </div>
 
-        <!-- Restart Server Button -->
-        <button class="reset-button" onclick="resetDeployment()">Restart Deployment Server</button>
+            <table id="models-table">
+                <tr>
+                    <th onclick="sortTable('model_name')">Model Name</th>
+                    <th onclick="sortTable('model_flavor')">Flavor</th>
+                    <th onclick="sortTable('model_version_or_alias')">Version/Alias</th>
+                    <th>Actions</th> <!-- Add column for actions -->
+                </tr>
+            </table>
 
-        <!-- Back to Dashboard Button -->
-        <a href="/" class="back-button">Back to Dashboard</a>
+            <p id="error-message" class="no-models"></p>
+            <p id="success-message"></p>
+
+            <!-- Restart Server Button -->
+            <button class="reset-button" onclick="resetDeployment()">Restart Deployment Server</button>
+
+        </div>
     </div>
 
     <script>
