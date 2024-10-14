@@ -327,6 +327,9 @@
                     body: JSON.stringify({ 'username' : username, variable_name: variableName, value: variableValue, overwrite: true })
                 });
 
+                document.getElementById("newVariableName").value = "";
+                document.getElementById("newVariableValue").value = "";
+
                 if (!response.ok) {
                     throw new Error('Failed to set variable: ' + response.statusText);
                 }
