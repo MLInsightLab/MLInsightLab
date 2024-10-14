@@ -284,7 +284,7 @@
                         valueContainer.textContent = varObj.variable_value; // Show value
                         toggleButton.innerHTML = '&#128584;'; // Closed eye (🙈)
                     } else {
-                        valueContainer.textContent = '•••••••'; // Hide value
+                        valueContainer.textContent = '•'.repeat(varObj.variable_value.length); // Hide value
                         toggleButton.innerHTML = '&#128065;'; // Open eye (👁️)
                     }
                 };
