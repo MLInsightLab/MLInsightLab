@@ -274,18 +274,18 @@
 
                 // Create a span for the hidden value and a toggle button for visibility
                 const valueContainer = document.createElement('span');
-                valueContainer.textContent = '•••••••';  // Hide the value by default
+                valueContainer.textContent = '•'.repeat(varObj.variable_value.length);  // Hide the value by default
                 valueContainer.classList.add('hidden-value');
 
                 const toggleButton = document.createElement('span');
                 toggleButton.innerHTML = '&#128065;'; // Eye icon (👁️)
                 toggleButton.classList.add('toggle-visibility');
                 toggleButton.onclick = function() {
-                    if (valueContainer.textContent === '•••••••') {
+                    if (valueContainer.textContent === '•'.repeat(varObj.variable_value.length)) {
                         valueContainer.textContent = varObj.variable_value; // Show value
                         toggleButton.innerHTML = '&#128584;'; // Closed eye (🙈)
                     } else {
-                        valueContainer.textContent = '•••••••'; // Hide value
+                        valueContainer.textContent = '•'.repeat(varObj.variable_value.length); // Hide value
                         toggleButton.innerHTML = '&#128065;'; // Open eye (👁️)
                     }
                 };
@@ -327,6 +327,9 @@
                     },
                     body: JSON.stringify({ 'username' : username, variable_name: variableName, value: variableValue, overwrite: true })
                 });
+
+                document.getElementById("newVariableName").value = "";
+                document.getElementById("newVariableValue").value = "";
 
                 if (!response.ok) {
                     throw new Error('Failed to set variable: ' + response.statusText);
