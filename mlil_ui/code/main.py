@@ -109,11 +109,11 @@ async def proxy_mlflow(path: str, request: Request):
     return client_response
 
 
-@app.get("/user/settings", response_class=HTMLResponse)
+@app.get("/users", response_class=HTMLResponse)
 async def user_settings(request: Request):
     if 'user' not in request.session or not check_inactivity(request):
         return RedirectResponse(url="/login")
-    return templates.TemplateResponse("user_settings.html", {"request": request})
+    return templates.TemplateResponse("user_management.html", {"request": request})
 
 
 @app.get("/models", response_class=HTMLResponse)
