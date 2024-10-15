@@ -130,3 +130,10 @@ async def manage_variables(request: Request):
         return RedirectResponse(url="/login")
 
     return templates.TemplateResponse("manage_variables.html", {"request": request})
+
+@app.get('/data', response_class=HTMLResponse)
+async def data_page(request: Request):
+    if 'user' not in request.session or not check_inactivity(request):
+        return RedirectResponse(url='/login')
+    
+    return templates.TemplateResponse('data.html', {'request': request})

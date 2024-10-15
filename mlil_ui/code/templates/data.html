@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Store Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="/static/logo.png" type="image/png">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            background-color: #357ABD;
+            padding: 20px;
+            width: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-size: 18px;
+            display: block;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #4a90e2;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h2 {
+            color: #4a90e2;
+            font-size: 34px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+        .form-container {
+            margin-bottom: 30px;
+        }
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #357ABD;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #4a90e2;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        td {
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div>
+        <a href="/"><i class="fas fa-home"></i> Home</a>
+        <a href="/models"><i class="fas fa-cubes"></i> Models</a>
+        <a href="/data"><i class="fas fa-database"></i> Data Store</a>
+        <a href="/variables"><i class="fas fa-sliders-h"></i> User Variables</a>
+    </div>
+    <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<div class="main-content">
+    <div class="container">
+        <h2>Data Store Management</h2>
+
+        <!-- Upload Form -->
+        <div class="form-container">
+            <h3>Upload File</h3>
+            <input type="file" id="fileInput" accept=".txt,.csv,.json">
+            <button onclick="uploadFile()">Upload</button>
+        </div>
+
+        <!-- File Listing -->
+        <table id="filesTable">
+            <thead>
+                <tr>
+                    <th>Filename</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="filesList">
+                <tr>
+                    <td colspan="2">No files found.</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+<script>
+// List files from the data store
+async function listFiles() {
+    try {
+        const token = localStorage.getItem('token')
+        const response = await fetch('/api/data/list', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ directory: null })
+        });
+
+        if (!response.ok) throw new Error('Failed to list files');
+
+        const result = await response.json();
+        displayFiles(result);
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+// Display files in the table
+function displayFiles(files) {
+    const filesList = document.getElementById('filesList');
+    filesList.innerHTML = '';
+
+    if (!files.length) {
+        filesList.innerHTML = '<tr><td colspan="2">No files found.</td></tr>';
+        return;
+    }
+
+    files.forEach(file => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${file}</td>
+                         <td>
+                             <button onclick="downloadFile('${file}')">Download</button>
+                         </td>`;
+        filesList.appendChild(row);
+    });
+}
+
+// Upload file to the data store
+async function uploadFile() {
+    const token = localStorage.getItem('token')
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+
+    if (!file) return alert('Please select a file');
+
+    const reader = new FileReader();
+    reader.onload = async function(event) {
+        const base64Data = btoa(event.target.result); // Convert to base64
+
+        const data = {
+            filename: file.name,
+            file_bytes: base64Data,
+            overwrite: false
+        };
+
+        try {
+            const response = await fetch('/api/data/upload', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) throw new Error('Failed to upload file');
+
+            alert('File uploaded successfully');
+            listFiles();
+        } catch (error) {
+            alert(error.message);
+        }
+    };
+
+    reader.readAsBinaryString(file); // Read file as binary string
+}
+
+// Download file from the data store
+async function downloadFile(filename) {
+    try {
+        const token = localStorage.getItem('token')
+        const response = await fetch('/api/data/download', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ 'filename': filename })
+        });
+
+        if (!response.ok) throw new Error('Failed to download file');
+
+        const result = await response.json();
+        const fileContent = atob(result); // Decode base64
+
+        // Trigger file download in browser
+        const binaryArray = new Uint8Array(fileContent.length);
+
+        for (let i = 0; i < fileContent.length; i++){
+            binaryArray[i] = fileContent.charCodeAt(i);
+        }
+        const blob = new Blob([binaryArray])
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+window.onload = listFiles;
+</script>
+
+</body>
+</html>
