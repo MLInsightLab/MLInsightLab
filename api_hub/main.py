@@ -12,7 +12,7 @@ import json
 import os
 
 from db_utils import setup_database, validate_user_key, validate_user_password, fcreate_user, fdelete_user, fissue_new_api_key, fissue_new_password, fget_user_role, fupdate_user_role, flist_users, SERVED_MODEL_CACHE_FILE
-from utils import ALLOWED_MODEL_FLAVORS, PYFUNC_FLAVOR, SKLEARN_FLAVOR, TRANSFORMERS_FLAVOR, HUGGINGFACE_FLAVOR, VARIABLE_STORE_FILE, fload_model, load_models_from_cache, predict_model, upload_data_to_fs, download_data_from_fs, PredictRequest, LoadRequest, UserInfo, DataUploadRequest, DataDownloadRequest, VariableSetRequest, VariableDownloadRequest, VariableListRequest, VariableDeleteRequest, VerifyPasswordInfo
+from utils import ALLOWED_MODEL_FLAVORS, PYFUNC_FLAVOR, SKLEARN_FLAVOR, TRANSFORMERS_FLAVOR, HUGGINGFACE_FLAVOR, VARIABLE_STORE_FILE, fload_model, load_models_from_cache, predict_model, upload_data_to_fs, download_data_from_fs, PredictRequest, LoadRequest, UserInfo, DataUploadRequest, DataDownloadRequest, VariableSetRequest, VariableDownloadRequest, VariableListRequest, VariableDeleteRequest, VerifyPasswordInfo, list_fs_directory, DataListRequest
 
 # Set up variables for JWT authentication
 SECRET_KEY = ''.join([secrets.choice(string.ascii_letters) for _ in range(32)])
@@ -847,6 +847,36 @@ def download_file(body: DataDownloadRequest, user_properties: dict = Depends(ver
     except Exception as e:
         raise HTTPException(
             400,
+            f'The following error occurred: {str(e)}'
+        )
+    
+@app.post('/data/list')
+def list_files(body: DataListRequest, user_properties: dict = Depends(verify_credentials_or_token)):
+    """
+    List data files within a directory in the data store
+
+    Parameters
+    ----------
+    body : DataListRequest
+        The information about the directory to list
+
+    Returns
+    -------
+    files : str
+        The files and directories within the directory
+    """
+
+    if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
+        raise HTTPException(
+            403,
+            'User does not have permissions'
+        )
+    
+    try:
+        return list_fs_directory(body.directory)
+    except Exception as e:
+        raise HTTPException(
+            500,
             f'The following error occurred: {str(e)}'
         )
 

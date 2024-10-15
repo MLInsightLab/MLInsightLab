@@ -328,6 +328,34 @@ def download_data_from_fs(
 
     return content
 
+def list_fs_directory(dirname: str = None) -> list[str]:
+    """
+    List the contents of a directory in the file store
+
+    Parameters
+    ----------
+    dirname : str or None (default None)
+        The directory name to list
+
+    Returns
+    -------
+    files : list[str]
+        The files in that directory
+    """
+
+    if dirname is None:
+        dirname = DATA_DIRECTORY
+
+    if not dirname.startswith(DATA_DIRECTORY):
+        dirname = os.path.join(
+            DATA_DIRECTORY,
+            dirname.lstrip('/').strip()
+        )
+
+    if not os.path.isdir(dirname):
+        raise TypeError('No directory found')
+    
+    return os.listdir(dirname)
 
 class PredictRequest(BaseModel):
     data: list
@@ -384,3 +412,6 @@ class VariableDeleteRequest(BaseModel):
 class VerifyPasswordInfo(BaseModel):
     username: str
     password: str
+
+class DataListRequest(BaseModel):
+    directory: str | None = None
