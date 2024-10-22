@@ -19,7 +19,7 @@
 
 MLInsightLab is designed to provide a scalable, integrated environment for data scientists and machine learning engineers to perform distributed computing, experiment tracking, model serving, and inference management. The platform is tailored to handle end-to-end workflows, from interactive development in JupyterHub to production-ready model serving.
 
-This project is a comprehensive Docker Compose setup for MLInsightLab. It integrates multiple services, including Dask, Jupyter, MLFlow, a custom model server and web UI, and Nginx, providing a robust environment for data science, machine learning, and model management.
+This project is a comprehensive Docker Compose setup for MLInsightLab. It integrates multiple services, including Dask, Jupyter, MLFlow, a custom API Hub, and web UI - all served behind Nginx as a reverse proxy, providing a robust environment for data science, machine learning, and model management.
 
 
 ## Capabilities
@@ -36,14 +36,15 @@ This project is a comprehensive Docker Compose setup for MLInsightLab. It integr
    - Python-native distributed computing framework for parallel computing.
    - Includes a Dask scheduler and multiple Dask workers for efficient task distribution.
 
-4. **Model Server**:
-   - Serves trained models using MLFlow for inference, without users having to configure infrastructure.
+4. **API Hub**:
+   - Serves as the centralized API service for the platform
+   - Serves trained models for inference, without users having to configure infrastructure.
    - Supports multiple model flavors including `pyfunc`, `sklearn`, `transformers`, and `hfhub`.
    - Provides endpoints for model loading, prediction, and management.
    - Also provides authentication, user management, and server management endpoints.
 
 5. **Web UI**:
-   - Provides a simple user interface to access other resources.
+   - Provides a simple user interface to access other resources and perform actions within the platform.
 
 6. **Nginx**:
    - Acts as a reverse proxy to manage and secure HTTP/HTTPS requests.
@@ -83,7 +84,7 @@ This project is a comprehensive Docker Compose setup for MLInsightLab. It integr
     ```
 
 3. **(Optional) Configure SSL Certificates**
-   If you would like the Lab to be deployed using SSL termination, you will need to have your certificate `.pem` files saved to the directory `/path/to/mlinsightlab/directory/certs`
+   If you would like the Lab to be deployed using SSL termination, you will need to have your certificate `.pem` files saved to the directory `/path/to/mlinsightlab/certs`
 
    This can be accomplished by physically saving the files to this directory, or by having the files saved via a symbolic link.
 
@@ -110,7 +111,7 @@ docker-compose -f {chosen-docker-compose-file} down
 When deploying the Lab to a production (i.e. non-testing) environment, it is recommended that the following default environment variables be changed:
 
 - MODEL_SERVER_ADMIN_USERNAME
-   - This is the default username for the initial admin for the platform. It is recommended to alter this to a preferred value when the platform is stood up.
+   - This is the default username for the initial admin for the platform.
    - Default Value: `admin`
 - MODEL_SERVER_ADMIN_PASSWORD
    - This is the default password for the initial admin for the platform. It is recommended to alter this to a preferred, secure value either when the platform is stood up initially or after the platform is created.
@@ -120,10 +121,8 @@ When deploying the Lab to a production (i.e. non-testing) environment, it is rec
    - Default Value: `mlil-admin-key`
 - MODEL_SERVER_SYSTEM_KEY
    - This is the default API key used by the platform itself to allow services to communicate between one another. It is recommended that this be altered to a secure value when the platform is stood up initially. **NOTE THAT THIS VALUE CANNOT BE CHANGED AFTER THE PLATFORM IS STOOD UP**.
+   - **We are working on removing this value from the platform in its entirety, improving the security posture of the platform**
    - Default Value: `mlil-system-key`
-- UI_SECRET_KEY
-   - This secret key is used by the platform web UI to help secure communications. It is recommended that this value be altered to a secure value when the platform is stood up initially. **NOTE THAT THIS VALUE CANNOT BE CHANGED AFTER THE PLATFORM IS STOOD UP**.
-   - Default Value: `mlil-ui`
 
 ## Logs and Debugging
 
