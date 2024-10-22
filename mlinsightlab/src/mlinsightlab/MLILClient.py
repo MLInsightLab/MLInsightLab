@@ -70,7 +70,7 @@ class MLILClient:
         self.creds = {'username': self.username, 'key': self.api_key}
 
         if cache_credentials:
-            _save_credentials(auth)
+            self._save_credentials(auth)
 
     """
     ###########################################################################
@@ -89,10 +89,8 @@ class MLILClient:
                 return self._load_stored_credentials()
         else:
             if self.config_path.exists():
-                use_stored = input(
-                    "Found stored credentials. Use them? (y/n): ").lower() == 'y'
-                if use_stored:
-                    return self._load_stored_credentials()
+                print('Using stored credentials')
+                return self._load_stored_credentials()
 
             url = input("Enter platform URL: ")
             username = input("Enter username: ")
@@ -111,7 +109,7 @@ class MLILClient:
                                         "username": username, "key": api_key}, username=username, password=password)
 
             if resp.ok:
-                print(f"User verified...welcome {username}!")
+                print(f"User verified. Welcome {username}!")
             else:
                 print('User not verified.')
                 raise MLILException(str(resp.json()))
@@ -710,7 +708,7 @@ class MLILClient:
         predict_function: str = "predict",
         dtype: str = "string",
         params: Optional[dict] = None,
-        convert_to_numpy: bool = True
+        convert_to_numpy: bool = True,
         url: str = None,
         creds: dict = None,
         verbose: bool = False

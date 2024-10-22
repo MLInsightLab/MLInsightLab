@@ -3,6 +3,7 @@ from .MLILException import MLILException
 from .endpoints import FILE_UPLOAD, FILE_DOWNLOAD, GET_VARIABLE, LIST_VARIABLES, SET_VARIABLE, DELETE_VARIABLE
 from typing import Any
 import requests
+import base64
 
 def _upload_file(
     url: str,
@@ -39,7 +40,7 @@ def _upload_file(
 
     json_data = {
         'filename': file_name,
-        'file_bytes': str(file_bytes),
+        'file_bytes': base64.b64encode(file_bytes).decode('utf-8'),
         'overwrite': overwrite
     }
 
