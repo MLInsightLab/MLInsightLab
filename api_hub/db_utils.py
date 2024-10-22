@@ -9,8 +9,8 @@ DB_DIRECTORY = '/database'
 DB_FILE = os.path.join(DB_DIRECTORY, 'permissions.db')
 
 # System username and key
-SYSTEM_USERNAME = os.environ['SYSTEM_USERNAME']
-SYSTEM_KEY = os.environ['SYSTEM_KEY']
+# SYSTEM_USERNAME = os.environ['SYSTEM_USERNAME']
+# SYSTEM_KEY = os.environ['SYSTEM_KEY']
 
 # Admin username, password, and key
 ADMIN_USERNAME = os.environ['ADMIN_USERNAME']
@@ -115,8 +115,8 @@ def validate_user_key(username, key):
     """
 
     # Check for the system user
-    if username == SYSTEM_USERNAME and key == SYSTEM_KEY:
-        return 'system'
+    # if username == SYSTEM_USERNAME and key == SYSTEM_KEY:
+    #    return 'system'
 
     # Query the database for the user's information
     con = sqlite3.connect(DB_FILE)

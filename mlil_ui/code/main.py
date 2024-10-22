@@ -13,8 +13,8 @@ import os
 MLFLOW_TRACKING_URI = os.environ['MLFLOW_TRACKING_URI']
 API_URL = os.environ['API_URL']
 
-SYSTEM_USERNAME = os.environ['SYSTEM_USERNAME']
-SYSTEM_KEY = os.environ['SYSTEM_KEY']
+# SYSTEM_USERNAME = os.environ['SYSTEM_USERNAME']
+# SYSTEM_KEY = os.environ['SYSTEM_KEY']
 
 SECRET_KEY = ''.join([secrets.choice(string.ascii_letters) for _ in range(32)])
 
@@ -36,7 +36,7 @@ def authenticate(username: str, password: str):
                 'username': username,
                 'password': password
             },
-            auth=(SYSTEM_USERNAME, SYSTEM_KEY)
+            # auth=(SYSTEM_USERNAME, SYSTEM_KEY)
         )
     if resp.ok:
         return True
@@ -96,7 +96,7 @@ async def proxy_mlflow(path: str, request: Request):
         data=await request.body(),
         cookies=request.cookies,
         allow_redirects=False,
-        auth=(SYSTEM_USERNAME, SYSTEM_KEY)
+        # auth=(SYSTEM_USERNAME, SYSTEM_KEY)
     )
 
     client_response = Response(

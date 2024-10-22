@@ -345,7 +345,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 
 @app.post('/password/verify')
-def verify_password(body: VerifyPasswordInfo, user_properties: dict = Depends(verify_credentials_or_token)):
+def verify_password(body: VerifyPasswordInfo):#, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Verify a password
 
@@ -356,11 +356,11 @@ def verify_password(body: VerifyPasswordInfo, user_properties: dict = Depends(ve
     password : str
         The user's password
     """
-    if user_properties['role'] not in ['admin', 'system']:
-        raise HTTPException(
-            403,
-            'User does not have permission'
-        )
+    # if user_properties['role'] not in ['admin', 'system']:
+        # raise HTTPException(
+            # 403,
+            # 'User does not have permission'
+        # )
     try:
         role = validate_user_password(body.username, body.password)
         return role
@@ -661,7 +661,7 @@ def issue_new_password(username, new_password: str = Body(embed=True), user_prop
 
 
 @app.get('/users/role/{username}')
-def get_user_role(username: str, user_properties: dict = Depends(verify_credentials_or_token)):
+def get_user_role(username: str):#, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Get a user's role
 
@@ -670,11 +670,11 @@ def get_user_role(username: str, user_properties: dict = Depends(verify_credenti
     username : str
         The username of the user
     """
-    if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
-        raise HTTPException(
-            403,
-            'User does not have permissions'
-        )
+    # if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
+        # raise HTTPException(
+            # 403,
+            # 'User does not have permissions'
+        # )
 
     try:
         return fget_user_role(username)

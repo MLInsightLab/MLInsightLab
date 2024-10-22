@@ -7,8 +7,8 @@ import shutil
 import os
 
 # Get the environment variable for the API URL
-SYSTEM_USERNAME = os.environ['SYSTEM_USERNAME']
-SYSTEM_KEY = os.environ['SYSTEM_KEY']
+# SYSTEM_USERNAME = os.environ['SYSTEM_USERNAME']
+# SYSTEM_KEY = os.environ['SYSTEM_KEY']
 API_URL = os.environ['API_URL']
 
 c = get_config()  # noqa
@@ -203,7 +203,7 @@ class MLILAuthenticator(Authenticator):
                     'username': username,
                     'password': password
                 },
-                auth=(SYSTEM_USERNAME, SYSTEM_KEY)
+                #auth=(SYSTEM_USERNAME, SYSTEM_KEY)
             )
         if resp.status_code == 200:
             role = resp.json()
@@ -1420,7 +1420,7 @@ def pre_spawn_hook(spawner):
         with requests.Session() as sess:
             resp = sess.get(
                 f'{API_URL}/users/role/{username}',
-                auth=(SYSTEM_USERNAME, SYSTEM_KEY)
+                # auth=(SYSTEM_USERNAME, SYSTEM_KEY)
             )
         role = resp.json()
 
