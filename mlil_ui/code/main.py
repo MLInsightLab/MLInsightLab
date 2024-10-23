@@ -26,7 +26,8 @@ app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
 templates = Jinja2Templates(directory="templates")
 
-app.mount('/static', StaticFiles(directory = 'static'), name = 'static')
+app.mount('/static', StaticFiles(directory='static'), name='static')
+
 
 def authenticate(username: str, password: str):
     with requests.Session() as sess:
@@ -131,9 +132,10 @@ async def manage_variables(request: Request):
 
     return templates.TemplateResponse("manage_variables.html", {"request": request})
 
+
 @app.get('/data', response_class=HTMLResponse)
 async def data_page(request: Request):
     if 'user' not in request.session or not check_inactivity(request):
         return RedirectResponse(url='/login')
-    
+
     return templates.TemplateResponse('data.html', {'request': request})

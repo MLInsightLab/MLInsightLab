@@ -32,6 +32,7 @@ def _reset_platform(
         raise MLILException(str(resp.json()))
     return resp
 
+
 def _get_platform_resource_usage(
     url: str,
     creds: dict

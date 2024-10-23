@@ -328,6 +328,7 @@ def download_data_from_fs(
 
     return content
 
+
 def list_fs_directory(dirname: str = None) -> list[str]:
     """
     List the contents of a directory in the file store
@@ -354,8 +355,9 @@ def list_fs_directory(dirname: str = None) -> list[str]:
 
     if not os.path.isdir(dirname):
         raise TypeError('No directory found')
-    
+
     return os.listdir(dirname)
+
 
 class PredictRequest(BaseModel):
     data: list
@@ -412,6 +414,7 @@ class VariableDeleteRequest(BaseModel):
 class VerifyPasswordInfo(BaseModel):
     username: str
     password: str
+
 
 class DataListRequest(BaseModel):
     directory: str | None = None

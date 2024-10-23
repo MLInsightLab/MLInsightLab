@@ -22,7 +22,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 # The MLFlow tracking uri
 MLFLOW_TRACKING_URI = os.environ['MLFLOW_TRACKING_URI']
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error = False)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
 # Set up the database
 setup_database()
@@ -226,12 +226,14 @@ def load_model_background(
 
     return True
 
+
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + \
+            timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -239,7 +241,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 
 # Initialize the app and Basic Auth
 app = FastAPI()
-security = HTTPBasic(auto_error = False)
+security = HTTPBasic(auto_error=False)
 
 # Function to verify user credentials
 
@@ -286,11 +288,12 @@ def verify_credentials_password(credentials: HTTPBasicCredentials = Depends(secu
             401,
             str(e)
         )
-    
+
+
 def verify_jwt_token(token: str = Depends(oauth2_scheme)):
     if not token:
         return None
-    
+
     credentials_exception = HTTPException(
         status_code=401,
         detail="Could not validate credentials",
@@ -305,7 +308,8 @@ def verify_jwt_token(token: str = Depends(oauth2_scheme)):
         return {"username": username, "role": role}
     except JWTError:
         raise credentials_exception
-    
+
+
 def verify_credentials_or_token(
     api_key: HTTPBasicCredentials = Depends(security),
     token: str = Depends(oauth2_scheme),
@@ -325,6 +329,7 @@ def verify_credentials_or_token(
             detail="No credentials provided"
         )
 
+
 @app.post("/token")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = validate_user_password(form_data.username, form_data.password)
@@ -332,7 +337,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         raise HTTPException(
             status_code=401, detail="Incorrect username or password"
         )
-    
+
     # Create JWT token with user details
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
@@ -345,7 +350,8 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 
 @app.post('/password/verify')
-def verify_password(body: VerifyPasswordInfo):#, user_properties: dict = Depends(verify_credentials_or_token)):
+# , user_properties: dict = Depends(verify_credentials_or_token)):
+def verify_password(body: VerifyPasswordInfo):
     """
     Verify a password
 
@@ -357,10 +363,10 @@ def verify_password(body: VerifyPasswordInfo):#, user_properties: dict = Depends
         The user's password
     """
     # if user_properties['role'] not in ['admin', 'system']:
-        # raise HTTPException(
-            # 403,
-            # 'User does not have permission'
-        # )
+    # raise HTTPException(
+    # 403,
+    # 'User does not have permission'
+    # )
     try:
         role = validate_user_password(body.username, body.password)
         return role
@@ -661,7 +667,8 @@ def issue_new_password(username, new_password: str = Body(embed=True), user_prop
 
 
 @app.get('/users/role/{username}')
-def get_user_role(username: str):#, user_properties: dict = Depends(verify_credentials_or_token)):
+# , user_properties: dict = Depends(verify_credentials_or_token)):
+def get_user_role(username: str):
     """
     Get a user's role
 
@@ -671,10 +678,10 @@ def get_user_role(username: str):#, user_properties: dict = Depends(verify_crede
         The username of the user
     """
     # if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
-        # raise HTTPException(
-            # 403,
-            # 'User does not have permissions'
-        # )
+    # raise HTTPException(
+    # 403,
+    # 'User does not have permissions'
+    # )
 
     try:
         return fget_user_role(username)
@@ -849,7 +856,8 @@ def download_file(body: DataDownloadRequest, user_properties: dict = Depends(ver
             400,
             f'The following error occurred: {str(e)}'
         )
-    
+
+
 @app.post('/data/list')
 def list_files(body: DataListRequest, user_properties: dict = Depends(verify_credentials_or_token)):
     """
@@ -871,7 +879,7 @@ def list_files(body: DataListRequest, user_properties: dict = Depends(verify_cre
             403,
             'User does not have permissions'
         )
-    
+
     try:
         return list_fs_directory(body.directory)
     except Exception as e:

@@ -5,6 +5,7 @@ from typing import Any
 import requests
 import base64
 
+
 def _upload_file(
     url: str,
     creds: dict,
@@ -55,6 +56,7 @@ def _upload_file(
         raise MLILException(str(resp.json()))
     return resp
 
+
 def _download_file(
     url: str,
     creds: dict,
@@ -93,6 +95,7 @@ def _download_file(
         raise MLILException(str(resp.json()))
     return resp
 
+
 def _get_variable(
     url: str,
     creds: dict,
@@ -118,7 +121,7 @@ def _get_variable(
 
     json_data = {
         'variable_name': variable_name,
-        'username' : creds['username']
+        'username': creds['username']
     }
 
     with requests.Session() as sess:
@@ -131,6 +134,7 @@ def _get_variable(
     if not resp.ok:
         raise MLILException(str(resp.json()))
     return resp
+
 
 def _list_variables(
     url: str,
@@ -153,7 +157,7 @@ def _list_variables(
     url = f"{url}/{LIST_VARIABLES}"
 
     json_data = {
-        'username' : creds['username']
+        'username': creds['username']
     }
 
     with requests.Session() as sess:
@@ -166,6 +170,7 @@ def _list_variables(
     if not resp.ok:
         raise MLILException(str(resp.json()))
     return resp
+
 
 def _set_variable(
     url: str,
@@ -198,9 +203,9 @@ def _set_variable(
 
     json_data = {
         'variable_name': variable_name,
-        'value' : value,
+        'value': value,
         'overwrite': overwrite,
-        'username' : creds['username']
+        'username': creds['username']
     }
 
     with requests.Session() as sess:
@@ -213,6 +218,7 @@ def _set_variable(
     if not resp.ok:
         raise MLILException(str(resp.json()))
     return resp
+
 
 def _delete_variable(
     url: str,
@@ -239,7 +245,7 @@ def _delete_variable(
 
     json_data = {
         'variable_name': variable_name,
-        'username' : creds['username']
+        'username': creds['username']
     }
 
     with requests.Session() as sess:

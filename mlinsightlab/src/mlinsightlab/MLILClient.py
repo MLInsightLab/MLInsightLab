@@ -862,6 +862,7 @@ class MLILClient:
     ########################## Data Operations ################################
     ###########################################################################
     """
+
     def upload_file(
         self,
         file_path: str,
@@ -909,8 +910,8 @@ class MLILClient:
                 print(
                     f'Something went wrong, request returned a satus code {resp.status_code}')
 
-        return resp.json()    
-    
+        return resp.json()
+
     def download_file(
         self,
         file_name: str,
@@ -949,7 +950,7 @@ class MLILClient:
                 print(
                     f'Something went wrong, request returned a satus code {resp.status_code}')
 
-        return resp.json()  
+        return resp.json()
 
     def get_variable(
         self,
@@ -991,7 +992,7 @@ class MLILClient:
                 print(
                     f'Something went wrong, request returned a satus code {resp.status_code}')
 
-        return resp.json()  
+        return resp.json()
 
     def list_variables(
         self,
