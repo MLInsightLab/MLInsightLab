@@ -27,11 +27,13 @@ This project is a comprehensive Docker Compose setup for MLInsightLab. It integr
 
 1. **JupyterHub**:
    - Interactive, multi-user JupyterLab environment.
-   - Automatically integrated with the other services in this platform.
+   - Automatically integrated with the other services in this platform (particularly MLFlow and Dask).
 
 2. **MLFlow**:
    - Experiment tracking and machine learning model registry.
    - Stores experiment artifacts and metadata for reproducibility and model management.
+   - Enables models to be easily served to the API hub.
+   - All users with the role of admin or data scientist have unilateral access to the MLFlow instance, enabling easy collaboration amongst the entire team.
 
 3. **Dask**:
    - Python-native distributed computing framework for parallel computing.
@@ -57,6 +59,11 @@ This project is a comprehensive Docker Compose setup for MLInsightLab. It integr
 8. **Variable Store**:
    - Store secure variables and other values to the Variable Store.
    - Complete with API access.
+
+9. **mlinsightlab Python SDK**
+   - Python SDK for interaction with the platform
+   - Enables users to perform actions within the platform using a Python-native approach.
+   - Installable via PyPi via the command `pip install mlinsightlab` or directly via source code install via this repository.
 
 ## Quick Start Guide
 
@@ -118,7 +125,7 @@ When deploying the Lab to a production (i.e. non-testing) environment, it is rec
    - This is the default password for the initial admin for the platform. It is recommended to alter this to a preferred, secure value either when the platform is stood up initially or after the platform is created.
    - Default Value: `password`
 - MODEL_SERVER_ADMIN_KEY
-   - This is the default API key for the initial admin for the platform. It is recommended to alter this to a preferred, secure value either when the platform is stood up initially or after the platform is created.
+   - This is the default API key for the initial admin for the platform. It is recommended to alter this to a preferred, secure value either when the platform is stood up initially or after the platform is created. To change the value after the platform has been stood up, you will need to call the API directly or use the Python client to do so to issue a new API key.
    - Default Value: `mlil-admin-key`
 - MODEL_SERVER_SYSTEM_KEY
    - This is the default API key used by the platform itself to allow services to communicate between one another. It is recommended that this be altered to a secure value when the platform is stood up initially. **NOTE THAT THIS VALUE CANNOT BE CHANGED AFTER THE PLATFORM IS STOOD UP**.

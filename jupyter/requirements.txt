@@ -24,3 +24,6 @@ accelerate
 tensorflow
 tf-keras
 torch
+
+# MLIL Python SDK
+mlinsightlab

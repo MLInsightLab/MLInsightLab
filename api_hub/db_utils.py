@@ -8,10 +8,6 @@ import os
 DB_DIRECTORY = '/database'
 DB_FILE = os.path.join(DB_DIRECTORY, 'permissions.db')
 
-# System username and key
-# SYSTEM_USERNAME = os.environ['SYSTEM_USERNAME']
-# SYSTEM_KEY = os.environ['SYSTEM_KEY']
-
 # Admin username, password, and key
 ADMIN_USERNAME = os.environ['ADMIN_USERNAME']
 ADMIN_PASSWORD = os.environ['ADMIN_PASSWORD']
@@ -67,7 +63,7 @@ def generate_password():
 
 
 def validate_role(role):
-    if role not in ['admin', 'data_scientist', 'user', 'system']:
+    if role not in ['admin', 'data_scientist', 'user']:
         raise ValueError('Not a valid role')
     return True
 
@@ -113,10 +109,6 @@ def validate_user_key(username, key):
 
     If unsuccessful, raises an appropriate Exception
     """
-
-    # Check for the system user
-    # if username == SYSTEM_USERNAME and key == SYSTEM_KEY:
-    #    return 'system'
 
     # Query the database for the user's information
     con = sqlite3.connect(DB_FILE)

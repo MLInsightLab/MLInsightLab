@@ -362,11 +362,7 @@ def verify_password(body: VerifyPasswordInfo):
     password : str
         The user's password
     """
-    # if user_properties['role'] not in ['admin', 'system']:
-    # raise HTTPException(
-    # 403,
-    # 'User does not have permission'
-    # )
+
     try:
         role = validate_user_password(body.username, body.password)
         return role
@@ -401,7 +397,7 @@ def load_model(model_name: str, model_flavor: str, model_version_or_alias: str |
         Additional parameters to load the model
     """
 
-    if user_properties['role'] not in ['admin', 'data_scientist', 'system']:
+    if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(
             403,
             'User does not have permission'
@@ -476,7 +472,7 @@ def unload_model(model_name: str, model_flavor: str, model_version_or_alias: str
         The version or alias of the model
     """
 
-    if user_properties['role'] not in ['admin', 'data_scientist', 'system']:
+    if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(
             403,
             'User does not have permission'
@@ -560,7 +556,7 @@ def create_user(user_info: UserInfo, user_properties: dict = Depends(verify_cred
     user_info : UserInfo
         Properties of the user
     """
-    if user_properties['role'] not in ['admin', 'system']:
+    if user_properties['role'] != 'admin':
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -589,7 +585,7 @@ def delete_user(username, user_properties: dict = Depends(verify_credentials_or_
     username : str
         The username of the user to delete
     """
-    if user_properties['role'] not in ['admin', 'system']:
+    if user_properties['role'] != 'admin':
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -615,7 +611,7 @@ def issue_new_api_key(username, user_properties: dict = Depends(verify_credentia
     username : str
         The username of the user
     """
-    if user_properties['role'] not in ['admin', 'system'] or username != user_properties['username']:
+    if user_properties['role'] != 'admin' or username != user_properties['username']:
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -646,7 +642,7 @@ def issue_new_password(username, new_password: str = Body(embed=True), user_prop
     new_password : str
         The new password for the user
     """
-    if user_properties['role'] not in ['admin', 'system'] or username != user_properties['username']:
+    if user_properties['role'] != 'admin' or username != user_properties['username']:
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -667,7 +663,6 @@ def issue_new_password(username, new_password: str = Body(embed=True), user_prop
 
 
 @app.get('/users/role/{username}')
-# , user_properties: dict = Depends(verify_credentials_or_token)):
 def get_user_role(username: str):
     """
     Get a user's role
@@ -677,12 +672,6 @@ def get_user_role(username: str):
     username : str
         The username of the user
     """
-    # if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
-    # raise HTTPException(
-    # 403,
-    # 'User does not have permissions'
-    # )
-
     try:
         return fget_user_role(username)
     except Exception:
@@ -703,7 +692,7 @@ def update_user_role(username: str, new_role=Body(embed=True), user_properties: 
     new_role : str
         The new role for the user
     """
-    if user_properties['role'] not in ['admin', 'system']:
+    if user_properties['role'] != 'admin':
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -725,7 +714,7 @@ def list_users(user_properties: dict = Depends(verify_credentials_or_token)):
     """
     List all users
     """
-    if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
+    if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -742,7 +731,7 @@ def reset(user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Reset the API, redeploying all models
     """
-    if user_properties['role'] not in ['admin', 'system']:
+    if user_properties['role'] != 'admin':
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -760,7 +749,7 @@ def get_usage(user_properties: dict = Depends(verify_credentials_or_token)):
     Get system resource usage, in terms of free CPU and GPU memory (if GPU-enabled)
     """
 
-    if user_properties['role'] not in ['admin', 'system']:
+    if user_properties['role'] != 'admin':
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -804,7 +793,7 @@ def upload_file(body: DataUploadRequest, user_properties: dict = Depends(verify_
     filename : str
         The full path to the file on disk, in the data directory
     """
-    if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
+    if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -839,7 +828,7 @@ def download_file(body: DataDownloadRequest, user_properties: dict = Depends(ver
     content : str
         The content of the file, as a string
     """
-    if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
+    if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -874,7 +863,7 @@ def list_files(body: DataListRequest, user_properties: dict = Depends(verify_cre
         The files and directories within the directory
     """
 
-    if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
+    if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -898,7 +887,7 @@ def get_variable(body: VariableDownloadRequest, user_properties: dict = Depends(
     ----------
     body : VariableDownloadRequest
     """
-    if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
+    if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -907,10 +896,10 @@ def get_variable(body: VariableDownloadRequest, user_properties: dict = Depends(
     if body.username is None:
         body.username = user_properties['username']
 
-    if user_properties['role'] != 'system' and body.username != user_properties['username']:
+    if user_properties['role'] != 'admin' and body.username != user_properties['username']:
         raise HTTPException(
             403,
-            'Non-system user cannot see variables of another user'
+            'Non-admin user cannot see variables of another user'
         )
 
     try:
@@ -927,7 +916,7 @@ def list_variables(body: VariableListRequest, user_properties: dict = Depends(ve
     """
     List Variables
     """
-    if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
+    if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -936,10 +925,10 @@ def list_variables(body: VariableListRequest, user_properties: dict = Depends(ve
     if body.username is None:
         body.username = user_properties['username']
 
-    if user_properties['role'] != 'system' and body.username != user_properties['username']:
+    if user_properties['role'] != 'admin' and body.username != user_properties['username']:
         raise HTTPException(
             403,
-            'Non-system user cannot list variables of another user'
+            'Non-admin user cannot list variables of another user'
         )
 
     # Try to return list of variable names
@@ -962,7 +951,7 @@ def set_variable(body: VariableSetRequest, user_properties: dict = Depends(verif
     variable_properties : VariableSetRequest
         JSON payload with the value for the variable and whether to overwrite the variable if it is already set
     """
-    if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
+    if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -971,10 +960,10 @@ def set_variable(body: VariableSetRequest, user_properties: dict = Depends(verif
     if body.username is None:
         body.username = user_properties['username']
 
-    if user_properties['role'] != 'system' and body.username != user_properties['username']:
+    if user_properties['role'] != 'admin' and body.username != user_properties['username']:
         raise HTTPException(
             403,
-            'Non-system user cannot set values for another user'
+            'Non-admin user cannot set values for another user'
         )
 
     # Check if the variable exists and overwrite is False
@@ -1014,7 +1003,7 @@ def delete_variable(body: VariableDeleteRequest, user_properties: dict = Depends
     """
     Delete a variable
     """
-    if user_properties['role'] not in ['admin', 'system', 'data_scientist']:
+    if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(
             403,
             'User does not have permissions'
@@ -1023,10 +1012,10 @@ def delete_variable(body: VariableDeleteRequest, user_properties: dict = Depends
     if body.username is None:
         body.username = user_properties['username']
 
-    if user_properties['role'] != 'system' and body.username != user_properties['username']:
+    if user_properties['role'] != 'admin' and body.username != user_properties['username']:
         raise HTTPException(
             403,
-            'Non-system user cannot delete other user variables'
+            'Non-admin user cannot delete other user variables'
         )
 
     # Try to delete the specified variable for the user and rewrite the variable store
