@@ -127,10 +127,6 @@ When deploying the Lab to a production (i.e. non-testing) environment, it is rec
 - MODEL_SERVER_ADMIN_KEY
    - This is the default API key for the initial admin for the platform. It is recommended to alter this to a preferred, secure value either when the platform is stood up initially or after the platform is created. To change the value after the platform has been stood up, you will need to call the API directly or use the Python client to do so to issue a new API key.
    - Default Value: `mlil-admin-key`
-- MODEL_SERVER_SYSTEM_KEY
-   - This is the default API key used by the platform itself to allow services to communicate between one another. It is recommended that this be altered to a secure value when the platform is stood up initially. **NOTE THAT THIS VALUE CANNOT BE CHANGED AFTER THE PLATFORM IS STOOD UP**.
-   - **We are working on removing this value from the platform in its entirety, improving the security posture of the platform**
-   - Default Value: `mlil-system-key`
 
 ## Logs and Debugging
 
