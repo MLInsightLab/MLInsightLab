@@ -1,5 +1,7 @@
 # MLInsightLab
 
+**The data science platform built *by* data scientists *for* data scientists**
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -10,7 +12,6 @@
   - [Stopping the Services](#stopping-the-services)
 - [Configuration](#configuration)
 - [Logs and Debugging](#logs-and-debugging)
-- [Usage Examples](#usage-examples)
 - [Security Considerations](#security-considerations)
 - [Contributing](#contributing)
 - [License](#license)
