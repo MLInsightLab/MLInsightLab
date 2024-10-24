@@ -219,8 +219,8 @@
                             const selectElement = document.getElementById('delete-username');
                             users.forEach(user => {
                                 const option = document.createElement('option');
-                                option.value = user.username;
-                                option.textContent = user.username;
+                                option.value = user[0];
+                                option.textContent = user[0];
                                 selectElement.appendChild(option);
                             });
                         } else {
