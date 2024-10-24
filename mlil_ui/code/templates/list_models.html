@@ -50,23 +50,6 @@
             background-color: #f4f4f4;
         }
 
-        .content-wrapper {
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 1000px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            text-align: center;
-        }
-
-        .logo {
-            width: 120px;
-            margin-bottom: 20px;
-            border-radius: 50%;
-            border: 2px solid #4a90e2;
-        }
 
         h2 {
             color: #4a90e2;
@@ -180,9 +163,6 @@
         }
 
         @media (max-width: 600px) {
-            .content-wrapper {
-                padding: 20px;
-            }
 
             h2 {
                 font-size: 28px;
@@ -216,31 +196,28 @@
     </div>
 
     <div class="main-content">
-        <div class="content-wrapper">
-            <img src="/static/logo.png" alt="Logo" class="logo">
-            <h2>Deployed Models</h2>
+        <h2>Deployed Models</h2>
 
-            <!-- Search Filter -->
-            <div class="search-container">
-                <input type="text" id="search-box" placeholder="Search models...">
-            </div>
-
-            <table id="models-table">
-                <tr>
-                    <th onclick="sortTable('model_name')">Model Name</th>
-                    <th onclick="sortTable('model_flavor')">Flavor</th>
-                    <th onclick="sortTable('model_version_or_alias')">Version/Alias</th>
-                    <th>Actions</th>
-                </tr>
-            </table>
-
-            <p id="error-message" class="no-models"></p>
-            <p id="success-message"></p>
-
-            <!-- Restart Server Button -->
-            <button class="reset-button" onclick="resetDeployment()">Restart Deployment Server</button>
-
+        <!-- Search Filter -->
+        <div class="search-container">
+            <input type="text" id="search-box" placeholder="Search models...">
         </div>
+
+        <table id="models-table">
+            <tr>
+                <th onclick="sortTable('model_name')">Model Name</th>
+                <th onclick="sortTable('model_flavor')">Flavor</th>
+                <th onclick="sortTable('model_version_or_alias')">Version/Alias</th>
+                <th>Actions</th>
+            </tr>
+        </table>
+
+        <p id="error-message" class="no-models"></p>
+        <p id="success-message"></p>
+
+        <!-- Restart Server Button -->
+        <button class="reset-button" onclick="resetDeployment()">Restart Deployment Server</button>
+
     </div>
 
     <script>

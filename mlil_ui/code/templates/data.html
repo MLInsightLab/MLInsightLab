@@ -113,32 +113,30 @@
 </div>
 
 <div class="main-content">
-    <div class="container">
-        <h2>Data Store Management</h2>
+    <h2>Data Store Management</h2>
 
-        <!-- Upload Form -->
-        <div class="form-container">
-            <h3>Upload File</h3>
-            <input type="file" id="fileInput" accept=".txt,.csv,.json">
-            <button onclick="uploadFile()">Upload</button>
-        </div>
-
-        <!-- File Listing -->
-        <table id="filesTable">
-            <thead>
-                <tr>
-                    <th>Filename</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="filesList">
-                <tr>
-                    <td colspan="2">No files found.</td>
-                </tr>
-            </tbody>
-        </table>
-
+    <!-- Upload Form -->
+    <div class="form-container">
+        <h3>Upload File</h3>
+        <input type="file" id="fileInput" accept=".txt,.csv,.json">
+        <button onclick="uploadFile()">Upload</button>
     </div>
+
+    <!-- File Listing -->
+    <table id="filesTable">
+        <thead>
+            <tr>
+                <th>Filename</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="filesList">
+            <tr>
+                <td colspan="2">No files found.</td>
+            </tr>
+        </tbody>
+    </table>
+
 </div>
 
 <script>
