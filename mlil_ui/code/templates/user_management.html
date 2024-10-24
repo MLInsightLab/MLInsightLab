@@ -42,21 +42,8 @@
 
         .main-content {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
+            padding: 40px; /* Adjusted padding */
             overflow-y: auto;
-        }
-
-        .container {
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-            text-align: center;
         }
 
         h2 {
@@ -71,7 +58,8 @@
         }
 
         input[type="text"],
-        input[type="password"] {
+        input[type="password"],
+        select {
             display: block;
             width: 100%;
             padding: 10px;
@@ -138,67 +126,61 @@
     </div>
 
     <div class="main-content">
-        <div class="container">
-            <h2>User Management</h2>
+        <h2>User Management</h2>
 
-            <!-- User Section -->
-            <div class="form-container">
-                <h3>Update Password</h3>
-                <div class="form-group">
-                    <label for="new-password">New Password:</label>
-                    <input type="password" id="new-password" placeholder="Enter new password">
-                </div>
-                <div class="form-group">
-                    <button onclick="updatePassword()">Update Password</button>
-                </div>
+        <!-- User Section -->
+        <div class="form-container">
+            <h3>Update Password</h3>
+            <div class="form-group">
+                <label for="new-password">New Password:</label>
+                <input type="password" id="new-password" placeholder="Enter new password">
             </div>
-
-            <!--<div class="form-container">
-                <h3>API Key</h3>
-                <div class="form-group">
-                    <button onclick="generateApiKey()">Generate New API Key</button>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="api-key-display" placeholder="API key will be displayed here" readonly>
-                </div>
-            </div>-->
-
-            <!-- Admin Section (Only visible to admins) -->
-            <div class="admin-section">
-                <h3>Admin Controls</h3>
-
-                <h4>Create New User</h4>
-                <div class="form-group">
-                    <label for="new-username">Username:</label>
-                    <input type="text" id="new-username" placeholder="Enter username">
-                </div>
-                <div class="form-group">
-                    <label for="new-user-password">Password:</label>
-                    <input type="password" id="new-user-password" placeholder="Enter password">
-                </div>
-                <div class="form-group">
-                    <label for="new-user-role">Role:</label>
-                    <select id="new-user-role">
-                        <option value="admin">Admin</option>
-                        <option value="data_scientist">Data Scientist</option>
-                        <option value="user">User</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <button onclick="createUser()">Create User</button>
-                </div>
-
-                <h4>Delete User</h4>
-                <div class="form-group">
-                    <label for="delete-username">Username:</label>
-                    <input type="text" id="delete-username" placeholder="Enter username to delete">
-                </div>
-                <div class="form-group">
-                    <button onclick="deleteUser()">Delete User</button>
-                </div>
+            <div class="form-group">
+                <label for="confirm-password">Confirm New Password:</label>
+                <input type="password" id="confirm-password" placeholder="Confirm new password">
             </div>
-
+            <div class="form-group">
+                <button onclick="updatePassword()">Update Password</button>
+            </div>
         </div>
+
+        <!-- Admin Section (Only visible to admins) -->
+        <div class="admin-section">
+            <h3>Admin Controls</h3>
+
+            <h4>Create New User</h4>
+            <div class="form-group">
+                <label for="new-username">Username:</label>
+                <input type="text" id="new-username" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label for="new-user-password">Password:</label>
+                <input type="password" id="new-user-password" placeholder="Enter password">
+            </div>
+            <div class="form-group">
+                <label for="new-user-role">Role:</label>
+                <select id="new-user-role">
+                    <option value="admin">Admin</option>
+                    <option value="data_scientist">Data Scientist</option>
+                    <option value="user">User</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button onclick="createUser()">Create User</button>
+            </div>
+
+            <h4>Delete User</h4>
+            <div class="form-group">
+                <label for="delete-username">Select User to Delete:</label>
+                <select id="delete-username">
+                    <!-- Users will be dynamically populated here -->
+                </select>
+            </div>
+            <div class="form-group">
+                <button onclick="deleteUser()">Delete User</button>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -212,20 +194,41 @@
             }
 
             try {
-                const response = await fetch(`/api/users/role/${username}`, {
+                const roleResponse = await fetch(`/api/users/role/${username}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data === 'admin') {
+                if (roleResponse.ok) {
+                    const roleData = await roleResponse.json();
+                    if (roleData === 'admin') {
                         document.querySelector('.admin-section').style.display = 'block'; // Show admin controls
+
+                        // Fetch and populate users in the dropdown list
+                        const usersResponse = await fetch('/api/users/list', {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                            }
+                        });
+
+                        if (usersResponse.ok) {
+                            const users = await usersResponse.json();
+                            const selectElement = document.getElementById('delete-username');
+                            users.forEach(user => {
+                                const option = document.createElement('option');
+                                option.value = user.username;
+                                option.textContent = user.username;
+                                selectElement.appendChild(option);
+                            });
+                        } else {
+                            console.error("Error fetching users list.");
+                        }
                     }
                 } else {
-                    console.error("Error fetching user role: ", response.status, response.statusText);
+                    console.error("Error fetching user role: ", roleResponse.status, roleResponse.statusText);
                 }
             } catch (error) {
                 console.error("Fetch error: ", error);
@@ -234,11 +237,17 @@
 
         async function updatePassword() {
             const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
             const token = localStorage.getItem('token');
             const username = localStorage.getItem('username');
 
-            if (!newPassword) {
-                alert("Please enter a new password.");
+            if (!newPassword || !confirmPassword) {
+                alert("Please fill in both password fields.");
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert("Passwords do not match!");
                 return;
             }
 
@@ -262,30 +271,8 @@
             }
 
             document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
         }
-
-        /*async function generateApiKey() {
-            const token = localStorage.getItem('token');
-            const username = localStorage.getItem('username');
-            try {
-                const response = await fetch(`/api/users/api_key/issue/${username}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({})
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('api-key-display').value = data;
-                } else {
-                    alert("Error generating API key.");
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }*/
 
         async function createUser() {
             const username = document.getElementById('new-username').value;
@@ -325,7 +312,7 @@
             const token = localStorage.getItem('token');
 
             if (!username) {
-                alert("Please enter a username to delete.");
+                alert("Please select a user to delete.");
                 return;
             }
 
@@ -351,8 +338,6 @@
             } catch (error) {
                 console.error('Error:', error);
             }
-
-            document.getElementById('delete-username').value = '';
         }
     </script>
 </body>
