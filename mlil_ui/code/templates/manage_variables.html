@@ -46,17 +46,8 @@
             flex-direction: column;
             padding: 20px;
             overflow-y: auto;
-        }
-
-        .container {
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 16px;
+            background-color: #fff;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-            text-align: center;
         }
 
         h2 {
@@ -64,17 +55,20 @@
             font-size: 34px;
             margin-bottom: 25px;
             font-weight: bold;
+            text-align: center;
         }
 
         .logo {
             width: 120px;
-            margin-bottom: 20px;
+            margin: 0 auto 20px;
             border-radius: 50%;
             border: 2px solid #4a90e2;
+            display: block;
         }
 
         .form-container {
             margin-bottom: 30px;
+            text-align: center;
         }
 
         input[type="text"] {
@@ -85,6 +79,9 @@
             border-radius: 8px;
             border: 1px solid #ccc;
             font-size: 16px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         button {
@@ -124,7 +121,6 @@
             background-color: #fff;
         }
 
-
         .hidden-value {
             margin-right: 10px;
         }
@@ -154,31 +150,28 @@
     </div>
 
     <div class="main-content">
-        <div class="container">
-            <img src="/static/logo.png" alt="Logo" class="logo">
-            <h2>Manage User Variables</h2>
+        <img src="/static/logo.png" alt="Logo" class="logo">
+        <h2>Manage User Variables</h2>
 
-            <!-- Form to Set New Variable -->
-            <div class="form-container">
-                <h3>Set Variable</h3>
-                <input type="text" id="newVariableName" placeholder="Variable Name" required>
-                <input type="text" id="newVariableValue" placeholder="Variable Value" required>
-                <button class="button" onclick="setVariable()">Set Variable</button>
-            </div>
-
-            <!-- Table to display existing variables -->
-            <table id="variablesTable">
-                <tr>
-                    <th>Variable Name</th>
-                    <th>Variable Value</th>
-                    <th>Actions</th>
-                </tr>
-                <tr id="no-variables-row" style="display: none;">
-                    <td colspan="3">No variables found.</td>
-                </tr>
-            </table>
-
+        <!-- Form to Set New Variable -->
+        <div class="form-container">
+            <h3>Set Variable</h3>
+            <input type="text" id="newVariableName" placeholder="Variable Name" required>
+            <input type="text" id="newVariableValue" placeholder="Variable Value" required>
+            <button class="button" onclick="setVariable()">Set Variable</button>
         </div>
+
+        <!-- Table to display existing variables -->
+        <table id="variablesTable">
+            <tr>
+                <th>Variable Name</th>
+                <th>Variable Value</th>
+                <th>Actions</th>
+            </tr>
+            <tr id="no-variables-row" style="display: none;">
+                <td colspan="3">No variables found.</td>
+            </tr>
+        </table>
     </div>
 
     <script>
@@ -368,8 +361,5 @@
 
         window.onload = fetchVariables;
     </script>
-        </div>
-    </div>
-
 </body>
 </html>
