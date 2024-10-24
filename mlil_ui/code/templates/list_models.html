@@ -45,18 +45,20 @@
             display: flex;
             flex-direction: column;
             padding: 20px;
+            align-items: center; /* Center content horizontally */
+            justify-content: flex-start; /* Start content at the top */
+            background-color: #f4f4f4;
         }
 
-        .container {
+        .content-wrapper {
             background-color: #ffffff;
             padding: 40px;
             border-radius: 16px;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 1000px;
-            text-align: center;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
-            margin: 0 auto;
+            text-align: center;
         }
 
         .logo {
@@ -158,9 +160,6 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
             margin-top: 20px;
-        }
-
-        .reset-button {
             background-color: #c9302c;
         }
 
@@ -181,7 +180,7 @@
         }
 
         @media (max-width: 600px) {
-            .container {
+            .content-wrapper {
                 padding: 20px;
             }
 
@@ -217,7 +216,7 @@
     </div>
 
     <div class="main-content">
-        <div class="container">
+        <div class="content-wrapper">
             <img src="/static/logo.png" alt="Logo" class="logo">
             <h2>Deployed Models</h2>
 
@@ -231,7 +230,7 @@
                     <th onclick="sortTable('model_name')">Model Name</th>
                     <th onclick="sortTable('model_flavor')">Flavor</th>
                     <th onclick="sortTable('model_version_or_alias')">Version/Alias</th>
-                    <th>Actions</th> <!-- Add column for actions -->
+                    <th>Actions</th>
                 </tr>
             </table>
 
