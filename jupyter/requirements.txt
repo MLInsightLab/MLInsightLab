@@ -27,3 +27,8 @@ torch
 
 # MLIL Python SDK
 mlinsightlab
+
+# JupyterLab Extensions
+jupyterlab_iframe
+lckr_jupyterlab_variableinspector
+jupyter-resource-usage

@@ -13,4 +13,4 @@ COPY nginx.ssl.conf /etc/nginx/nginx.ssl.conf
 # Copy the password setup file to the container
 COPY setup.sh /code/setup.sh
 
-EXPOSE 80
+EXPOSE 80 443
