@@ -281,7 +281,7 @@ def upload_data_to_fs(
     # Create any intermediate directories if needed
     directory = os.path.dirname(filename)
     if not os.path.exists(directory):
-        os.makedirs(directory)
+        os.makedirs(directory, mode = 771)
 
     # Determine the content of the file
     file_content = base64.b64decode(

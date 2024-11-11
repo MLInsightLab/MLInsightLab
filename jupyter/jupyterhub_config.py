@@ -1423,6 +1423,7 @@ def pre_spawn_hook(spawner):
         # Add user if their role is admin or data scientist
         if role in ['admin', 'data_scientist']:
             check_call(['useradd', '-ms', '/bin/bash', username.lower()])
+            check_call(['usermod', '-a', '-G', 'mlil', username.lower()])
 
         # Add user to sudo group if thir role is admin
         if role == 'admin':

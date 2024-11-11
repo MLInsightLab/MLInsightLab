@@ -1,0 +1,256 @@
+/* General Body and Layout Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    background-color: #357ABD;
+    padding: 20px;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    margin-bottom: 20px;
+    font-size: 18px;
+    display: block;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.sidebar a:hover {
+    background-color: #4a90e2;
+}
+
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.content-header {
+    text-align: center;
+}
+
+/* General Headings */
+h2 {
+    color: #4a90e2;
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+
+/* Container for Centered Content */
+.container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+/* Forms and Buttons */
+.form-container {
+    margin-bottom: 30px;
+}
+
+input[type="file"], input[type="text"], input[type="password"], select {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #357ABD;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #4a90e2;
+}
+
+/* Additional Button Variants */
+.action-button {
+    background-color: #d9534f;
+}
+
+.action-button:hover {
+    background-color: #c9302c;
+}
+
+.reset-button {
+    background-color: #c9302c;
+    padding: 12px 24px;
+    font-size: 16px;
+}
+
+.reset-button:hover {
+    background-color: #a5282a;
+}
+
+.delete-button {
+    background-color: #c9302c;
+}
+
+.delete-button:hover {
+    background-color: #a5282a;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+}
+
+th {
+    background-color: #357ABD;
+    color: white;
+}
+
+td {
+    background-color: #fff;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Tile/Grid Layouts (Dashboard Specific) */
+.dashboard-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.dashboard-tile {
+    background-color: #ffffff;
+    padding: 20px;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-tile:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-tile i {
+    font-size: 30px;
+    margin-bottom: 10px;
+    color: #357ABD;
+}
+
+.dashboard-tile p {
+    font-size: 18px;
+    color: #333;
+}
+
+/* Login Page Specific Styles */
+.login-container {
+    background-color: #ffffff;
+    padding: 50px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    width: 50vw;
+    max-width: 500px;
+    text-align: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-container h2 {
+    color: #4a90e2;
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+}
+
+.warning-message, .no-models, #error-message {
+    color: #d9534f;
+    font-size: 18px;
+}
+
+#success-message {
+    color: #5cb85c;
+    font-size: 18px;
+}
+
+/* Animations for Login Page */
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 150px;
+    }
+    .dashboard-tiles {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .login-container {
+        width: 75vw;
+    }
+}
+
+@media (max-width: 600px) {
+    h2 {
+        font-size: 28px;
+    }
+    table, th, td {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 400px) {
+    .login-container {
+        width: 90vw;
+        padding: 30px;
+    }
+    input[type="text"], input[type="password"], input[type="submit"] {
+        width: 100%;
+    }
+}

@@ -43,6 +43,9 @@ COPY tutorials/ /notebooks
 COPY start_jupyter.sh /code/start_jupyter.sh
 RUN chmod +x /code/start_jupyter.sh
 
+# Add group mlil
+RUN groupadd -G 1004 mlil
+
 # Set the working directory
 WORKDIR /home
 
