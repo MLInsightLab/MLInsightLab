@@ -12,7 +12,7 @@ import json
 import os
 
 from db_utils import setup_database, validate_user_key, validate_user_password, fcreate_user, fdelete_user, fissue_new_api_key, fissue_new_password, fget_user_role, fupdate_user_role, flist_users, SERVED_MODEL_CACHE_FILE
-from utils import ALLOWED_MODEL_FLAVORS, PYFUNC_FLAVOR, SKLEARN_FLAVOR, TRANSFORMERS_FLAVOR, HUGGINGFACE_FLAVOR, VARIABLE_STORE_FILE, fload_model, load_models_from_cache, predict_model, upload_data_to_fs, download_data_from_fs, PredictRequest, LoadRequest, UserInfo, DataUploadRequest, DataDownloadRequest, VariableSetRequest, VariableDownloadRequest, VariableListRequest, VariableDeleteRequest, VerifyPasswordInfo, list_fs_directory, DataListRequest
+from utils import ALLOWED_MODEL_FLAVORS, PYFUNC_FLAVOR, SKLEARN_FLAVOR, TRANSFORMERS_FLAVOR, HUGGINGFACE_FLAVOR, VARIABLE_STORE_FILE, fload_model, load_models_from_cache, predict_model, upload_data_to_fs, download_data_from_fs, PredictRequest, LoadRequest, UserInfo, DataUploadRequest, DataDownloadRequest, VariableSetRequest, VariableDownloadRequest, VariableDeleteRequest, VerifyPasswordInfo, list_fs_directory, DataListRequest
 
 # Set up variables for JWT authentication
 SECRET_KEY = ''.join([secrets.choice(string.ascii_letters) for _ in range(32)])
@@ -893,17 +893,10 @@ def get_variable(body: VariableDownloadRequest, user_properties: dict = Depends(
             'User does not have permissions'
         )
 
-    if body.username is None:
-        body.username = user_properties['username']
-
-    if user_properties['role'] != 'admin' and body.username != user_properties['username']:
-        raise HTTPException(
-            403,
-            'Non-admin user cannot see variables of another user'
-        )
+    username = user_properties['username']
 
     try:
-        return variable_store[body.username][body.variable_name]
+        return variable_store[username][body.variable_name]
     except Exception:
         raise HTTPException(
             404,
@@ -911,8 +904,8 @@ def get_variable(body: VariableDownloadRequest, user_properties: dict = Depends(
         )
 
 
-@app.post('/variable-store/list')
-def list_variables(body: VariableListRequest, user_properties: dict = Depends(verify_credentials_or_token)):
+@app.get('/variable-store/list')
+def list_variables(user_properties: dict = Depends(verify_credentials_or_token)):
     """
     List Variables
     """
@@ -922,18 +915,11 @@ def list_variables(body: VariableListRequest, user_properties: dict = Depends(ve
             'User does not have permissions'
         )
 
-    if body.username is None:
-        body.username = user_properties['username']
-
-    if user_properties['role'] != 'admin' and body.username != user_properties['username']:
-        raise HTTPException(
-            403,
-            'Non-admin user cannot list variables of another user'
-        )
+    username = user_properties['username']
 
     # Try to return list of variable names
     try:
-        return list(variable_store[body.username].keys())
+        return list(variable_store[username].keys())
 
     # No variables for user, return empty list
     except Exception:
@@ -957,19 +943,12 @@ def set_variable(body: VariableSetRequest, user_properties: dict = Depends(verif
             'User does not have permissions'
         )
 
-    if body.username is None:
-        body.username = user_properties['username']
-
-    if user_properties['role'] != 'admin' and body.username != user_properties['username']:
-        raise HTTPException(
-            403,
-            'Non-admin user cannot set values for another user'
-        )
+    username = user_properties['username']
 
     # Check if the variable exists and overwrite is False
     if not body.overwrite:
         try:
-            existing_variable = variable_store[user_properties[body.username]
+            existing_variable = variable_store[user_properties[username]
                                                ][body.variable_name]
         except Exception:
             existing_variable = None
@@ -981,8 +960,8 @@ def set_variable(body: VariableSetRequest, user_properties: dict = Depends(verif
             )
 
     # Now, try to write to the variable store, but be careful about edge cases
-    if not variable_store.get(body.username):
-        variable_store[body.username] = {
+    if not variable_store.get(username):
+        variable_store[username] = {
             body.variable_name: body.value
         }
     else:
@@ -1009,18 +988,11 @@ def delete_variable(body: VariableDeleteRequest, user_properties: dict = Depends
             'User does not have permissions'
         )
 
-    if body.username is None:
-        body.username = user_properties['username']
-
-    if user_properties['role'] != 'admin' and body.username != user_properties['username']:
-        raise HTTPException(
-            403,
-            'Non-admin user cannot delete other user variables'
-        )
+    username = user_properties['username']
 
     # Try to delete the specified variable for the user and rewrite the variable store
     try:
-        del variable_store[body.username][body.variable_name]
+        del variable_store[username][body.variable_name]
         with open(VARIABLE_STORE_FILE, 'w') as f:
             json.dump(variable_store, f)
         return {

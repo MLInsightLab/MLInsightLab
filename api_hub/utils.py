@@ -394,21 +394,14 @@ class VariableSetRequest(BaseModel):
     variable_name: str
     value: str | int | float | bool | dict | list
     overwrite: bool = False
-    username: str | None = None
 
 
 class VariableDownloadRequest(BaseModel):
     variable_name: str | int | float | bool | dict | list
-    username: str | None = None
-
-
-class VariableListRequest(BaseModel):
-    username: str | None = None
 
 
 class VariableDeleteRequest(BaseModel):
     variable_name: str
-    username: str | None = None
 
 
 class VerifyPasswordInfo(BaseModel):
