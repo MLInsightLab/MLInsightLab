@@ -16,7 +16,7 @@ COPY ./main.py /code/main.py
 
 # Add group mlil and add root to that group
 RUN groupadd -g 1004 mlil
-RUN usermod -a -G mlil root
+RUN adduser root mlil
 
 # Expose necessary port
 EXPOSE 4488
