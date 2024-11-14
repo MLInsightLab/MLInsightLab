@@ -878,14 +878,15 @@ def list_files(body: DataListRequest, user_properties: dict = Depends(verify_cre
         )
 
 
-@app.post('/variable-store/get')
-def get_variable(body: VariableDownloadRequest, user_properties: dict = Depends(verify_credentials_or_token)):
+@app.get('/variable-store/get/{variable_name}')
+def get_variable(variable_name: str, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Retrieve a variable from the variable store
 
     Parameters
     ----------
-    body : VariableDownloadRequest
+    variable_name : str
+        The name of the variable
     """
     if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(
@@ -896,7 +897,7 @@ def get_variable(body: VariableDownloadRequest, user_properties: dict = Depends(
     username = user_properties['username']
 
     try:
-        return variable_store[username][body.variable_name]
+        return variable_store[username][variable_name]
     except Exception:
         raise HTTPException(
             404,
@@ -977,10 +978,15 @@ def set_variable(body: VariableSetRequest, user_properties: dict = Depends(verif
     }
 
 
-@app.post('/variable-store/delete')
-def delete_variable(body: VariableDeleteRequest, user_properties: dict = Depends(verify_credentials_or_token)):
+@app.delete('/variable-store/delete/{variable_name}')
+def delete_variable(variable_name: str, user_properties: dict = Depends(verify_credentials_or_token)):
     """
     Delete a variable
+
+    Parameters
+    ----------
+    variable_name : str
+        The name of the variable
     """
     if user_properties['role'] not in ['admin', 'data_scientist']:
         raise HTTPException(
@@ -992,7 +998,7 @@ def delete_variable(body: VariableDeleteRequest, user_properties: dict = Depends
 
     # Try to delete the specified variable for the user and rewrite the variable store
     try:
-        del variable_store[username][body.variable_name]
+        del variable_store[username][variable_name]
         with open(VARIABLE_STORE_FILE, 'w') as f:
             json.dump(variable_store, f)
         return {
