@@ -184,12 +184,11 @@
         async function fetchVariables() {
             try {
                 const response = await fetch('/api/variable-store/list', {
-                    method: 'POST',
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-                    body: JSON.stringify({ username })
+                    }
                 });
 
                 if (!response.ok) {
