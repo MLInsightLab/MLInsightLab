@@ -1,5 +1,6 @@
 from transformers import pipeline, BitsAndBytesConfig
 from db_utils import SERVED_MODEL_CACHE_FILE
+from subprocess import check_call
 from pydantic import BaseModel
 import numpy as np
 import subprocess
@@ -293,6 +294,10 @@ def upload_data_to_fs(
 
     with open(filename, 'wb', opener=opener) as f:
         f.write(file_content)
+
+    check_call(
+        ['chgrp', 'mlil', filename]
+    )
 
     return filename
 
