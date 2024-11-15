@@ -714,11 +714,6 @@ def list_users(user_properties: dict = Depends(verify_credentials_or_token)):
     """
     List all users
     """
-    if user_properties['role'] not in ['admin', 'data_scientist']:
-        raise HTTPException(
-            403,
-            'User does not have permissions'
-        )
 
     try:
         return flist_users()
@@ -793,11 +788,6 @@ def upload_file(body: DataUploadRequest, user_properties: dict = Depends(verify_
     filename : str
         The full path to the file on disk, in the data directory
     """
-    if user_properties['role'] not in ['admin', 'data_scientist']:
-        raise HTTPException(
-            403,
-            'User does not have permissions'
-        )
 
     try:
         filename = upload_data_to_fs(
@@ -863,12 +853,6 @@ def list_files(body: DataListRequest, user_properties: dict = Depends(verify_cre
         The files and directories within the directory
     """
 
-    if user_properties['role'] not in ['admin', 'data_scientist']:
-        raise HTTPException(
-            403,
-            'User does not have permissions'
-        )
-
     try:
         return list_fs_directory(body.directory)
     except Exception as e:
@@ -888,11 +872,6 @@ def get_variable(variable_name: str, user_properties: dict = Depends(verify_cred
     variable_name : str
         The name of the variable
     """
-    if user_properties['role'] not in ['admin', 'data_scientist']:
-        raise HTTPException(
-            403,
-            'User does not have permissions'
-        )
 
     username = user_properties['username']
 
@@ -910,11 +889,6 @@ def list_variables(user_properties: dict = Depends(verify_credentials_or_token))
     """
     List Variables
     """
-    if user_properties['role'] not in ['admin', 'data_scientist']:
-        raise HTTPException(
-            403,
-            'User does not have permissions'
-        )
 
     username = user_properties['username']
 
@@ -938,11 +912,6 @@ def set_variable(body: VariableSetRequest, user_properties: dict = Depends(verif
     variable_properties : VariableSetRequest
         JSON payload with the value for the variable and whether to overwrite the variable if it is already set
     """
-    if user_properties['role'] not in ['admin', 'data_scientist']:
-        raise HTTPException(
-            403,
-            'User does not have permissions'
-        )
 
     username = user_properties['username']
 
@@ -988,11 +957,6 @@ def delete_variable(variable_name: str, user_properties: dict = Depends(verify_c
     variable_name : str
         The name of the variable
     """
-    if user_properties['role'] not in ['admin', 'data_scientist']:
-        raise HTTPException(
-            403,
-            'User does not have permissions'
-        )
 
     username = user_properties['username']
 
