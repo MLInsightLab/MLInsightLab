@@ -37,6 +37,6 @@ def _create_api_key(
             auth=(username, password),
             json=json_data
         )
-    if not resp.ok:
-        raise MLILException(str(resp.json()))
+        if not resp.ok:
+            raise MLILException(str(resp.json()))
     return resp

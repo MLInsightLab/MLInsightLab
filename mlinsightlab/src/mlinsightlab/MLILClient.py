@@ -85,12 +85,12 @@ class MLILClient:
         Not meant to be called by the user directly.
         """
         if use_cached_credentials:
-            if self.config_path.exists():
+            if self.config_path.exists(): #TODO implement credential update
                 return self._load_stored_credentials()
         else:
-            if self.config_path.exists():
+            if self.config_path.exists() and use_cached_credentials:
                 print('Using stored credentials')
-                return self._load_stored_credentials()
+                #return self._load_stored_credentials()
 
             url = input("Enter platform URL: ")
             username = input("Enter username: ")
@@ -103,7 +103,7 @@ class MLILClient:
                     "Generate new API key? (y/n): ").lower() == 'y'
                 if generate_new:
                     api_key = self.issue_api_key(
-                        username=username, password=password, url=url)
+                        username=username, password=password, url=url).json()
 
             resp = self.verify_password(url=url, creds={
                                         "username": username, "key": api_key}, username=username, password=password)
@@ -510,11 +510,12 @@ class MLILClient:
 
         resp = _create_api_key(url, username=username, password=password)
 
-        self.api_key = resp
+        self.api_key = resp.json()
 
         if overwrite_api_key:
             auth = {'username': username, 'key': self.api_key,
                     'url': url, 'password': password}
+            print(auth)
             self._save_credentials(auth)
 
         if verbose:
@@ -523,8 +524,7 @@ class MLILClient:
             else:
                 print(
                     f'Something went wrong, request returned a satus code {resp.status_code}')
-
-        return resp.json()
+        return resp
 
     """
     ###########################################################################
