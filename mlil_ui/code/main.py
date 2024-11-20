@@ -13,9 +13,6 @@ import os
 MLFLOW_TRACKING_URI = os.environ['MLFLOW_TRACKING_URI']
 API_URL = os.environ['API_URL']
 
-# SYSTEM_USERNAME = os.environ['SYSTEM_USERNAME']
-# SYSTEM_KEY = os.environ['SYSTEM_KEY']
-
 SECRET_KEY = ''.join([secrets.choice(string.ascii_letters) for _ in range(32)])
 
 # Timeout in seconds (5 minutes)
@@ -36,8 +33,7 @@ def authenticate(username: str, password: str):
             json={
                 'username': username,
                 'password': password
-            },
-            # auth=(SYSTEM_USERNAME, SYSTEM_KEY)
+            }
         )
     if resp.ok:
         return True
@@ -84,6 +80,14 @@ async def home(request: Request):
 async def proxy_mlflow(path: str, request: Request):
     if 'user' not in request.session or not check_inactivity(request):
         return RedirectResponse(url="/login")
+    
+    with requests.Session() as sess:
+        resp = sess.get(
+            f'{API_URL}/users/role/{request.session["user"]}'
+        )
+    role = resp.json()
+    if role not in ['admin', 'data_scientist']:
+        return RedirectResponse(url='/')
 
     mlflow_url = urljoin(MLFLOW_TRACKING_URI, path)
     query_string = request.url.query
@@ -97,7 +101,6 @@ async def proxy_mlflow(path: str, request: Request):
         data=await request.body(),
         cookies=request.cookies,
         allow_redirects=False,
-        # auth=(SYSTEM_USERNAME, SYSTEM_KEY)
     )
 
     client_response = Response(

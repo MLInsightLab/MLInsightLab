@@ -1,5 +1,6 @@
 from transformers import pipeline, BitsAndBytesConfig
 from db_utils import SERVED_MODEL_CACHE_FILE
+from subprocess import check_call
 from pydantic import BaseModel
 import numpy as np
 import subprocess
@@ -281,7 +282,7 @@ def upload_data_to_fs(
     # Create any intermediate directories if needed
     directory = os.path.dirname(filename)
     if not os.path.exists(directory):
-        os.makedirs(directory)
+        os.makedirs(directory, mode = 771)
 
     # Determine the content of the file
     file_content = base64.b64decode(
@@ -293,6 +294,10 @@ def upload_data_to_fs(
 
     with open(filename, 'wb', opener=opener) as f:
         f.write(file_content)
+
+    check_call(
+        ['chgrp', 'mlil', filename]
+    )
 
     return filename
 
@@ -394,21 +399,14 @@ class VariableSetRequest(BaseModel):
     variable_name: str
     value: str | int | float | bool | dict | list
     overwrite: bool = False
-    username: str | None = None
 
 
 class VariableDownloadRequest(BaseModel):
     variable_name: str | int | float | bool | dict | list
-    username: str | None = None
-
-
-class VariableListRequest(BaseModel):
-    username: str | None = None
 
 
 class VariableDeleteRequest(BaseModel):
     variable_name: str
-    username: str | None = None
 
 
 class VerifyPasswordInfo(BaseModel):

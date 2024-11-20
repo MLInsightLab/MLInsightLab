@@ -184,12 +184,11 @@
         async function fetchVariables() {
             try {
                 const response = await fetch('/api/variable-store/list', {
-                    method: 'POST',
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-                    body: JSON.stringify({ username })
+                    }
                 });
 
                 if (!response.ok) {
@@ -216,13 +215,12 @@
 
             for (const variableName of variableNames) {
                 try {
-                    const response = await fetch('/api/variable-store/get', {
-                        method: 'POST',
+                    const response = await fetch(`/api/variable-store/get/${variableName}`, {
+                        method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${localStorage.getItem('token')}`
-                        },
-                        body: JSON.stringify({ 'username': username, variable_name: variableName })
+                        }
                     });
 
                     const result = await response.json();
@@ -342,13 +340,12 @@
         // Delete a variable by its name
         async function deleteVariable(variableName) {
             try {
-                const response = await fetch('/api/variable-store/delete', {
-                    method: 'POST',
+                const response = await fetch(`/api/variable-store/delete/${variableName}`, {
+                    method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-                    body: JSON.stringify({ 'username' : username, variable_name: variableName })
+                    }
                 });
 
                 if (!response.ok) {
