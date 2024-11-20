@@ -611,7 +611,7 @@ def issue_new_api_key(username, user_properties: dict = Depends(verify_credentia
     username : str
         The username of the user
     """
-    if user_properties['role'] != 'admin' or username != user_properties['username']:
+    if user_properties['role'] != 'admin' and username != user_properties['username']:
         raise HTTPException(
             403,
             'User does not have permissions'

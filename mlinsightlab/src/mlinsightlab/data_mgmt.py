@@ -117,18 +117,12 @@ def _get_variable(
         The name of the variable to access.
     """
 
-    url = f"{url}/{GET_VARIABLE}"
-
-    json_data = {
-        'variable_name': variable_name,
-        'username': creds['username']
-    }
+    url = f"{url}/{GET_VARIABLE}/{variable_name}"
 
     with requests.Session() as sess:
-        resp = sess.post(
+        resp = sess.get(
             url,
-            auth=(creds['username'], creds['key']),
-            json=json_data
+            auth=(creds['username'], creds['key'])
         )
 
     if not resp.ok:
@@ -156,15 +150,10 @@ def _list_variables(
 
     url = f"{url}/{LIST_VARIABLES}"
 
-    json_data = {
-        'username': creds['username']
-    }
-
     with requests.Session() as sess:
-        resp = sess.post(
+        resp = sess.get(
             url,
-            auth=(creds['username'], creds['key']),
-            json=json_data
+            auth=(creds['username'], creds['key'])
         )
 
     if not resp.ok:
@@ -204,8 +193,7 @@ def _set_variable(
     json_data = {
         'variable_name': variable_name,
         'value': value,
-        'overwrite': overwrite,
-        'username': creds['username']
+        'overwrite': overwrite
     }
 
     with requests.Session() as sess:
@@ -241,18 +229,12 @@ def _delete_variable(
         The name of the variable to delete.
     """
 
-    url = f"{url}/{DELETE_VARIABLE}"
-
-    json_data = {
-        'variable_name': variable_name,
-        'username': creds['username']
-    }
+    url = f"{url}/{DELETE_VARIABLE}/{variable_name}"
 
     with requests.Session() as sess:
-        resp = sess.post(
+        resp = sess.delete(
             url,
-            auth=(creds['username'], creds['key']),
-            json=json_data
+            auth=(creds['username'], creds['key'])
         )
 
     if not resp.ok:

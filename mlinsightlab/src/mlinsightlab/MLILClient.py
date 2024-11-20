@@ -706,7 +706,7 @@ class MLILClient:
         model_version_or_alias: str,
         data: Union[str, List[str]],
         predict_function: str = "predict",
-        dtype: str = "string",
+        dtype: str = None,
         params: Optional[dict] = None,
         convert_to_numpy: bool = True,
         url: str = None,
@@ -740,8 +740,8 @@ class MLILClient:
             The input data for prediction. Can be a single string or a list of strings.
         predict_function: str, optional
             The name of the prediction function to call. Default is "predict".
-        dtype: str, optional
-            The data type of the input. Default is "string".
+        dtype: str, optional (default None)
+            The data type of the input.
         params: dict, optional
             Additional parameters for the prediction.
         convert_to_numpy: bool = True
