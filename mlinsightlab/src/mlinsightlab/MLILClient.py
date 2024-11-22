@@ -85,12 +85,12 @@ class MLILClient:
         Not meant to be called by the user directly.
         """
         if use_cached_credentials:
-            if self.config_path.exists(): #TODO implement credential update
+            if self.config_path.exists():  # TODO implement credential update
                 return self._load_stored_credentials()
         else:
             if self.config_path.exists() and use_cached_credentials:
                 print('Using stored credentials')
-                #return self._load_stored_credentials()
+                # return self._load_stored_credentials()
 
             url = input("Enter platform URL: ")
             username = input("Enter username: ")

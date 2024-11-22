@@ -80,7 +80,7 @@ async def home(request: Request):
 async def proxy_mlflow(path: str, request: Request):
     if 'user' not in request.session or not check_inactivity(request):
         return RedirectResponse(url="/login")
-    
+
     with requests.Session() as sess:
         resp = sess.get(
             f'{API_URL}/users/role/{request.session["user"]}'

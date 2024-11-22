@@ -1,6 +1,6 @@
+fastapi[standard]
+uvicorn[standard]
 python-multipart
 itsdangerous
 requests
-fastapi
-uvicorn
 jinja2

@@ -180,7 +180,7 @@ def _predict(
     }
 
     if dtype:
-        json_data.update({'dtype' : dtype})
+        json_data.update({'dtype': dtype})
 
     url = f"""{
         url}/{PREDICT_ENDPOINT}/{model_name}/{model_flavor}/{model_version_or_alias}"""

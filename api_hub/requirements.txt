@@ -1,4 +1,6 @@
 python-jose[cryptography]
+fastapi[standard]
+uvicorn[standard]
 python-multipart
 transformers
 bitsandbytes
@@ -8,8 +10,6 @@ accelerate
 tensorflow
 pydantic
 tf-keras
-uvicorn
-fastapi
 mlflow
 psutil
 torch
