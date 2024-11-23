@@ -14,7 +14,7 @@ from .user_mgmt import _create_user, _delete_user, _verify_password, _issue_new_
 from .key_mgmt import _create_api_key
 from .model_mgmt import _load_model, _unload_model, _list_models, _predict
 from .platform_mgmt import _reset_platform, _get_platform_resource_usage
-from .data_mgmt import _upload_file, _download_file, _get_variable, _list_variables, _set_variable, _delete_variable
+from .data_mgmt import _upload_data, _download_data, _get_variable, _list_data, _list_variables, _set_variable, _delete_variable
 
 
 class MLILClient:
@@ -863,7 +863,46 @@ class MLILClient:
     ###########################################################################
     """
 
-    def upload_file(
+    def list_data(
+        self,
+        directory: str,
+        url: str = None,
+        creds: dict = None,
+        verbose: bool = False
+    ):
+        """
+        Lists all available data in the MLIL variable store
+
+        >>> import mlil
+        >>> client = mlil.MLILClient()
+        >>> client.list_data()
+
+        Parameters
+        ----------
+        directory: str
+        """
+
+        if url is None:
+            url = self.url
+        if creds is None:
+            creds = self.creds
+
+        resp = _list_data(
+            url,
+            creds,
+            directory
+        )
+
+        if verbose:
+            if resp.status_code == 200:
+                print(f'Some people say it is the new oil.')
+            else:
+                print(
+                    f'Something went wrong, request returned a satus code {resp.status_code}')
+
+        return resp.json()
+
+    def upload_data(
         self,
         file_path: str,
         file_name: str,
@@ -877,7 +916,7 @@ class MLILClient:
 
         >>> import mlil
         >>> client = mlil.MLILClient()
-        >>> client.upload_file()
+        >>> client.upload_data()
 
         Parameters
         ----------
@@ -895,7 +934,7 @@ class MLILClient:
         if creds is None:
             creds = self.creds
 
-        resp = _upload_file(
+        resp = _upload_data(
             url,
             creds,
             file_path=file_path,
@@ -912,7 +951,7 @@ class MLILClient:
 
         return resp.json()
 
-    def download_file(
+    def download_data(
         self,
         file_name: str,
         verbose: bool = False,
@@ -937,7 +976,7 @@ class MLILClient:
         if creds is None:
             creds = self.creds
 
-        resp = _download_file(
+        resp = _download_data(
             url,
             creds,
             file_name=file_name
@@ -1049,8 +1088,6 @@ class MLILClient:
 
         Parameters
         ----------
-        file_path: str
-            The path of the file to be uploaded.
         variable_name: str
             The name to give your variable in the MLIL datastore.
         value: Any
@@ -1098,8 +1135,6 @@ class MLILClient:
 
         Parameters
         ----------
-        file_path: str
-            The path of the file to be uploaded.
         variable_name: str
             The name to give your variable in the MLIL datastore.
         value: Any

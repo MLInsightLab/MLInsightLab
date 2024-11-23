@@ -1,12 +1,49 @@
 # Helper functions to manage and interat with MLFlow models
 from .MLILException import MLILException
-from .endpoints import FILE_UPLOAD, FILE_DOWNLOAD, GET_VARIABLE, LIST_VARIABLES, SET_VARIABLE, DELETE_VARIABLE
+from .endpoints import DATA_UPLOAD, DATA_DOWNLOAD, LIST_DATA, GET_VARIABLE, LIST_VARIABLES, SET_VARIABLE, DELETE_VARIABLE
 from typing import Any
 import requests
 import base64
 
+def _list_data(
+    url: str,
+    creds: dict,
+    directory: str
+):
+    """
+    NOT MEANT TO BE CALLED BY THE END USER
 
-def _upload_file(
+    Lists all data avaialble to a user.
+    Called within the MLILClient class.
+
+    Parameters
+    ----------
+    url: str
+        String containing the URL of your deployment of the platform.
+    creds: dict
+        Dictionary that must contain keys "username" and "key", and associated values.
+    directory: str
+        Name of the directory you wish to view the contents of.
+    """
+
+    url = f"{url}/{LIST_DATA}"
+
+    json_data = {
+        'directory': directory
+    }
+
+    with requests.Session() as sess:
+        resp = sess.post(
+            url,
+            auth=(creds['username'], creds['key']),
+            json=json_data
+        )
+
+    if not resp.ok:
+        raise MLILException(str(resp.json()))
+    return resp
+
+def _upload_data(
     url: str,
     creds: dict,
     file_path: str,
@@ -34,7 +71,7 @@ def _upload_file(
         already exists.
     """
 
-    url = f"{url}/{FILE_UPLOAD}"
+    url = f"{url}/{DATA_UPLOAD}"
 
     with open(file_path, 'rb') as f:
         file_bytes = f.read()
@@ -57,7 +94,7 @@ def _upload_file(
     return resp
 
 
-def _download_file(
+def _download_data(
     url: str,
     creds: dict,
     file_name: str
@@ -78,7 +115,7 @@ def _download_file(
         The name of the file to download.
     """
 
-    url = f"{url}/{FILE_DOWNLOAD}"
+    url = f"{url}/{DATA_DOWNLOAD}"
 
     json_data = {
         'filename': file_name
