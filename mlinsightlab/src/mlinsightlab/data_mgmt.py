@@ -1,9 +1,12 @@
-# Helper functions to manage and interat with MLFlow models
+# Helper functions to manage and interact with MLFlow models
 from .MLILException import MLILException
 from .endpoints import DATA_UPLOAD, DATA_DOWNLOAD, LIST_DATA, GET_VARIABLE, LIST_VARIABLES, SET_VARIABLE, DELETE_VARIABLE
 from typing import Any
+import pandas as pd
 import requests
 import base64
+import json
+import io
 
 def _list_data(
     url: str,
@@ -97,7 +100,8 @@ def _upload_data(
 def _download_data(
     url: str,
     creds: dict,
-    file_name: str
+    file_name: str,
+    output_format: str = 'dms'
 ):
     """
     NOT MEANT TO BE CALLED BY THE END USER
@@ -113,9 +117,19 @@ def _download_data(
         Dictionary that must contain keys "username" and "key", and associated values.
     file_name: str
         The name of the file to download.
+    output_format: str
+        Desired output format for the downloaded file (e.g., 'dms', 'csv', 'json', etc.)
     """
 
     url = f"{url}/{DATA_DOWNLOAD}"
+
+    base_name = file_name.rsplit('.', 1)[0]
+
+    supported_formats = {'dms', 'txt', 'csv', 'json', 'xlsx', 'parquet'}
+
+    if output_format.lower() not in supported_formats:
+        raise ValueError(f"Unsupported output format. Supported formats are: {', '.join(supported_formats)}")
+
 
     json_data = {
         'filename': file_name
@@ -130,7 +144,39 @@ def _download_data(
 
     if not resp.ok:
         raise MLILException(str(resp.json()))
-    return resp
+    
+
+    try:
+        decoded_content = base64.b64decode(resp.content).decode('utf-8')
+        
+        if output_format.lower() == 'csv':
+            with open(f"{base_name}.csv", 'w', encoding='utf-8') as f:
+                f.write(decoded_content)
+        
+        elif output_format.lower() == 'txt':
+            with open(f"{base_name}.txt", 'w', encoding='utf-8') as f:
+                f.write(decoded_content)
+        
+        elif output_format.lower() == 'json':
+            df = pd.read_csv(io.StringIO(decoded_content))
+            df.to_json(f"{base_name}.json", orient='records', indent=4)
+        
+        elif output_format.lower() == 'xlsx':
+            df = pd.read_csv(io.StringIO(decoded_content))
+            df.to_excel(f"{base_name}.xlsx", index=False)
+        
+        elif output_format.lower() == 'parquet':
+            df = pd.read_csv(io.StringIO(decoded_content))
+            df.to_parquet(f"{base_name}.parquet")
+        
+        else:  # Default DMS format
+            with open(f"{base_name}.dms", 'wb') as f:
+                f.write(resp.content)
+
+    except Exception as e:
+        raise MLILException(f"Error converting to {output_format}: {str(e)}")
+
+    return f"Downloaded {base_name}.{output_format.lower()}"
 
 
 def _get_variable(

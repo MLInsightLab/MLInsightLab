@@ -954,6 +954,7 @@ class MLILClient:
     def download_data(
         self,
         file_name: str,
+        output_format: str,
         verbose: bool = False,
         url: str = None,
         creds: dict = None
@@ -969,6 +970,8 @@ class MLILClient:
         ----------
         file_name: str
             The name of the file in the MLIL datastore you wish to download.
+        output_format: str
+            Desired output format for the downloaded file (e.g., 'dms', 'csv', 'json', etc.)
         """
 
         if url is None:
@@ -979,7 +982,8 @@ class MLILClient:
         resp = _download_data(
             url,
             creds,
-            file_name=file_name
+            file_name=file_name,
+            output_format=output_format
         )
 
         if verbose:
@@ -989,7 +993,7 @@ class MLILClient:
                 print(
                     f'Something went wrong, request returned a satus code {resp.status_code}')
 
-        return resp.json()
+        return resp
 
     def get_variable(
         self,
