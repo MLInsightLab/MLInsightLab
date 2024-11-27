@@ -1,0 +1,25 @@
+.dashboard-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* Tabs section */
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 150px;
+    }
+
+    .dashboard-tiles {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+    .dashboard-tiles {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}

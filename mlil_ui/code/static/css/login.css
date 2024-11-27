@@ -1,0 +1,51 @@
+body {
+    font-family: 'Arial', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Add smooth animations */
+.login-container input, .login-container h2, .logo, input[type="submit"] {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+}
+.logo {
+    animation-delay: 0.1s;
+}
+h2 {
+    animation-delay: 0.2s;
+}
+input[type="text"], input[type="password"] {
+    animation-delay: 0.3s;
+}
+input[type="submit"] {
+    animation-delay: 0.4s;
+}
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .login-container {
+        width: 75vw; /* Adjust width for smaller screens */
+    }
+}
+@media (max-width: 400px) {
+    .login-container {
+        width: 90vw; /* Adjust width for small mobile devices */
+        padding: 30px;
+    }
+    .login-container input[type="text"],
+    .login-container input[type="password"],
+    .login-container input[type="submit"] {
+        width: 100%; /* Full width for small screens */
+    }
+}
