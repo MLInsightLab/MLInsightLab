@@ -44,3 +44,14 @@ h2 {
     margin-bottom: 25px;
     font-weight: bold;
 }
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    align-items: left;
+    justify-content: flex-start; /* Start content at the top */
+    background-color: #f4f4f4;
+    overflow-y: auto;
+}

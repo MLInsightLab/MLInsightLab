@@ -1,11 +1,3 @@
-.main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    overflow-y: auto;
-}
-
 .container {
     background-color: #ffffff;
     padding: 40px;
