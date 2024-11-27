@@ -1,0 +1,130 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    background-color: #357ABD;
+    padding: 20px;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    margin-bottom: 20px;
+    font-size: 18px;
+    display: block;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.sidebar a:hover {
+    background-color: #4a90e2;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+h2 {
+    color: #4a90e2;
+    font-size: 34px;
+    margin-bottom: 25px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.form-container {
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+input[type="text"] {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    max-width: 400px;
+    text-align: left;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #357ABD;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #4a90e2;
+}
+
+.delete-button {
+    padding: 10px 20px;
+    background-color: #c9302c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.delete-button:hover {
+    background-color: #a5282a;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+}
+
+th {
+    background-color: #357ABD;
+    color: white;
+}
+
+td {
+    background-color: #fff;
+}
+
+.hidden-value {
+    margin-right: 10px;
+}
+
+.toggle-visibility {
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.copy-button {
+    margin-left: 10px;
+}
