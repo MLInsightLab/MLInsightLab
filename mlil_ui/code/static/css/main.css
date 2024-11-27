@@ -69,3 +69,31 @@ button {
 button:hover {
     background-color: #4a90e2;
 }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #dddddd;
+}
+
+td {
+    background-color: #fff;
+}
+
+th {
+    background-color: #357ABD;
+    color: white;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.3s ease;
+}
+
+th:hover {
+    background-color: #286090;
+}

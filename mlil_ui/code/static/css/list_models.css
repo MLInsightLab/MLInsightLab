@@ -19,30 +19,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 30px;
-}
-
-th, td {
-    padding: 12px;
-    text-align: left;
-    border: 1px solid #dddddd;
-}
-
-td {
-    background-color: #fff;
-}
-
-th {
-    background-color: #357ABD;
-    color: white;
-    cursor: pointer;
-    position: relative;
-    transition: background-color 0.3s ease;
-}
-
 th.sort-asc::after, th.sort-desc::after {
     position: absolute;
     right: 10px;
@@ -54,10 +30,6 @@ th.sort-asc::after {
 
 th.sort-desc::after {
     content: '▼';
-}
-
-th:hover {
-    background-color: #286090;
 }
 
 tr:nth-child(even) {
