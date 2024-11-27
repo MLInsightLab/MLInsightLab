@@ -16,20 +16,6 @@
     border: 2px solid #4a90e2;
 }
 
-h2 {
-    color: #4a90e2;
-    margin-bottom: 25px;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.logo {
-    width: 100px;
-    margin-bottom: 30px;
-    border-radius: 50%;
-    overflow: hidden;
-}
-
 .dashboard-tiles {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

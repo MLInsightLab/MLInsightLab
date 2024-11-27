@@ -30,3 +30,17 @@ body {
 .sidebar a:hover {
     background-color: #4a90e2;
 }
+
+.logo {
+    width: 100px;
+    margin-bottom: 30px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+h2 {
+    color: #4a90e2;
+    font-size: 34px;
+    margin-bottom: 25px;
+    font-weight: bold;
+}
