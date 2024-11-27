@@ -225,3 +225,15 @@ th:hover {
     font-size: 18px;
     color: #333;
 }
+
+.tabs-content {
+    margin-top: 20px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}

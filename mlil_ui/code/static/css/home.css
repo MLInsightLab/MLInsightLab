@@ -6,17 +6,6 @@
 }
 
 /* Tabs section */
-.tabs-content {
-    margin-top: 20px;
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
