@@ -73,7 +73,7 @@ tr:nth-child(even) {
 }
 
 #success-message {
-    color: #5cb85c;
+    color: #357ABD;
     font-size: 18px;
     margin-top: 20px;
 }

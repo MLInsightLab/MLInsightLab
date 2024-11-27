@@ -9,10 +9,6 @@
     text-align: center;
 }
 
-.form-container {
-    margin-bottom: 30px;
-}
-
 input[type="file"] {
     display: block;
     width: 100%;
