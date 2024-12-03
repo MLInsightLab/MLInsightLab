@@ -87,6 +87,7 @@ services:
       - jupyter
     environment:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
+      - INACTIVITY_TIMEOUT=${INACTIVITY_TIMEOUT}
       - API_URL=${API_URL}
     networks:
       - network
