@@ -1,4 +1,4 @@
-# MLInsightLab
+# ML Insight Lab
 
 **The data science platform built *by* data scientists *for* data scientists**
 
@@ -18,9 +18,9 @@
 
 ## Overview
 
-MLInsightLab is designed to provide a scalable, integrated environment for data scientists and machine learning engineers to perform distributed computing, experiment tracking, model serving, and inference management. The platform is tailored to handle end-to-end workflows, from interactive development in JupyterHub to production-ready model serving.
+ML Insight Lab is designed to provide a scalable, integrated environment for data scientists and machine learning engineers to perform distributed computing, experiment tracking, model serving, and inference management. The platform is tailored to handle end-to-end workflows, from interactive development in JupyterHub to production-ready model serving.
 
-This project is a comprehensive Docker Compose setup for MLInsightLab. It integrates multiple services, including Dask, Jupyter, MLflow, a custom API Hub, and a web UI - all served behind Nginx as a reverse proxy, providing a robust environment for data science, machine learning, and model management.
+This project is a comprehensive Docker Compose setup for ML Insight Lab. It integrates multiple services, including Dask, Jupyter, MLflow, a custom API Hub, and a web UI - all served behind Nginx as a reverse proxy, providing a robust environment for data science, machine learning, and model management.
 
 
 ## Capabilities
