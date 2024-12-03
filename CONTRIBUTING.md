@@ -1,6 +1,6 @@
-# Contributing to MLInsightLab
+# Contributing to ML Insight Lab
 
-Thank you for considering contributing to MLInsightLab! We welcome contributions that help improve the platform. Whether you're fixing a bug, proposing new features, improving documentation, or writing tests, your contribution is valuable. Please take a few minutes to review the guidelines below to ensure that your contribution is aligned with the goals and standards of this project.
+Thank you for considering contributing to ML Insight Lab! We welcome contributions that help improve the platform. Whether you're fixing a bug, proposing new features, improving documentation, or writing tests, your contribution is valuable. Please take a few minutes to review the guidelines below to ensure that your contribution is aligned with the goals and standards of this project.
 
 ## How to Contribute
 
@@ -13,7 +13,7 @@ If you encounter any bugs, performance issues, or have ideas for new features, f
 - **Include steps to reproduce** the issue if possible.
 - **Attach relevant logs**, screenshots, or configuration files, if applicable.
 
-You can create an issue [here](https://github.com/jacobrenn/mlinsightlab/issues).
+You can create an issue [here](https://github.com/mlinsightlab/mlinsightlab/issues).
 
 ### 2. Submitting Pull Requests
 

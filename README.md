@@ -20,20 +20,20 @@
 
 MLInsightLab is designed to provide a scalable, integrated environment for data scientists and machine learning engineers to perform distributed computing, experiment tracking, model serving, and inference management. The platform is tailored to handle end-to-end workflows, from interactive development in JupyterHub to production-ready model serving.
 
-This project is a comprehensive Docker Compose setup for MLInsightLab. It integrates multiple services, including Dask, Jupyter, MLFlow, a custom API Hub, and a web UI - all served behind Nginx as a reverse proxy, providing a robust environment for data science, machine learning, and model management.
+This project is a comprehensive Docker Compose setup for MLInsightLab. It integrates multiple services, including Dask, Jupyter, MLflow, a custom API Hub, and a web UI - all served behind Nginx as a reverse proxy, providing a robust environment for data science, machine learning, and model management.
 
 
 ## Capabilities
 
 1. **JupyterHub**:
    - Interactive, multi-user JupyterLab environment.
-   - Automatically integrated with the other services in this platform (particularly MLFlow and Dask).
+   - Automatically integrated with the other services in this platform (particularly MLflow and Dask).
 
-2. **MLFlow**:
+2. **MLflow**:
    - Experiment tracking and machine learning model registry.
    - Stores experiment artifacts and metadata for reproducibility and model management.
    - Enables models to be easily served to the API hub.
-   - All users with the role of admin or data scientist have unilateral access to the MLFlow instance, enabling easy collaboration amongst the entire team.
+   - All users with the role of admin or data scientist have unilateral access to the MLflow instance, enabling easy collaboration amongst the entire team.
 
 3. **Dask**:
    - Python-native distributed computing framework for parallel computing.
@@ -92,13 +92,13 @@ This project is a comprehensive Docker Compose setup for MLInsightLab. It integr
     ```
 
 3. **(Optional) Configure SSL Certificates**
-   If you would like the Lab to be deployed using SSL termination, you will need to have your certificate `.pem` files saved to the directory `/path/to/mlinsightlab/certs`
+   If you would like the Lab to be deployed using SSL termination, you will need to have your certificate `.pem` files saved to the directory `/{path/to/mlinsightlab}/certs`
 
    This can be accomplished by physically saving the files to this directory, or by having the files saved via a symbolic link.
 
-4. **Build and start the services**:
+4. **Pull and start the services**:
 
-    The following command will both build all required containers and start the service:
+    The following command will both pull all required containers and start the service:
 
     ```bash
     docker-compose -f {chosen-docker-compose-file} up -d
