@@ -3,7 +3,6 @@ services:
   dask-scheduler:
     restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-dask:main
-    build: ./dask
     command: dask-scheduler
     volumes:
       - ${NOTEBOOK_MOUNT}
@@ -14,7 +13,6 @@ services:
   dask-worker:
     restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-dask:main
-    build: ./dask
     depends_on:
       - dask-scheduler
     command: dask-worker ${DASK_SCHEDULER_ADDRESS}
@@ -29,7 +27,6 @@ services:
   jupyter:
     restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-jupyter:main
-    build: ./jupyter
     depends_on:
       - dask-worker
       - api-hub
@@ -57,7 +54,6 @@ services:
   mlflow:
     restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-mlflow:main
-    build: ./mlflow
     volumes:
       - ${MLFLOW_BACKEND_STORAGE}
       - ${MLFLOW_ARTIFACT_STORAGE}
@@ -72,7 +68,6 @@ services:
   api-hub:
     restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-apihub:main
-    build: ./api_hub
     depends_on:
       - mlflow
     volumes:
@@ -101,7 +96,6 @@ services:
   mlil-ui:
     restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-ui:main
-    build: ./mlil_ui
     depends_on:
       - mlflow
       - jupyter
@@ -114,7 +108,6 @@ services:
   nginx:
     restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-nginx:main
-    build: ./nginx
     depends_on:
       - jupyter
       - mlflow
