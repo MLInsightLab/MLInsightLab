@@ -89,6 +89,7 @@ services:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - INACTIVITY_TIMEOUT=${INACTIVITY_TIMEOUT}
       - API_URL=${API_URL}
+    command: uvicorn main:app --host 0.0.0.0 --port 1122
     networks:
       - network
 
