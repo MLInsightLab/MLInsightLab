@@ -88,7 +88,7 @@ This project is a comprehensive Docker Compose setup for ML Insight Lab. It inte
     *Note that the provided `.env` file is comprehensive and requires no additional setup, but does leave security vulnerabilities due to default passwords and API keys.*
 
     ```bash
-    cp .env.example .env
+    cp env.example .env
     ```
 
 3. **(Optional) Configure SSL Certificates**
