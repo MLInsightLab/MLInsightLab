@@ -122,6 +122,7 @@ volumes:
   jupyter_etc:
   notebooks:
   data:
+  predictions:
 
 networks:
   network:
