@@ -41,6 +41,7 @@ services:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - DASK_SCHEDULER_ADDRESS=${DASK_SCHEDULER_ADDRESS}
       - API_URL=${API_URL}
+    command: /bin/sh /code/start_jupyter.sh
     networks:
       - network
     deploy:
@@ -61,7 +62,7 @@ services:
       - MLFLOW_BACKEND_STORE_URI=${MLFLOW_BACKEND_STORE_URI}
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - MLFLOW_TRACKING_ARTIFACT_STORE=${MLFLOW_TRACKING_ARTIFACT_STORE}
-    entrypoint: /bin/sh -c "mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 2244 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
+    command: /bin/sh -c "mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 2244 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
     networks:
       - network
 
@@ -85,6 +86,7 @@ services:
       - DATA_DIRECTORY=${API_HUB_DATA_DIRECTORY}
       - VARIABLE_STORE_DIRECTORY=${API_HUB_VARIABLE_STORE_DIRECTORY}
       - PREDICTIONS_CACHE_DIR=${API_HUB_PREDICTIONS_DIR}
+    command: uvicorn main:app --host 0.0.0.0 --port 4488 --root-path /api
     networks:
       - network
     deploy:
