@@ -64,6 +64,7 @@ services:
       - MLFLOW_TRACKING_ARTIFACT_STORE=${MLFLOW_TRACKING_ARTIFACT_STORE}
     command: /bin/sh -c "mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 2244 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
     networks:
+      - model_network
       - network
 
   api-hub:
@@ -87,8 +88,6 @@ services:
       - VARIABLE_STORE_DIRECTORY=${API_HUB_VARIABLE_STORE_DIRECTORY}
       - PREDICTIONS_CACHE_DIR=${API_HUB_PREDICTIONS_DIR}
     command: uvicorn main:app --host 0.0.0.0 --port 4488 --root-path /api
-    networks:
-      - network
     deploy:
       resources:
         reservations:
@@ -96,6 +95,9 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
+    networks:
+      - model_network
+      - network
 
   mlil-ui:
     restart: always
@@ -140,9 +142,10 @@ volumes:
   jupyter_cron:
   jupyter_home:
   jupyter_etc:
+  predictions:
   notebooks:
   data:
-  predictions:
 
 networks:
+  model_network:
   network:
