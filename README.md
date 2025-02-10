@@ -77,7 +77,7 @@ This project is a comprehensive Docker Compose setup for ML Insight Lab. It inte
 1. **Clone the repository**:
 
     ```bash
-    git clone https://github.com/jacobrenn/mlinsightlab.git
+    git clone https://github.com/mlinsightlab/mlinsightlab.git
     cd mlinsightlab
     ```
 
