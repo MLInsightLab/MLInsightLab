@@ -14,7 +14,7 @@ if command -v nvidia-smi &> /dev/null && nvidia-smi -L &> /dev/null; then
     echo "GPU detected. Tearing down GPU version."
 
     # Tear down SSL or non-SSL version appropriately
-    if [ "$USE_SSL" == "true" ]; then
+    if [ "$USE_SSL" = "true" ]; then
         docker compose -f docker-compose.ssl.gpu.yaml down
     else
         docker compose -f docker-compose.nonssl.gpu.yaml down
@@ -25,7 +25,7 @@ else
     echo "No GPU detected or NVIDIA drivers not installed. Tearing down CPU version."
 
     # Tear down SSL or non-SSL version appropriately
-    if [ "$USE_SSL" == "true" ]; then
+    if [ "$USE_SSL" = "true" ]; then
         docker compose -f docker-compose.ssl.nongpu.yaml down
     else
         docker compose -f docker-compose.nonssl.nongpu.yaml down
