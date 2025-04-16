@@ -2,10 +2,10 @@
 
 # Check if certificates directory exists
 if test -d "certs"; then
-    echo "SSL certificates directory found. Will tear down SSL version."
+    echo "SSL certificates directory found. Will deploy SSL version."
     USE_SSL="true"
 else
-    echo "SSL certificates directory not found. Will tear down non-SSL version."
+    echo "SSL certificates directory not found. Will deploy non-SSL version."
     USE_SSL="false"
 fi
 
