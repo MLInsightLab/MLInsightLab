@@ -26,9 +26,9 @@ else
     
     # Tear down SSL or non-SSL version appropriately
     if [ "$USE_SSL" == "true" ]; then
-        docker compose -f docker-compose.ssl.nongpu.yaml down
+        docker compose -f docker-compose.ssl.nongpu.yaml up -d
     else
-        docker compose -f docker-compose.nonssl.nongpu.yaml down
+        docker compose -f docker-compose.nonssl.nongpu.yaml up -d
     fi
 
 fi
