@@ -64,6 +64,7 @@ This project is a comprehensive Docker Compose setup for ML Insight Lab. It inte
    - Python SDK for interaction with the platform
    - Enables users to perform actions within the platform using a Python-native approach.
    - Installable via PyPi via the command `pip install mlinsightlab` or directly via source code install via this repository.
+   - Already installed in the JupyterHub environment in the platform when it is stood up.
 
 ## Quick Start Guide
 
@@ -96,70 +97,84 @@ This project is a comprehensive Docker Compose setup for ML Insight Lab. It inte
 
    This can be accomplished by physically saving the files to this directory, or by having the files saved via a symbolic link.
 
+   For most deployments, we find using [Lets Encrypt](https://letsencrypt.org) effective.
+
 4. **Pull and start the services**:
 
-    The following command will both pull all required containers and start the service:
+   For ease of deployment and teardown, we have provided two shell scripts - `deploy.sh` and `teardown.sh`, respectively. These scripts will identify whether TLS certificates have been installed and whether GPU resources are available on your machine and automatically deploy the correct configuration of the platform. To deploy the platform, simply run the following:
 
-    ```bash
-    docker-compose -f {chosen-docker-compose-file} up -d
-    ```
+   ```bash
+   sh deploy.sh
+   ```
 
-    *Note that there are four options for which docker compose file can be used. Each one is appropriately named respective of whether SSL and GPU are used.*
+   If you would like to deploy the platform using docker compose directly, then first identify which `docker-compose.yaml` file you would like to use, then run the command:
+
+   ```bash
+   sh docker compose -f {chosen_docker_compose_file} up -d
+   ```
+
+   *Note that there are four options for which docker compose file can be used. Each one is appropriately named respective of whether SSL and GPU are used.*
 
 ### Stopping the Services
 
-To stop and remove the services, run:
+   To stop and remove the services using the teardown script provided, run:
 
-```bash
-docker-compose -f {chosen-docker-compose-file} down
-```
+   ```bash
+   sh teardown.sh
+   ```
+
+   Or, if you would like to teardown the platform using docker compose directly, then run the following:
+
+   ```bash
+   docker-compose -f {chosen-docker-compose-file} down
+   ```
 
 ## Configuration
 
-When deploying the Lab to a production (i.e. non-testing) environment, it is recommended that the following default environment variables be changed:
+   When deploying the Lab to a production (i.e. non-testing) environment, it is recommended that the following default environment variables be changed:
 
-- MODEL_SERVER_ADMIN_USERNAME
-   - This is the default username for the initial admin for the platform.
-   - Default Value: `admin`
-- MODEL_SERVER_ADMIN_PASSWORD
-   - This is the default password for the initial admin for the platform. It is recommended to alter this to a preferred, secure value either when the platform is stood up initially or after the platform is created.
-   - Default Value: `password`
-- MODEL_SERVER_ADMIN_KEY
-   - This is the default API key for the initial admin for the platform. It is recommended to alter this to a preferred, secure value either when the platform is stood up initially or after the platform is created. To change the value after the platform has been stood up, you will need to call the API directly or use the Python client to do so to issue a new API key.
-   - Default Value: `mlil-admin-key`
+   - MODEL_SERVER_ADMIN_USERNAME
+      - This is the default username for the initial admin for the platform.
+      - Default Value: `admin`
+   - MODEL_SERVER_ADMIN_PASSWORD
+         - This is the default password for the initial admin for the platform. It is recommended to alter this to a preferred, secure value either when the platform is stood up initially or after the platform is created.
+      - Default Value: `password`
+   - MODEL_SERVER_ADMIN_KEY
+      - This is the default API key for the initial admin for the platform. It is recommended to alter this to a preferred, secure value either when the platform is stood up initially or after the platform is created. To change the value after the platform has been stood up, you will need to call the API directly or use the Python client to do so to issue a new API key.
+      - Default Value: `mlil-admin-key`
 
 ## Logs and Debugging
 
-To view logs for any service, use the following command:
+   To view logs for any service, use the following command:
 
-```bash
-docker-compose -f {chosen-docker-compose-file} logs {service-name}
-```
+   ```bash
+   docker-compose -f {chosen-docker-compose-file} logs {service-name}
+   ```
 
-For example, to view the logs for the JupyterHub service:
+   For example, to view the logs for the JupyterHub service:
 
-```bash
-docker-compose -f {chosen-docker-compose-file} logs jupyter
-```
+   ```bash
+   docker-compose -f {chosen-docker-compose-file} logs jupyter
+   ```
 
 ## Security Considerations
 
-1. **Environment Variables**: Avoid using default passwords and API keys in production. Update them in the `.env` file.
-2. **SSL/HTTPS**: Ensure SSL certificates are properly configured for secure connections.
-3. **User Management**: If deploying JupyterHub for multiple users, ensure appropriate permissions and roles are assigned.
+   1. **Environment Variables**: Avoid using default passwords and API keys in production. Update them in the `.env` file.
+   2. **SSL/HTTPS**: Ensure SSL certificates are properly configured for secure connections.
+   3. **User Management**: If deploying JupyterHub for multiple users, ensure appropriate permissions and roles are assigned.
 
 ## Contributing
 
-We welcome contributions! If you'd like to contribute to this project, please follow these steps:
+   We welcome contributions! If you'd like to contribute to this project, please follow these steps:
 
-1. Fork the repository.
-2. Create a new feature branch (`git checkout -b feature/your-feature`).
-3. Commit your changes (`git commit -m 'Add your feature'`).
-4. Push the branch (`git push origin feature/your-feature`).
-5. Open a pull request.
+   1. Fork the repository.
+   2. Create a new feature branch (`git checkout -b feature/your-feature`).
+   3. Commit your changes (`git commit -m 'Add your feature'`).
+   4. Push the branch (`git push origin feature/your-feature`).
+   5. Open a pull request.
 
-Please ensure your code follows our [contribution guidelines](CONTRIBUTING.md).
+   Please ensure your code follows our [contribution guidelines](CONTRIBUTING.md).
 
 ## License
 
-This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
+   This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
