@@ -5,8 +5,8 @@ services:
     image: ghcr.io/mlinsightlab/mlinsightlab-dask:main
     command: dask-scheduler
     volumes:
-      - ${NOTEBOOK_MOUNT}
-      - ${DATA_MOUNT}
+      - notebooks:/notebooks
+      - data:/data
     networks:
       - network
 
@@ -17,8 +17,8 @@ services:
       - dask-scheduler
     command: dask-worker ${DASK_SCHEDULER_ADDRESS}
     volumes:
-      - ${NOTEBOOK_MOUNT}
-      - ${DATA_MOUNT}
+      - notebooks:/notebooks
+      - data:/data
     deploy:
       replicas: 4
     networks:
@@ -31,12 +31,12 @@ services:
       - dask-worker
       - api-hub
     volumes:
-      - ${DATA_MOUNT}
-      - ${NOTEBOOK_MOUNT}
-      - ${JUPYTERHUB_DATABASE_MOUNT}
-      - ${JUPYTERHUB_ETC_MOUNT}
-      - ${JUPYTERHUB_CRON_MOUNT}
-      - ${JUPYTERHUB_HOME_MOUNT}
+      - data:/data
+      - notebooks:/notebooks
+      - jupyter_database:/jupyterhub_database
+      - jupyter_etc:/etc
+      - jupyter_cron:/var/spool/cron
+      - jupyter_home:/home
     environment:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - DASK_SCHEDULER_ADDRESS=${DASK_SCHEDULER_ADDRESS}
@@ -56,8 +56,8 @@ services:
     restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-mlflow:main
     volumes:
-      - ${MLFLOW_BACKEND_STORAGE}
-      - ${MLFLOW_ARTIFACT_STORAGE}
+      - mlflow_backend_storage:/backend_uri
+      - mlflow_artifact_storage:/artifact_store
     environment:
       - MLFLOW_BACKEND_STORE_URI=${MLFLOW_BACKEND_STORE_URI}
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
@@ -73,12 +73,12 @@ services:
     depends_on:
       - mlflow
     volumes:
-      - ${DATA_MOUNT}
-      - ${API_HUB_CACHE_MOUNT}
-      - ${API_HUB_DB_MOUNT}
-      - ${VARIABLE_STORE_MOUNT}
-      - ${PREDICTIONS_MOUNT}
-      - ${DOCKER_MOUNT}
+      - data:/data
+      - model_server_cache:/model_cache
+      - model_server_database:/database
+      - variable_store:/variable_store
+      - predictions:/predictions
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - SERVED_MODEL_CACHE_DIR=${API_HUB_SERVED_MODEL_CACHE_DIR}
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
