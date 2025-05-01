@@ -2,10 +2,10 @@
 
 # Determine whether to tear down SSL version
 if [ -d "certs" ]; then
-    printf "🔐 SSL certificates directory found. SSL teardown initiated.\n\n"
+    printf "\n🔐 SSL certificates directory found. SSL teardown initiated.\n\n"
     USE_SSL="true"
 else
-    printf "⚠️  SSL certificates directory not found. Proceeding with non-SSL teardown.\n\n"
+    printf "\n⚠️  SSL certificates directory not found. Proceeding with non-SSL teardown.\n\n"
     USE_SSL="false"
 fi
 
