@@ -31,4 +31,3 @@ else
         docker compose -f docker-compose.nonssl.nongpu.yaml up -d
     fi
 fi
-
