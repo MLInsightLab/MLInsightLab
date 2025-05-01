@@ -1,34 +1,34 @@
 #!/bin/sh
 
-# Check if certificates directory exists
-if test -d "certs"; then
-    echo "SSL certificates directory found. Will deploy SSL version."
+# Pull the model deployment container image
+printf "📦 Pulling the latest model container image...\n\n"
+docker pull ghcr.io/mlinsightlab/mlinsightlab-model-container:latest
+
+# Determine whether to use SSL
+if [ -d "certs" ]; then
+    printf "🔐 SSL certificates directory found. SSL deployment enabled.\n\n"
     USE_SSL="true"
 else
-    echo "SSL certificates directory not found. Will deploy non-SSL version."
+    printf "⚠️  SSL certificates directory not found. Proceeding with non-SSL deployment.\n\n"
     USE_SSL="false"
 fi
 
-# Check if nvidia-smi exists and detects a GPU
-if command -v nvidia-smi &> /dev/null && nvidia-smi -L &> /dev/null; then
-    echo "GPU detected. Deploying with GPU support."
-    
-    # Deploy SSL or non-SSL version appropriately
-    if [ "$USE_SSL" = "true" ]; then
-        docker compose -f docker-compose.ssl.gpu.yaml up -d 
-    else
-        docker compose -f docker-compose.nonssl.gpu.yaml up -d 
-    fi
+# Check for GPU availability
+if command -v nvidia-smi > /dev/null && nvidia-smi -L > /dev/null; then
+    printf "🖥️  GPU detected. Deploying with GPU support...\n\n"
 
-# GPU not detected - deploy CPU only
+    if [ "$USE_SSL" = "true" ]; then
+        docker compose -f docker-compose.ssl.gpu.yaml up -d
+    else
+        docker compose -f docker-compose.nonssl.gpu.yaml up -d
+    fi
 else
-    echo "No GPU Detected or NVIDIA drivers not installed. Deploying CPU only."
-    
-    # Tear down SSL or non-SSL version appropriately
+    printf "🚫 No GPU detected or NVIDIA drivers missing. Deploying CPU-only version...\n\n"
+
     if [ "$USE_SSL" = "true" ]; then
         docker compose -f docker-compose.ssl.nongpu.yaml up -d
     else
         docker compose -f docker-compose.nonssl.nongpu.yaml up -d
     fi
-
 fi
+

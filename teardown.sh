@@ -1,17 +1,17 @@
 #!/bin/sh
 
-# Check if certificates directory exists
-if test -d "certs"; then
-    echo "SSL certificates directory found. Will tear down SSL version."
+# Determine whether to tear down SSL version
+if [ -d "certs" ]; then
+    printf "🔐 SSL certificates directory found. SSL teardown initiated.\n\n"
     USE_SSL="true"
 else
-    echo "SSL certificates directory not found. Will tear down non-SSL version."
+    printf "⚠️  SSL certificates directory not found. Proceeding with non-SSL teardown.\n\n"
     USE_SSL="false"
 fi
 
-# Check if nvidia-smi exists and detects a GPU
-if command -v nvidia-smi &> /dev/null && nvidia-smi -L &> /dev/null; then
-    echo "GPU detected. Tearing down GPU version."
+# Check for GPU availability
+if command -v nvidia-smi > /dev/null && nvidia-smi -L > /dev/null; then
+    printf "🖥️  GPU detected. Tearing down GPU version...\n\n"
 
     # Tear down SSL or non-SSL version appropriately
     if [ "$USE_SSL" = "true" ]; then
@@ -22,7 +22,7 @@ if command -v nvidia-smi &> /dev/null && nvidia-smi -L &> /dev/null; then
 
 # GPU not detected - tear down CPU only
 else
-    echo "No GPU detected or NVIDIA drivers not installed. Tearing down CPU version."
+    echo "🚫 No GPU detected or NVIDIA drivers missing. Tearing down CPU-only version...\n\n"
 
     # Tear down SSL or non-SSL version appropriately
     if [ "$USE_SSL" = "true" ]; then
