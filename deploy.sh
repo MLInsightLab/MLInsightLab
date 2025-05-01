@@ -6,10 +6,10 @@ docker pull ghcr.io/mlinsightlab/mlinsightlab-model-container:latest
 
 # Determine whether to use SSL
 if [ -d "certs" ]; then
-    printf "🔐 SSL certificates directory found. SSL deployment enabled.\n\n"
+    printf "\n🔐 SSL certificates directory found. SSL deployment enabled.\n\n"
     USE_SSL="true"
 else
-    printf "⚠️  SSL certificates directory not found. Proceeding with non-SSL deployment.\n\n"
+    printf "\n⚠️  SSL certificates directory not found. Proceeding with non-SSL deployment.\n\n"
     USE_SSL="false"
 fi
 
