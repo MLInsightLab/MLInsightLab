@@ -18,16 +18,20 @@ if command -v nvidia-smi > /dev/null && nvidia-smi -L > /dev/null; then
     printf "🖥️  GPU detected. Deploying with GPU support...\n\n"
 
     if [ "$USE_SSL" = "true" ]; then
+	    docker compose -f docker-compose.ssl.gpu.yaml pull
         docker compose -f docker-compose.ssl.gpu.yaml up -d
     else
+	    docker compose -f docker-compose.nonssl.gpu.yaml pull
         docker compose -f docker-compose.nonssl.gpu.yaml up -d
     fi
 else
     printf "🚫 No GPU detected or NVIDIA drivers missing. Deploying CPU-only version...\n\n"
 
     if [ "$USE_SSL" = "true" ]; then
+	    docker compose -f docker-compose.ssl.nongpu.yaml pull
         docker compose -f docker-compose.ssl.nongpu.yaml up -d
     else
+    	docker compose -f docker-compose.nonssl.nongpu.yaml pull
         docker compose -f docker-compose.nonssl.nongpu.yaml up -d
     fi
 fi
