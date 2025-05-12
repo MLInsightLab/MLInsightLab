@@ -64,8 +64,21 @@ services:
       - MLFLOW_TRACKING_ARTIFACT_STORE=${MLFLOW_TRACKING_ARTIFACT_STORE}
     command: /bin/sh -c "mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 2244 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
     networks:
+      - mlflow_network
       - model_network
       - network
+
+  postgres-mlflow:
+    restart: always
+    image: postgres:latest
+    volumes:
+      - pgmlflow:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${MLFLOW_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${MLFLOW_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${MLFLOW_POSTGRES_DB}
+    networks:
+      - mlflow_network
 
   api-hub:
     restart: always
@@ -141,9 +154,11 @@ volumes:
   jupyter_etc:
   predictions:
   notebooks:
+  pgmlflow:
   data:
 
 networks:
+  mlflow_network:
   model_network:
   network:
   
