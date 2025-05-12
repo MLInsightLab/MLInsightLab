@@ -34,6 +34,7 @@ This project is a comprehensive Docker Compose setup for ML Insight Lab. It inte
    - Stores experiment artifacts and metadata for reproducibility and model management.
    - Enables models to be easily served to the API hub.
    - All users with the role of admin or data scientist have unilateral access to the MLflow instance, enabling easy collaboration amongst the entire team.
+   - The MLflow backend is supported by PostgreSQL and MinIO services, which are included in the Compose stack for internal metadata and artifact storage, respectively.
 
 3. **Dask**:
    - Python-native distributed computing framework for parallel computing.
@@ -177,4 +178,13 @@ This project is a comprehensive Docker Compose setup for ML Insight Lab. It inte
 
 ## License
 
-   This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
+
+### Third-Party Licenses
+
+This project includes third-party components:
+
+- **PostgreSQL** - [PostgreSQL License](https://www.postgresql.org/about/licence/)
+- **MinIO** - [GNU Affero General Public License v3.0 (AGPLv3)](https://www.gnu.org/licenses/agpl-3.0.html)
+
+MinIO is used as internal infrastructure only. If you redistribute the platform with modifications to MinIO, please review your obligations under the AGPLv3.
