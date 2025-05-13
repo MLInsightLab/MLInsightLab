@@ -1,0 +1,62 @@
+services:
+
+  jupyter:
+    restart: always
+    image: ghcr.io/mlinsightlab/mlinsightlab-jupyter:latest
+    depends_on:
+      - dask-worker
+      - api-hub
+    volumes:
+      - data:/data
+      - notebooks:/notebooks
+      - jupyter_database:/jupyterhub_database
+      - jupyter_etc:/etc
+      - jupyter_cron:/var/spool/cron
+      - jupyter_home:/home
+    environment:
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
+      - DASK_SCHEDULER_ADDRESS=${DASK_SCHEDULER_ADDRESS}
+      - API_URL=${API_URL}
+    command: /bin/sh /code/start_jupyter.sh
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - network
+
+  api-hub:
+    restart: always
+    image: ghcr.io/mlinsightlab/mlinsightlab-apihub:latest
+    depends_on:
+      - mlflow
+    volumes:
+      - data:/data
+      - model_server_cache:/model_cache
+      - model_server_database:/database
+      - variable_store:/variable_store
+      - predictions:/predictions
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - SERVED_MODEL_CACHE_DIR=${API_HUB_SERVED_MODEL_CACHE_DIR}
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
+      - ADMIN_USERNAME=${API_HUB_ADMIN_USERNAME}
+      - ADMIN_KEY=${API_HUB_ADMIN_KEY}
+      - ADMIN_PASSWORD=${API_HUB_ADMIN_PASSWORD}
+      - DATA_DIRECTORY=${API_HUB_DATA_DIRECTORY}
+      - VARIABLE_STORE_DIRECTORY=${API_HUB_VARIABLE_STORE_DIRECTORY}
+      - PREDICTIONS_CACHE_DIR=${API_HUB_PREDICTIONS_DIR}
+    command: uvicorn main:app --host 0.0.0.0 --port 4488 --root-path /api
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - model_network
+      - network

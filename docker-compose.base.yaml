@@ -1,0 +1,114 @@
+services:
+
+  dask-scheduler:
+    restart: always
+    image: ghcr.io/mlinsightlab/mlinsightlab-dask:latest
+    command: dask-scheduler
+    volumes:
+      - notebooks:/notebooks
+      - data:/data
+    networks:
+      - network
+
+  dask-worker:
+    restart: always
+    image: ghcr.io/mlinsightlab/mlinsightlab-dask:latest
+    depends_on:
+      - dask-scheduler
+    command: dask-worker ${DASK_SCHEDULER_ADDRESS}
+    volumes:
+      - notebooks:/notebooks
+      - data:/data
+    deploy:
+      replicas: 4
+    networks:
+      - network
+
+  mlflow:
+    restart: always
+    image: ghcr.io/mlinsightlab/mlinsightlab-mlflow:latest
+    environment:
+      - MLFLOW_BACKEND_STORE_URI=${MLFLOW_BACKEND_STORE_URI}
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
+      - MLFLOW_TRACKING_ARTIFACT_STORE=${MLFLOW_TRACKING_ARTIFACT_STORE}
+      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD}
+      - MLFLOW_S3_ENDPOINT_URL=http://minio-mlflow:9000
+    command: /bin/sh -c "mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 2244 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
+    networks:
+      - mlflow_network
+      - model_network
+      - network
+
+  postgres-mlflow:
+    restart: always
+    image: postgres:latest
+    volumes:
+      - pgmlflow:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${MLFLOW_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${MLFLOW_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${MLFLOW_POSTGRES_DB}
+    networks:
+      - mlflow_network
+
+  minio-mlflow:
+    restart: always
+    image: minio/minio
+    volumes:
+      - minio_mlflow:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    command: minio server /data --console-address ":9001"
+    networks:
+      - mlflow_network
+
+  minio-init:
+    image: minio/mc
+    depends_on:
+      - minio-mlflow
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    entrypoint: >
+      /bin/sh -c "
+        sleep 5 &&
+        mc alias set local http://minio-mlflow:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
+        mc mb --ignore-existing local/mlflow
+      "
+    networks:
+      - mlflow_network
+
+  mlil-ui:
+    restart: always
+    image: ghcr.io/mlinsightlab/mlinsightlab-ui:latest
+    depends_on:
+      - mlflow
+      - jupyter
+    environment:
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
+      - INACTIVITY_TIMEOUT=${INACTIVITY_TIMEOUT}
+      - API_URL=${API_URL}
+    command: uvicorn main:app --host 0.0.0.0 --port 1122
+    networks:
+      - network
+
+volumes:
+  model_server_database:
+  model_server_cache:
+  jupyter_database:
+  variable_store:
+  jupyter_cron:
+  jupyter_home:
+  minio_mlflow:
+  jupyter_etc:
+  predictions:
+  notebooks:
+  pgmlflow:
+  data:
+
+networks:
+  mlflow_network:
+  model_network:
+  network:

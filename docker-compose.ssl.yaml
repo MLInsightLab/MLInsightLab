@@ -1,0 +1,20 @@
+services:
+
+  nginx:
+    restart: always
+    image: ghcr.io/mlinsightlab/mlinsightlab-nginx:latest
+    depends_on:
+      - jupyter
+      - mlflow
+      - mlil-ui
+    volumes:
+      - ./certs/fullchain.pem:/etc/nginx/ssl/fullchain.pem
+      - ./certs/privkey.pem:/etc/nginx/ssl/privkey.pem
+    environment:
+      - USE_SSL=true
+    ports:
+      - "80:80"
+      - "443:443"
+    command: bash /code/setup.sh
+    networks:
+      - network
