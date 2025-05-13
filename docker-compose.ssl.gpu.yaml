@@ -55,9 +55,6 @@ services:
   mlflow:
     restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-mlflow:latest
-    volumes:
-      - mlflow_backend_storage:/backend_uri
-      - mlflow_artifact_storage:/artifact_store
     environment:
       - MLFLOW_BACKEND_STORE_URI=${MLFLOW_BACKEND_STORE_URI}
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
