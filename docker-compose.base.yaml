@@ -40,6 +40,18 @@ services:
       - model_network
       - network
 
+  postgres-jupyter:
+    restart: always
+    image: postgres:latest
+    volumes:
+      - pgjupyter:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${JUPYTER_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${JUPYTER_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${JUPYTER_POSTGRES_DB}
+    networks:
+      - network
+
   postgres-mlflow:
     restart: always
     image: postgres:latest
@@ -97,7 +109,6 @@ services:
 volumes:
   model_server_database:
   model_server_cache:
-  jupyter_database:
   variable_store:
   jupyter_cron:
   jupyter_home:
@@ -105,6 +116,7 @@ volumes:
   jupyter_etc:
   predictions:
   notebooks:
+  pgjupyter:
   pgmlflow:
   data:
 

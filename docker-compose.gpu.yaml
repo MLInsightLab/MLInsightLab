@@ -6,10 +6,10 @@ services:
     depends_on:
       - dask-worker
       - api-hub
+      - postgres-jupyter
     volumes:
       - data:/data
       - notebooks:/notebooks
-      - jupyter_database:/jupyterhub_database
       - jupyter_etc:/etc
       - jupyter_cron:/var/spool/cron
       - jupyter_home:/home
@@ -17,6 +17,9 @@ services:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - DASK_SCHEDULER_ADDRESS=${DASK_SCHEDULER_ADDRESS}
       - API_URL=${API_URL}
+      - JUPYTER_POSTGRES_USER=${JUPYTER_POSTGRES_USER}
+      - JUPYTER_POSTGRES_PASSWORD=${JUPYTER_POSTGRES_PASSWORD}
+      - JUPYTER_POSTGRES_DB=${JUPYTER_POSTGRES_DB}
     command: /bin/sh /code/start_jupyter.sh
     deploy:
       resources:
