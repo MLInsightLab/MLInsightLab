@@ -33,7 +33,7 @@ services:
       - MLFLOW_TRACKING_ARTIFACT_STORE=${MLFLOW_TRACKING_ARTIFACT_STORE}
       - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER}
       - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD}
-      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - MLFLOW_S3_ENDPOINT_URL=${MINIO_URL}
     command: /bin/sh -c "mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 2244 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
     networks:
       - mlflow_network
@@ -64,6 +64,18 @@ services:
     networks:
       - mlflow_network
 
+  postgres-apihub:
+    restart: always
+    image: postgres:latest
+    volumes:
+      - pgapihub:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${API_HUB_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${API_HUB_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${API_HUB_POSTGRES_DB}
+    networks:
+      - network
+
   minio:
     restart: always
     image: minio/minio
@@ -73,6 +85,9 @@ services:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
     command: minio server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
     networks:
       - mlflow_network
       - network
@@ -112,13 +127,13 @@ services:
 
 volumes:
   model_server_database:
-  variable_store:
   jupyter_cron:
   jupyter_home:
   jupyter_etc:
   notebooks:
   pgjupyter:
   pgmlflow:
+  pgapihub:
   minio:
   data:
 
