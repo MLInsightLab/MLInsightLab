@@ -23,7 +23,8 @@ services:
       - JUPYTER_POSTGRES_HOST=${JUPYTER_POSTGRES_HOST}
     command: /bin/sh /code/start_jupyter.sh
     networks:
-      - network
+      - jupyter_network
+      - mlflow_network
   
   api-hub:
     restart: always
@@ -48,5 +49,6 @@ services:
       - POSTGRES_HOST=${API_HUB_POSTGRES_HOST}
     command: uvicorn main:app --host 0.0.0.0 --port 4488 --root-path /api
     networks:
+      - apihub_network
+      - jupyter_network
       - model_network
-      - network

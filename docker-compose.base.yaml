@@ -8,7 +8,7 @@ services:
       - notebooks:/notebooks
       - data:/data
     networks:
-      - network
+      - jupyter_network
 
   dask-worker:
     restart: always
@@ -22,7 +22,7 @@ services:
     deploy:
       replicas: 4
     networks:
-      - network
+      - jupyter_network
 
   mlflow:
     restart: always
@@ -38,7 +38,7 @@ services:
     networks:
       - mlflow_network
       - model_network
-      - network
+      - apihub_network
 
   postgres-jupyter:
     restart: always
@@ -50,7 +50,7 @@ services:
       - POSTGRES_PASSWORD=${JUPYTER_POSTGRES_PASSWORD}
       - POSTGRES_DB=${JUPYTER_POSTGRES_DB}
     networks:
-      - network
+      - jupyter_network
 
   postgres-mlflow:
     restart: always
@@ -74,7 +74,7 @@ services:
       - POSTGRES_PASSWORD=${API_HUB_POSTGRES_PASSWORD}
       - POSTGRES_DB=${API_HUB_POSTGRES_DB}
     networks:
-      - network
+      - apihub_network
 
   minio:
     restart: always
@@ -87,7 +87,8 @@ services:
     command: minio server /data --console-address ":9001"
     networks:
       - mlflow_network
-      - network
+      - apihub_network
+      - minio_network
 
   minio-init:
     image: minio/mc
@@ -106,7 +107,7 @@ services:
         mc mb --ignore-existing local/variables
       "
     networks:
-      - mlflow_network
+      - minio_network
 
   mlil-ui:
     restart: always
@@ -120,7 +121,7 @@ services:
       - API_URL=${API_URL}
     command: uvicorn main:app --host 0.0.0.0 --port 1122
     networks:
-      - network
+      - apihub_network
 
 volumes:
   model_server_database:
@@ -137,4 +138,7 @@ volumes:
 networks:
   mlflow_network:
   model_network:
+  jupyter_network:
+  minio_network:
+  apihub_network:
   network:

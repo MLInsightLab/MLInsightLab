@@ -13,4 +13,6 @@ services:
       - "80:80"
     command: bash /code/setup.sh
     networks:
-      - network
+      - apihub_network
+      - jupyter_network
+      - mlflow_network

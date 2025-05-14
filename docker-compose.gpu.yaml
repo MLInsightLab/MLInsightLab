@@ -30,7 +30,8 @@ services:
               count: all
               capabilities: [gpu]
     networks:
-      - network
+      - jupyter_network
+      - mlflow_network
 
   api-hub:
     restart: always
@@ -62,5 +63,6 @@ services:
               count: all
               capabilities: [gpu]
     networks:
+      - apihub_network
+      - jupyter_network
       - model_network
-      - network
