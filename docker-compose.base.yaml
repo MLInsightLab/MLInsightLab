@@ -34,7 +34,7 @@ services:
       - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER}
       - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD}
       - MLFLOW_S3_ENDPOINT_URL=${MINIO_URL}
-    command: /bin/sh -c "mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 2244 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
+    command: /bin/sh -c "mlflow db upgrade ${MLFLOW_BACKEND_STORE_URI} || true && mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 2244 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
     networks:
       - mlflow_network
       - model_network
@@ -124,7 +124,6 @@ services:
       - apihub_network
 
 volumes:
-  model_server_database:
   jupyter_cron:
   jupyter_home:
   jupyter_etc:
