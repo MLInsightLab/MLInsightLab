@@ -135,9 +135,8 @@ volumes:
   data:
 
 networks:
+  jupyter_network:
+  apihub_network:
   mlflow_network:
   model_network:
-  jupyter_network:
   minio_network:
-  apihub_network:
-  network:
