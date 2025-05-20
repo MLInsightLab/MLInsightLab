@@ -76,19 +76,19 @@ services:
     networks:
       - apihub_network
 
-  #minio:
-    #restart: always
-    #image: minio/minio
-    #volumes:
-      #- minio:/data
-    #environment:
-      #- MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      #- MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-    #command: minio server /data --console-address ":9001"
-    #networks:
-      #- mlflow_network
-      #- apihub_network
-      #- minio_network
+  minio:
+    restart: always
+    image: minio/minio
+    volumes:
+      - minio:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    command: minio server /data --console-address ":9001"
+    networks:
+      - mlflow_network
+      - apihub_network
+      - minio_network
 
   minio-init:
     image: minio/mc
