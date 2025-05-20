@@ -1,5 +1,22 @@
 services:
 
+  minio:
+    restart: always
+    image: minio/minio
+    volumes:
+      - minio:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: minio server /data --console-address ":9001"
+    networks:
+      - mlflow_network
+      - apihub_network
+      - minio_network
+
   nginx:
     restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-nginx:latest
