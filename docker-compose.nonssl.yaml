@@ -2,7 +2,8 @@ services:
 
   nginx:
     restart: always
-    image: ghcr.io/mlinsightlab/mlinsightlab-nginx:latest
+    #image: ghcr.io/mlinsightlab/mlinsightlab-nginx:latest
+    build: ../MLInsightLab-nginx
     depends_on:
       - jupyter
       - mlflow
@@ -13,6 +14,7 @@ services:
       - "80:80"
     command: bash /code/setup.sh
     networks:
+      - minio_external_network
       - apihub_network
       - jupyter_network
       - mlflow_network

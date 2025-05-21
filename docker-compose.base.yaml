@@ -31,9 +31,9 @@ services:
       - MLFLOW_BACKEND_STORE_URI=${MLFLOW_BACKEND_STORE_URI}
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - MLFLOW_TRACKING_ARTIFACT_STORE=${MLFLOW_TRACKING_ARTIFACT_STORE}
-      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER}
-      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD}
-      - MLFLOW_S3_ENDPOINT_URL=${MINIO_URL}
+      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER_BACKEND}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD_BACKEND}
+      - MLFLOW_S3_ENDPOINT_URL=${MINIO_URL_BACKEND}
     command: /bin/sh -c "mlflow db upgrade ${MLFLOW_BACKEND_STORE_URI} || true && mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 2244 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
     networks:
       - mlflow_network
@@ -76,38 +76,66 @@ services:
     networks:
       - apihub_network
 
-  minio:
+  minio-backend:
     restart: always
     image: minio/minio
     volumes:
-      - minio:/data
+      - minio_backend:/data
     environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER_BACKEND}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD_BACKEND}
     command: minio server /data --console-address ":9001"
     networks:
       - mlflow_network
       - apihub_network
-      - minio_network
+      - minio_backend_network
 
-  minio-init:
+  minio-init-backend:
     image: minio/mc
     depends_on:
-      - minio
+      - minio-backend
     environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER_BACKEND}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD_BACKEND}
     entrypoint: >
       /bin/sh -c "
         sleep 5 &&
-        mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
+        mc alias set local ${MINIO_URL_BACKEND} ${MINIO_ROOT_USER_BACKEND} ${MINIO_ROOT_PASSWORD_BACKEND} &&
         mc mb --ignore-existing local/mlflow &&
         mc mb --ignore-existing local/predictions &&
         mc mb --ignore-existing local/model-cache &&
         mc mb --ignore-existing local/variables
       "
     networks:
-      - minio_network
+      - minio_backend_network
+
+  minio-external:
+    restart: always
+    image: minio/minio
+    volumes:
+      - minio_external:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER_BACKEND}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD_BACKEND}
+    command: minio server /data --console-address ":9001"
+    networks:
+      - minio_external_network
+      
+
+  minio-init-external:
+    image: minio/mc
+    depends_on:
+      - minio-external
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER_EXTERNAL}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD_EXTERNAL}
+    entrypoint: >
+      /bin/sh -c "
+        sleep 5 &&
+        mc alias set local ${MINIO_URL_EXTERNAL} ${MINIO_ROOT_USER_EXTERNAL} ${MINIO_ROOT_PASSWORD_EXTERNAL} &&
+      "
+    networks:
+      - minio_external_network
 
   mlil-ui:
     restart: always
@@ -124,6 +152,8 @@ services:
       - apihub_network
 
 volumes:
+  minio_external:
+  minio_backend:
   jupyter_cron:
   jupyter_home:
   jupyter_etc:
@@ -131,12 +161,12 @@ volumes:
   pgjupyter:
   pgmlflow:
   pgapihub:
-  minio:
   data:
 
 networks:
+  minio_external_network:
+  minio_backend_network:
   jupyter_network:
   apihub_network:
   mlflow_network:
   model_network:
-  minio_network:
