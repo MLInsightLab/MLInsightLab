@@ -2,8 +2,7 @@ services:
 
   nginx:
     restart: always
-    #image: ghcr.io/mlinsightlab/mlinsightlab-nginx:latest
-    build: ../MLInsightLab-nginx
+    image: ghcr.io/mlinsightlab/mlinsightlab-nginx:latest
     depends_on:
       - jupyter
       - mlflow
