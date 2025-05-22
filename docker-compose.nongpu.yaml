@@ -22,6 +22,7 @@ services:
       - JUPYTER_POSTGRES_HOST=${JUPYTER_POSTGRES_HOST}
     command: /bin/sh /code/start_jupyter.sh
     networks:
+      - minio_external_network
       - jupyter_network
       - mlflow_network
   
@@ -50,6 +51,7 @@ services:
       - MANAGE_STORAGE=${API_HUB_MANAGE_STORAGE}
     command: uvicorn main:app --host 0.0.0.0 --port 4488 --root-path /api
     networks:
+      - minio_external_network
       - apihub_network
       - jupyter_network
       - model_network

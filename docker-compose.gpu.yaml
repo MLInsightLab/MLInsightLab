@@ -29,6 +29,7 @@ services:
               count: all
               capabilities: [gpu]
     networks:
+      - minio_external_network
       - jupyter_network
       - mlflow_network
 
@@ -64,6 +65,7 @@ services:
               count: all
               capabilities: [gpu]
     networks:
+      - minio_external_network
       - apihub_network
       - jupyter_network
       - model_network
