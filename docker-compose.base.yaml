@@ -6,7 +6,6 @@ services:
     command: dask-scheduler
     volumes:
       - notebooks:/notebooks
-      - data:/data
     networks:
       - jupyter_network
 
@@ -18,7 +17,6 @@ services:
     command: dask-worker ${DASK_SCHEDULER_ADDRESS}
     volumes:
       - notebooks:/notebooks
-      - data:/data
     deploy:
       replicas: 4
     networks:
@@ -132,7 +130,7 @@ services:
     entrypoint: >
       /bin/sh -c "
         sleep 5 &&
-        mc alias set local ${MINIO_URL_EXTERNAL} ${MINIO_ROOT_USER_EXTERNAL} ${MINIO_ROOT_PASSWORD_EXTERNAL} &&
+        mc alias set local ${MINIO_URL_EXTERNAL} ${MINIO_ROOT_USER_EXTERNAL} ${MINIO_ROOT_PASSWORD_EXTERNAL}
       "
     networks:
       - minio_external_network
@@ -161,7 +159,6 @@ volumes:
   pgjupyter:
   pgmlflow:
   pgapihub:
-  data:
 
 networks:
   minio_external_network:

@@ -8,7 +8,6 @@ services:
       - api-hub
       - postgres-jupyter
     volumes:
-      - data:/data
       - notebooks:/notebooks
       - jupyter_etc:/etc
       - jupyter_cron:/var/spool/cron
@@ -32,14 +31,12 @@ services:
     depends_on:
       - mlflow
     volumes:
-      - data:/data
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - ADMIN_USERNAME=${API_HUB_ADMIN_USERNAME}
       - ADMIN_KEY=${API_HUB_ADMIN_KEY}
       - ADMIN_PASSWORD=${API_HUB_ADMIN_PASSWORD}
-      - DATA_DIRECTORY=${API_HUB_DATA_DIRECTORY}
       - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER_BACKEND}
       - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD_BACKEND}
       - S3_ENDPOINT_URL=${MINIO_URL_BACKEND}
@@ -47,6 +44,10 @@ services:
       - POSTGRES_PASSWORD=${API_HUB_POSTGRES_PASSWORD}
       - POSTGRES_DB=${API_HUB_POSTGRES_DB}
       - POSTGRES_HOST=${API_HUB_POSTGRES_HOST}
+      - STORAGE_HOST=${MINIO_URL_EXTERNAL}
+      - STORAGE_USERNAME=${MINIO_ROOT_USER_EXTERNAL}
+      - STORAGE_PASSWORD=${MINIO_ROOT_PASSWORD_EXTERNAL}
+      - MANAGE_STORAGE=${API_HUB_MANAGE_STORAGE}
     command: uvicorn main:app --host 0.0.0.0 --port 4488 --root-path /api
     networks:
       - apihub_network
