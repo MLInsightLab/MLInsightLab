@@ -1,10 +1,22 @@
 # ML Insight Lab
 
+**The data science platform built *by* data scientists *for* data scientists**
+
 [![Join Slack](https://img.shields.io/badge/slack-join-blue?logo=slack)](https://join.slack.com/t/mlinsightlab/shared_invite/zt-35ovs382b-tOR1MY6c2ExhHzkyJeVWhQ)
 ![License](https://img.shields.io/github/license/mlinsightlab/mlinsightlab)
 ![GitHub stars](https://img.shields.io/github/stars/mlinsightlab/mlinsightlab?style=social)
 
-**The data science platform built *by* data scientists *for* data scientists**
+## Service Status
+
+| Service       | Status Badge |
+|---------------|--------------|
+| JupyterHub    | [![JupyterHub CI](https://github.com/mlinsightlab/mlinsightlab-jupyter/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/mlinsightlab/mlinsightlab-jupyter/actions/workflows/docker-publish.yml) |
+| MLflow        | [![MLflow CI](https://github.com/mlinsightlab/mlinsightlab-mlflow/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/mlinsightlab/mlinsightlab-mlflow/actions/workflows/docker-publish.yml) |
+| Dask          | [![Dask CI](https://github.com/mlinsightlab/mlinsightlab-dask/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/mlinsightlab/mlinsightlab-dask/actions/workflows/docker-publish.yml) |
+| API Hub       | [![API Hub CI](https://github.com/mlinsightlab/mlinsightlab-apihub/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/mlinsightlab/mlinsightlab-apihub/actions/workflows/docker-publish.yml) |
+| Web UI        | [![Web UI CI](https://github.com/mlinsightlab/mlinsightlab-ui/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/mlinsightlab/mlinsightlab-ui/actions/workflows/docker-publish.yml) |
+| Nginx         | [![NGINX CI](https://github.com/mlinsightlab/mlinsightlab-nginx/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/mlinsightlab/mlinsightlab-nginx/actions/workflows/docker-publish.yml) |
+
 
 ## Table of Contents
 
@@ -24,21 +36,26 @@
 
 ML Insight Lab provides a scalable, containerized environment for data scientists and machine learning engineers. It supports distributed computing, experiment tracking, model serving, and inference workflows from development to production—all behind a secure Nginx reverse proxy.
 
+ML Insight Lab is designed in a modular way so that certain services can be deployed or not at the administrator's discretion.
+
 The platform includes:
 
 - Interactive development (JupyterHub)
+   - Integrated with the API Hub for user authentication and authorization.
 - Experiment tracking (MLflow)
 - Distributed computing (Dask)
-- Model serving (API Hub)
-- Artifact and file storage (MinIO) - only accessible to the internal services in the platform
-- Independent Postgres backends per service for clean data separation - only accessible to the internal services in the platform
+- Model serving and user management (API Hub)
+   - Serves as a centralized service for user authentication and authorization, as well as a centralized service to deploy models to the platform.
+- Artifact and file storage (MinIO)
+   - Two deployments of MinIO are provided. The first one is accessible only to the internal services in the platform. An external service is also accessible to serve as artifact storage for users of the platform, and the platform's API Hub manages access to this service.
+- Independent Postgres backends per service for clean data separation
+   - These deployments are only accessible to the internal services in the platform
 
 ## Capabilities
 
 ### 1. **JupyterHub**
 - Multi-user JupyterLab environment with automatic integration to Dask and MLflow
 - Uses its own dedicated PostgreSQL backend
-- Shares `/data` directory with API Hub and Dask for collaborative work
 
 ### 2. **MLflow**
 - Full experiment tracking and model registry
@@ -68,20 +85,23 @@ The platform includes:
 - Automatically detects and routes based on SSL certificate availability
 
 ### 7. **Data Store**
-- `/data` directory is mounted across JupyterHub, Dask, and API Hub
+- An externally-accessible MinIO instance is deployed to serve as file storage within the platform.
+- This instance is managed by the platform's API Hub to create, delete, and otherwise manage users.
 - Accessible via API for file upload/download
 
 ### 8. **Variable Store**
 - Central key-value store accessible via API for storing environment-specific variables
 
 ### 9. **mlinsightlab Python SDK**
-- Lightweight Python SDK preinstalled in JupyterHub
-- Allows Python-native interaction with the API Hub and other platform features
+- Lightweight Python SDK preinstalled in JupyterHub.
+- Allows Python-native interaction with the API Hub and other platform features.
+- Documentation for the SDK can be found at [this site](https://mlinsightlab.github.io/MLInsightLab-Python-SDK/)
+- To see examples of how to use the SDK with the platform, please see [this repository](https://github.com/mlinsightlab/mlinsightlab-examples)
 - Installable via:
 
-```bash
-pip install mlinsightlab
-```
+   ```bash
+   pip install mlinsightlab
+   ```
 
 
 ## Quick Start Guide
@@ -109,6 +129,10 @@ pip install mlinsightlab
     ```bash
     cp env.example .env
     ```
+
+    By its default configuration in the provided `env.example` file, the platform is designed to be deployed locally. If you are deploying to a cloud server, you will need to alter the `HOST` variable in the `env.example` file to ensure that the service knows it is being deployed to another host.
+
+    Additionally, if you are deploying the externally-facing MinIO services to the platform, the web UI of that service is deployed at `storage.{HOST}` and the API is deployed at `storage-api.{HOST}`. You will need to ensure that you have the correct DNS records set up to ensure those services are accessible.
 
 3. **(Optional) Configure SSL Certificates**
    If you would like the Lab to be deployed using SSL termination, you will need to have your certificate `.pem` files saved to the directory `/{path/to/mlinsightlab}/certs`
@@ -148,7 +172,6 @@ pip install mlinsightlab
    ```
 
 ## Configuration
-
 
 The platform relies on environment variables defined in the `.env` file. Below is a list of important variables that **should be updated before deploying to production**, especially those related to authentication and database access. Note that we provide the file `env.example` as a starting point.
 
@@ -198,12 +221,22 @@ The platform relies on environment variables defined in the `.env` file. Below i
 
 ---
 
-### MinIO Configuration
+### Internal MinIO Configuration
 
 | Variable               | Default Value      | Description                                      |
 |------------------------|--------------------|--------------------------------------------------|
-| `MINIO_ROOT_USER`      | `minioadmin`       | MinIO root username (S3 access key)              |
-| `MINIO_ROOT_PASSWORD`  | `minioadmin`       | MinIO root password (S3 secret key)              |
+| `MINIO_ROOT_USER_INTERNAL`      | `minioadmin`       | MinIO root username (S3 access key)              |
+| `MINIO_ROOT_PASSWORD_EXTERNAL`  | `minioadmin`       | MinIO root password (S3 secret key)              |
+
+
+---
+
+### External MinIO Configuration
+
+| Variable               | Default Value      | Description                                      |
+|------------------------|--------------------|--------------------------------------------------|
+| `MINIO_ROOT_USER_EXTERNAL`      | `minioadmin`       | MinIO root username (S3 access key)              |
+| `MINIO_ROOT_PASSWORD_EXTERNAL`  | `minioadmin`       | MinIO root password (S3 secret key)              |
 
 
 ---
@@ -250,5 +283,6 @@ This project includes third-party components:
 
 - **PostgreSQL** - [PostgreSQL License](https://www.postgresql.org/about/licence/)
 - **MinIO** - [GNU Affero General Public License v3.0 (AGPLv3)](https://www.gnu.org/licenses/agpl-3.0.html)
+- **MinIO Command Line Client (mc)** - [GNU Affero General Publice Licene v3.0 (AGPLv3)](https://www.gnu.org/licenses/agpl-3.0.html)
 
-MinIO is used as internal infrastructure only. If you redistribute the platform with modifications to MinIO, please review your obligations under the AGPLv3.
+MinIO and mc are used "out-of-the-box" with no alterations or adaptations by us. Furthermore, the platform can be easily configured to utilize other S3-compatible storage mechanisms. If you redistribute the platform with modifications to MinIO, please review your obligations under the AGPLv3.
