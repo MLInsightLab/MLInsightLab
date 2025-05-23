@@ -4,6 +4,7 @@
 
 [![Join Slack](https://img.shields.io/badge/slack-join-blue?logo=slack)](https://join.slack.com/t/mlinsightlab/shared_invite/zt-35ovs382b-tOR1MY6c2ExhHzkyJeVWhQ)
 ![License](https://img.shields.io/github/license/mlinsightlab/mlinsightlab)
+![PyPI](https://img.shields.io/pypi/v/mlinsightlab)
 ![GitHub stars](https://img.shields.io/github/stars/mlinsightlab/mlinsightlab?style=social)
 
 ## Service Status
