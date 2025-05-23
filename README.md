@@ -149,8 +149,6 @@ The platform includes:
    sh deploy.sh
    ```
 
-   If you would like to deploy the platform using docker compose directly, then first identify which `docker-compose.yaml` file you would like to use, then run the command:
-
    If you would like to deploy the platform using docker compose directly, then you will have to identify whether GPU and SSL support are to be used. The platform is deployed via a combination of three docker compose files. Using your chosen compose files, please modify the following command:
 
    ```bash
@@ -198,7 +196,7 @@ The platform relies on environment variables defined in the `.env` file. Below i
 
 | Variable                           | Default Value                                   | Description                                      |
 |-----------------------------------|-------------------------------------------------|--------------------------------------------------|
-| `MLFLOW_BACKEND_STORE_URI`        | `postgresql://mlflow_postgres:mlflow_postgres@postgres-mlflow:5432/mlflow_postgres` | MLflow's Postgres URI for metadata |
+| `MLFLOW_BACKEND_STORE_URI`        | `postgresql://${MLFLOW_POSTGRES_USER}:${MLFLOW_POSTGRES_PASSWORD}@postgres-mlflow:5432/${MLFLOW_POSTGRES_DB}` | MLflow's Postgres URI for metadata |
 | `MLFLOW_TRACKING_ARTIFACT_STORE`  | `s3://mlflow`                                   | MinIO bucket for MLflow artifacts               |
 
 #### MLflow Postgres Credentials
