@@ -133,7 +133,7 @@ The platform includes:
 
     By its default configuration in the provided `env.example` file, the platform is designed to be deployed locally. If you are deploying to a cloud server, you will need to alter the `HOST` variable in the `env.example` file to ensure that the service knows it is being deployed to another host.
 
-    Additionally, if you are deploying the externally-facing MinIO services to the platform, the web UI of that service is deployed at `storage.{HOST}` and the API is deployed at `s3.{HOST}`. You will need to ensure that you have the correct DNS records set up to ensure those services are accessible.
+    Additionally, if you are deploying the externally-facing MinIO services to the platform, the API is deployed at `s3.{HOST}`. You will need to ensure that you have the correct DNS records set up to ensure the service is accessible. By default, the Lab's API Hub handles user management and authentication for the storage service, and user credentials for the storage service match their credentials for the Lab. If you would like to change that and manage the service yourself, set `API_HUB_MANAGE_STORAGE=false` in your `.env` file.
 
 3. **(Optional) Configure SSL Certificates**
    If you would like the Lab to be deployed using SSL termination, you will need to have your certificate `.pem` files saved to the directory `/{path/to/mlinsightlab}/certs`
