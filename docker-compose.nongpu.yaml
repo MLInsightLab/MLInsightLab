@@ -20,6 +20,7 @@ services:
       - JUPYTER_POSTGRES_PASSWORD=${JUPYTER_POSTGRES_PASSWORD}
       - JUPYTER_POSTGRES_DB=${JUPYTER_POSTGRES_DB}
       - JUPYTER_POSTGRES_HOST=${JUPYTER_POSTGRES_HOST}
+      - S3_ENDPOINT_URL=${MINIO_URL_EXTERNAL}
     command: /bin/sh /code/start_jupyter.sh
     networks:
       - minio_external_network
