@@ -17,7 +17,7 @@
 | API Hub       | [![API Hub CI](https://github.com/mlinsightlab/mlinsightlab-apihub/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/mlinsightlab/mlinsightlab-apihub/actions/workflows/docker-publish.yml) |
 | Web UI        | [![Web UI CI](https://github.com/mlinsightlab/mlinsightlab-ui/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/mlinsightlab/mlinsightlab-ui/actions/workflows/docker-publish.yml) |
 | Nginx         | [![NGINX CI](https://github.com/mlinsightlab/mlinsightlab-nginx/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/mlinsightlab/mlinsightlab-nginx/actions/workflows/docker-publish.yml) |
-
+| Model Container | [![MODEL CONTAINER CI](https://github.com/mlinsightlab/mlinsightlab-model-container/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/mlinsightlab/mlinsightlab-model-container/actions/workflows/docker-publish.yml) |
 
 ## Table of Contents
 
