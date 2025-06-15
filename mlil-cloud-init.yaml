@@ -1,0 +1,9 @@
+#cloud-config
+
+package_update: true
+package_upgrade: true
+
+runcmd:
+  - curl -fsSL https://get.docker.com | sh
+  - git clone https://github.com/mlinsightlab/mlinsightlab
+  - cd mlinsightlab && cp env.example .env && sh deploy.sh

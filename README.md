@@ -112,6 +112,8 @@ The platform includes:
 - Docker and Docker Compose installed on your system.
 - Nvidia drivers and appropriate Nvidia Docker runtime installed (optional - GPU only).
 
+**For user convenience, we have also provided a [cloud init](https://cloud-init.io/) script within this repository, called `mlil-cloud-init.yaml` which can be used to set up a server with default configuration and non-SSL termination.**
+
 ### Setup
 
 1. **Clone the repository**:
