@@ -40,7 +40,7 @@ services:
 
   postgres-jupyter:
     restart: always
-    image: postgres:latest
+    image: postgres:alpine
     volumes:
       - pgjupyter:/var/lib/postgresql/data
     environment:
@@ -52,7 +52,7 @@ services:
 
   postgres-mlflow:
     restart: always
-    image: postgres:latest
+    image: postgres:alpine
     volumes:
       - pgmlflow:/var/lib/postgresql/data
     environment:
@@ -64,7 +64,7 @@ services:
 
   postgres-apihub:
     restart: always
-    image: postgres:latest
+    image: postgres:alpine
     volumes:
       - pgapihub:/var/lib/postgresql/data
     environment:
