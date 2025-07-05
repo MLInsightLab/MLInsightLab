@@ -118,6 +118,7 @@ services:
     command: minio server /data --console-address ":9001"
     networks:
       - minio_external_network
+      - model_network
 
   mlil-ui:
     restart: always
