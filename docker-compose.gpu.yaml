@@ -4,9 +4,9 @@ services:
     restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-jupyter:latest
     depends_on:
+      - postgres-jupyter
       - dask-worker
       - api-hub
-      - postgres-jupyter
     volumes:
       - notebooks:/notebooks
       - jupyter_etc:/etc
@@ -21,6 +21,7 @@ services:
       - JUPYTER_POSTGRES_DB=${JUPYTER_POSTGRES_DB}
       - JUPYTER_POSTGRES_HOST=${JUPYTER_POSTGRES_HOST}
       - S3_ENDPOINT_URL=${MINIO_URL_EXTERNAL}
+      - OLLAMA_HOST=${OLLAMA_HOST}
     command: /bin/sh /code/start_jupyter.sh
     deploy:
       resources:
@@ -57,6 +58,7 @@ services:
       - STORAGE_USERNAME=${MINIO_ROOT_USER_EXTERNAL}
       - STORAGE_PASSWORD=${MINIO_ROOT_PASSWORD_EXTERNAL}
       - MANAGE_STORAGE=${API_HUB_MANAGE_STORAGE}
+      - OLLAMA_HOST=${OLLAMA_HOST}
     command: uvicorn main:app --host 0.0.0.0 --port 4488 --root-path /api
     deploy:
       resources:
@@ -70,3 +72,20 @@ services:
       - apihub_network
       - jupyter_network
       - model_network
+
+  ollama:
+    restart: always
+    image: ollama/ollama
+    volumes:
+      - ollama:/root/.ollama
+    networks:
+      - jupyter_network
+      - apihub_network
+      - model_network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

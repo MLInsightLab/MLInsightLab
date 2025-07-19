@@ -144,6 +144,7 @@ volumes:
   pgjupyter:
   pgmlflow:
   pgapihub:
+  ollama:
 
 networks:
   minio_external_network:
