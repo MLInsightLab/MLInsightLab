@@ -90,10 +90,15 @@ The platform includes:
 - This instance is managed by the platform's API Hub to create, delete, and otherwise manage users.
 - Accessible via API for file upload/download
 
-### 8. **Variable Store**
+### 8. **Ollama Server**
+- ML Insight Lab comes preconfigured with an ollama server, secured via the API Hub
+- Accessible directly from `ollama` CLI from the Jupyter instance of the platform
+- Available from the `MLILClient`, including authentication preconfigured, at `MLILClient.ollama`
+
+### 9. **Variable Store**
 - Central key-value store accessible via API for storing environment-specific variables
 
-### 9. **mlinsightlab Python SDK**
+### 10. **mlinsightlab Python SDK**
 - Lightweight Python SDK preinstalled in JupyterHub.
 - Allows Python-native interaction with the API Hub and other platform features.
 - Documentation for the SDK can be found at [this site](https://mlinsightlab.github.io/MLInsightLab-Python-SDK/)
@@ -285,5 +290,6 @@ This project includes third-party components:
 - **PostgreSQL** - [PostgreSQL License](https://www.postgresql.org/about/licence/)
 - **MinIO** - [GNU Affero General Public License v3.0 (AGPLv3)](https://www.gnu.org/licenses/agpl-3.0.html)
 - **MinIO Command Line Client (mc)** - [GNU Affero General Publice Licene v3.0 (AGPLv3)](https://www.gnu.org/licenses/agpl-3.0.html)
+- **Ollama** - [MIT License](https://github.com/ollama/ollama/blob/main/LICENSE)
 
 MinIO and mc are used "out-of-the-box" with no alterations or adaptations by us. Furthermore, the platform can be easily configured to utilize other S3-compatible storage mechanisms. If you redistribute the platform with modifications to MinIO, please review your obligations under the AGPLv3.
