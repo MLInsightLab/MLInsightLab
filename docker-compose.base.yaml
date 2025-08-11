@@ -32,7 +32,7 @@ services:
       - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER_BACKEND}
       - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD_BACKEND}
       - MLFLOW_S3_ENDPOINT_URL=${MINIO_URL_BACKEND}
-    command: /bin/sh -c "mlflow db upgrade ${MLFLOW_BACKEND_STORE_URI} || true && mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 2244 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
+    command: /bin/sh -c "mlflow db upgrade ${MLFLOW_BACKEND_STORE_URI} || true && mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 5000 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
     networks:
       - mlflow_network
       - model_network
@@ -130,7 +130,7 @@ services:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - INACTIVITY_TIMEOUT=${INACTIVITY_TIMEOUT}
       - API_URL=${API_URL}
-    command: uvicorn main:app --host 0.0.0.0 --port 1122
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
     networks:
       - apihub_network
 
