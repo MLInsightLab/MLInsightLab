@@ -25,6 +25,8 @@ services:
   mlflow:
     restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-mlflow:latest
+    depends_on:
+      - postgres-mlflow
     environment:
       - MLFLOW_BACKEND_STORE_URI=${MLFLOW_BACKEND_STORE_URI}
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}

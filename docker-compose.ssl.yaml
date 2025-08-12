@@ -7,6 +7,7 @@ services:
       - jupyter
       - mlflow
       - mlil-ui
+      - api-hub
     volumes:
       - ./certs/fullchain.pem:/etc/nginx/ssl/fullchain.pem
       - ./certs/privkey.pem:/etc/nginx/ssl/privkey.pem

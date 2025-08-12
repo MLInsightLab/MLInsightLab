@@ -32,6 +32,7 @@ services:
     restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-apihub:latest
     depends_on:
+      - postgres-apihub
       - mlflow
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

@@ -7,6 +7,7 @@ services:
       - jupyter
       - mlflow
       - mlil-ui
+      - api-hub
     environment:
       - USE_SSL=false
     ports:
