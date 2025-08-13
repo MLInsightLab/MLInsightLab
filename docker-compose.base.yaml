@@ -115,8 +115,8 @@ services:
     volumes:
       - minio_external:/data
     environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER_BACKEND}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD_BACKEND}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER_EXTERNAL}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD_EXTERNAL}
     command: minio server /data --console-address ":9001"
     networks:
       - minio_external_network
