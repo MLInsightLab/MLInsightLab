@@ -1,16 +1,19 @@
 services:
 
   dask-scheduler:
-    restart_policy: always
+    restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-dask:latest
     command: dask-scheduler
     volumes:
       - notebooks:/notebooks
+    deploy:
+      restart_policy:
+        condition: any
     networks:
       - jupyter_network
 
   dask-worker:
-    restart_policy: always
+    restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-dask:latest
     depends_on:
       - dask-scheduler
@@ -19,11 +22,13 @@ services:
       - notebooks:/notebooks
     deploy:
       replicas: 4
+      restart_policy:
+        condition: any
     networks:
       - jupyter_network
 
   mlflow:
-    restart_policy: always
+    restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-mlflow:latest
     depends_on:
       - postgres-mlflow
@@ -35,13 +40,16 @@ services:
       - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD_BACKEND}
       - MLFLOW_S3_ENDPOINT_URL=${MINIO_URL_BACKEND}
     command: /bin/sh -c "mlflow db upgrade ${MLFLOW_BACKEND_STORE_URI} || true && mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 5000 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
+    deploy:
+      restart_policy:
+        condition: any
     networks:
       - mlflow_network
       - model_network
       - apihub_network
-
+    
   postgres-jupyter:
-    restart_policy: always
+    restart: always
     image: postgres:alpine
     volumes:
       - pgjupyter:/var/lib/postgresql/data
@@ -49,11 +57,14 @@ services:
       - POSTGRES_USER=${JUPYTER_POSTGRES_USER}
       - POSTGRES_PASSWORD=${JUPYTER_POSTGRES_PASSWORD}
       - POSTGRES_DB=${JUPYTER_POSTGRES_DB}
+    deploy:
+      restart_policy:
+        condition: any
     networks:
       - jupyter_network
 
   postgres-mlflow:
-    restart_policy: always
+    restart: always
     image: postgres:alpine
     volumes:
       - pgmlflow:/var/lib/postgresql/data
@@ -61,11 +72,14 @@ services:
       - POSTGRES_USER=${MLFLOW_POSTGRES_USER}
       - POSTGRES_PASSWORD=${MLFLOW_POSTGRES_PASSWORD}
       - POSTGRES_DB=${MLFLOW_POSTGRES_DB}
+    deploy:
+      restart_policy:
+        condition: any
     networks:
       - mlflow_network
 
   postgres-apihub:
-    restart_policy: always
+    restart: always
     image: postgres:alpine
     volumes:
       - pgapihub:/var/lib/postgresql/data
@@ -73,11 +87,14 @@ services:
       - POSTGRES_USER=${API_HUB_POSTGRES_USER}
       - POSTGRES_PASSWORD=${API_HUB_POSTGRES_PASSWORD}
       - POSTGRES_DB=${API_HUB_POSTGRES_DB}
+    deploy:
+      restart_policy:
+        condition: any
     networks:
       - apihub_network
 
   minio-backend:
-    restart_policy: always
+    restart: always
     image: minio/minio
     volumes:
       - minio_backend:/data
@@ -85,6 +102,9 @@ services:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER_BACKEND}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD_BACKEND}
     command: minio server /data --console-address ":9001"
+    deploy:
+      restart_policy:
+        condition: any
     networks:
       - mlflow_network
       - apihub_network
@@ -106,11 +126,14 @@ services:
         mc mb --ignore-existing local/model-cache &&
         mc mb --ignore-existing local/variables
       "
+    deploy:
+      restart_policy:
+        condition: any
     networks:
       - minio_backend_network
 
   minio-external:
-    restart_policy: always
+    restart: always
     image: minio/minio
     volumes:
       - minio_external:/data
@@ -118,12 +141,15 @@ services:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER_EXTERNAL}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD_EXTERNAL}
     command: minio server /data --console-address ":9001"
+    deploy:
+      restart_policy:
+        condition: any
     networks:
       - minio_external_network
       - model_network
 
   mlil-ui:
-    restart_policy: always
+    restart: always
     image: ghcr.io/mlinsightlab/mlinsightlab-ui:latest
     depends_on:
       - mlflow
@@ -133,6 +159,9 @@ services:
       - INACTIVITY_TIMEOUT=${INACTIVITY_TIMEOUT}
       - API_URL=${API_URL}
     command: uvicorn main:app --host 0.0.0.0 --port 8000
+    deploy:
+      restart_policy:
+        condition: any
     networks:
       - apihub_network
 
