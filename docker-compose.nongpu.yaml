@@ -53,6 +53,7 @@ services:
       - STORAGE_USERNAME=${MINIO_ROOT_USER_EXTERNAL}
       - STORAGE_PASSWORD=${MINIO_ROOT_PASSWORD_EXTERNAL}
       - MANAGE_STORAGE=${API_HUB_MANAGE_STORAGE}
+      - MODEL_NETWORK=${MODEL_NETWORK}
       - OLLAMA_HOST=${OLLAMA_HOST}
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --root-path /api
     networks:
