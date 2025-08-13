@@ -33,6 +33,7 @@ services:
     image: ghcr.io/mlinsightlab/mlinsightlab-apihub:latest
     depends_on:
       - postgres-apihub
+      - minio-external
       - mlflow
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
