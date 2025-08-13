@@ -1,7 +1,7 @@
 services:
 
   nginx:
-    restart: always
+    restart_policy: always
     image: ghcr.io/mlinsightlab/mlinsightlab-nginx:latest
     depends_on:
       - jupyter

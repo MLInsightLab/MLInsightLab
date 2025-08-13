@@ -1,7 +1,7 @@
 services:
 
   dask-scheduler:
-    restart: always
+    restart_policy: always
     image: ghcr.io/mlinsightlab/mlinsightlab-dask:latest
     command: dask-scheduler
     volumes:
@@ -10,7 +10,7 @@ services:
       - jupyter_network
 
   dask-worker:
-    restart: always
+    restart_policy: always
     image: ghcr.io/mlinsightlab/mlinsightlab-dask:latest
     depends_on:
       - dask-scheduler
@@ -23,7 +23,7 @@ services:
       - jupyter_network
 
   mlflow:
-    restart: always
+    restart_policy: always
     image: ghcr.io/mlinsightlab/mlinsightlab-mlflow:latest
     depends_on:
       - postgres-mlflow
@@ -41,7 +41,7 @@ services:
       - apihub_network
 
   postgres-jupyter:
-    restart: always
+    restart_policy: always
     image: postgres:alpine
     volumes:
       - pgjupyter:/var/lib/postgresql/data
@@ -53,7 +53,7 @@ services:
       - jupyter_network
 
   postgres-mlflow:
-    restart: always
+    restart_policy: always
     image: postgres:alpine
     volumes:
       - pgmlflow:/var/lib/postgresql/data
@@ -65,7 +65,7 @@ services:
       - mlflow_network
 
   postgres-apihub:
-    restart: always
+    restart_policy: always
     image: postgres:alpine
     volumes:
       - pgapihub:/var/lib/postgresql/data
@@ -77,7 +77,7 @@ services:
       - apihub_network
 
   minio-backend:
-    restart: always
+    restart_policy: always
     image: minio/minio
     volumes:
       - minio_backend:/data
@@ -110,7 +110,7 @@ services:
       - minio_backend_network
 
   minio-external:
-    restart: always
+    restart_policy: always
     image: minio/minio
     volumes:
       - minio_external:/data
@@ -123,7 +123,7 @@ services:
       - model_network
 
   mlil-ui:
-    restart: always
+    restart_policy: always
     image: ghcr.io/mlinsightlab/mlinsightlab-ui:latest
     depends_on:
       - mlflow

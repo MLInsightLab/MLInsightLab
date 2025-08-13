@@ -1,7 +1,7 @@
 services:
   
   jupyter:
-    restart: always
+    restart_policy: always
     image: ghcr.io/mlinsightlab/mlinsightlab-jupyter:latest
     depends_on:
       - postgres-jupyter
@@ -29,7 +29,7 @@ services:
       - mlflow_network
   
   api-hub:
-    restart: always
+    restart_policy: always
     image: ghcr.io/mlinsightlab/mlinsightlab-apihub:latest
     depends_on:
       - postgres-apihub
@@ -63,7 +63,7 @@ services:
       - model_network
 
   ollama:
-    restart: always
+    restart_policy: always
     image: ollama/ollama
     volumes:
       - ollama:/root/.ollama
