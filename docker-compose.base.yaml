@@ -126,9 +126,6 @@ services:
         mc mb --ignore-existing local/model-cache &&
         mc mb --ignore-existing local/variables
       "
-    deploy:
-      restart_policy:
-        condition: any
     networks:
       - minio_backend_network
 
