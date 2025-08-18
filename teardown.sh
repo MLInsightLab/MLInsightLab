@@ -23,5 +23,11 @@ else
     GPU_COMPOSE="docker-compose.nongpu.yaml"
 fi
 
+# Networks
+NETWORKS_COMPOSE="networks.yaml"
+
+# Volumes
+VOLUMES_COMPOSE="volumes.yaml"
+
 # Tear down the services
-docker compose -f ${BASE_COMPOSE} -f ${NGINX_COMPOSE} -f ${GPU_COMPOSE} down
+docker compose -f ${BASE_COMPOSE} -f ${NGINX_COMPOSE} -f ${GPU_COMPOSE} -f ${NETWORKS_COMPOSE} -f ${VOLUMES_COMPOSE} down

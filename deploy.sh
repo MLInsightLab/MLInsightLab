@@ -29,8 +29,19 @@ else
     GPU_COMPOSE="docker-compose.nongpu.yaml"
 fi
 
+# Networks yaml
+NETWORKS_COMPOSE="networks.yaml"
+
+# Volumes yaml
+VOLUMES_COMPOSE="volumes.yaml"
+
+# Put all of the complete yaml files together
+FILES="-f ${BASE_COMPOSE} -f ${NGINX_COMPOSE} -f ${GPU_COMPOSE} -f ${NETWORKS_COMPOSE} -f ${VOLUMES_COMPOSE}"
+
+echo $FILES
+
 # Pull the containers
-docker compose -f ${BASE_COMPOSE} -f ${NGINX_COMPOSE} -f ${GPU_COMPOSE} pull
+docker compose ${FILES} pull
 
 # Deploy
-docker compose -f ${BASE_COMPOSE} -f ${NGINX_COMPOSE} -f ${GPU_COMPOSE} up -d
+docker compose ${FILES} up -d

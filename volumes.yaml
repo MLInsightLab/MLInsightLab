@@ -1,0 +1,11 @@
+volumes:
+  minio_external:
+  minio_backend:
+  jupyter_cron:
+  jupyter_home:
+  jupyter_etc:
+  notebooks:
+  pgjupyter:
+  pgmlflow:
+  pgapihub:
+  ollama:

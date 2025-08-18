@@ -161,23 +161,3 @@ services:
         condition: any
     networks:
       - apihub_network
-
-volumes:
-  minio_external:
-  minio_backend:
-  jupyter_cron:
-  jupyter_home:
-  jupyter_etc:
-  notebooks:
-  pgjupyter:
-  pgmlflow:
-  pgapihub:
-  ollama:
-
-networks:
-  minio_external_network:
-  minio_backend_network:
-  jupyter_network:
-  apihub_network:
-  mlflow_network:
-  model_network:
