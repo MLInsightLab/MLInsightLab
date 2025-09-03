@@ -16,7 +16,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    command: bash /code/setup.sh
+    command: /bin/sh -c "sleep 60 && bash /code/setup.sh"
     deploy:
       restart_policy:
         condition: any

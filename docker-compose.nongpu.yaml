@@ -22,7 +22,7 @@ services:
       - JUPYTER_POSTGRES_HOST=${JUPYTER_POSTGRES_HOST}
       - S3_ENDPOINT_URL=${MINIO_URL_EXTERNAL}
       - OLLAMA_HOST=${OLLAMA_HOST}
-    command: /bin/sh /code/start_jupyter.sh
+    command: /bin/sh -c "sleep 30 && /bin/sh /code/start_jupyter.sh"
     deploy:
       restart_policy:
         condition: any
@@ -58,7 +58,7 @@ services:
       - MANAGE_STORAGE=${API_HUB_MANAGE_STORAGE}
       - MODEL_NETWORK=${MODEL_NETWORK}
       - OLLAMA_HOST=${OLLAMA_HOST}
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --root-path /api
+    command: /bin/sh -c "sleep 30 && uvicorn main:app --host 0.0.0.0 --port 8000 --root-path /api"
     deploy:
       restart_policy:
         condition: any

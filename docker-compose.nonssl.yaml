@@ -12,7 +12,7 @@ services:
       - USE_SSL=false
     ports:
       - "80:80"
-    command: bash /code/setup.sh
+    command: /bin/sh -c "sleep 60 && bash /code/setup.sh"
     deploy:
       restart_policy:
         condition: any
