@@ -17,7 +17,7 @@ services:
     image: ghcr.io/mlinsightlab/mlinsightlab-dask:latest
     depends_on:
       - dask-scheduler
-    command: /bin/sh -c "sleep 30 && dask-worker ${DASK_SCHEDULER_ADDRESS}"
+    command: /bin/sh -c "echo 'Sleeping to allow for other services to start' && sleep 30 && dask-worker ${DASK_SCHEDULER_ADDRESS}"
     volumes:
       - notebooks:/notebooks
     deploy:
@@ -39,7 +39,7 @@ services:
       - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER_BACKEND}
       - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD_BACKEND}
       - MLFLOW_S3_ENDPOINT_URL=${MINIO_URL_BACKEND}
-    command: /bin/sh -c "sleep 30 && mlflow db upgrade ${MLFLOW_BACKEND_STORE_URI} || true && mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 5000 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
+    command: /bin/sh -c "echo 'Sleeping to allow for other services to start' && sleep 30 && mlflow db upgrade ${MLFLOW_BACKEND_STORE_URI} || true && mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 5000 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
     deploy:
       restart_policy:
         condition: any
@@ -119,7 +119,8 @@ services:
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD_BACKEND}
     entrypoint: >
       /bin/sh -c "
-        sleep 30 &&
+        echo 'Sleeping to allow for other services to start' &&
+        sleep 10 &&
         mc alias set local ${MINIO_URL_BACKEND} ${MINIO_ROOT_USER_BACKEND} ${MINIO_ROOT_PASSWORD_BACKEND} &&
         mc mb --ignore-existing local/mlflow &&
         mc mb --ignore-existing local/predictions &&
@@ -155,7 +156,7 @@ services:
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - INACTIVITY_TIMEOUT=${INACTIVITY_TIMEOUT}
       - API_URL=${API_URL}
-    command: /bin/sh -c "sleep 30 && uvicorn main:app --host 0.0.0.0 --port 8000"
+    command: /bin/sh -c "echo 'Sleeping to allow for other services to start' && sleep 30 && uvicorn main:app --host 0.0.0.0 --port 8000"
     deploy:
       restart_policy:
         condition: any
