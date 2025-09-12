@@ -57,6 +57,7 @@ services:
       - STORAGE_PASSWORD=${MINIO_ROOT_PASSWORD_EXTERNAL}
       - MANAGE_STORAGE=${API_HUB_MANAGE_STORAGE}
       - MODEL_NETWORK=${MODEL_NETWORK}
+      - DEPLOY_MODE=${API_HUB_DEPLOY_MODE}
       - OLLAMA_HOST=${OLLAMA_HOST}
     command: /bin/sh -c "echo 'Sleeping to allow for other services to start' && sleep 30 && uvicorn main:app --host 0.0.0.0 --port 8000 --root-path /api"
     deploy:
