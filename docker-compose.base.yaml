@@ -95,7 +95,7 @@ services:
 
   minio-backend:
     restart: always
-    image: minio/minio
+    build: ./minio
     volumes:
       - minio_backend:/data
     environment:
@@ -111,7 +111,7 @@ services:
       - minio_backend_network
 
   minio-init-backend:
-    image: minio/mc
+    build: ./mc
     depends_on:
       - minio-backend
     environment:
@@ -132,7 +132,7 @@ services:
 
   minio-external:
     restart: always
-    image: minio/minio
+    build: ./minio
     volumes:
       - minio_external:/data
     environment:
