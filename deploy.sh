@@ -43,5 +43,8 @@ echo $FILES
 # Pull the containers
 docker compose ${FILES} pull
 
+# Build the other containers
+docker compose ${FILES} build
+
 # Deploy
 docker compose ${FILES} up -d
