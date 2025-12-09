@@ -20,7 +20,7 @@ services:
       - JUPYTER_POSTGRES_PASSWORD=${JUPYTER_POSTGRES_PASSWORD}
       - JUPYTER_POSTGRES_DB=${JUPYTER_POSTGRES_DB}
       - JUPYTER_POSTGRES_HOST=${JUPYTER_POSTGRES_HOST}
-      - S3_ENDPOINT_URL=${MINIO_URL_EXTERNAL}
+      - S3_ENDPOINT_URL=${S3_URL_EXTERNAL}
       - OLLAMA_HOST=${OLLAMA_HOST}
     command: /bin/sh -c "echo 'Sleeping to allow for other services to start' && sleep 30 && /bin/sh /code/start_jupyter.sh"
     deploy:
@@ -33,7 +33,7 @@ services:
       restart_policy:
         condition: any
     networks:
-      - minio_external_network
+      - s3_external_network
       - jupyter_network
       - mlflow_network
 
@@ -42,7 +42,7 @@ services:
     image: ghcr.io/mlinsightlab/mlinsightlab-apihub:latest
     depends_on:
       - postgres-apihub
-      - minio-external
+      - s3-external
       - mlflow
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -51,17 +51,16 @@ services:
       - ADMIN_USERNAME=${API_HUB_ADMIN_USERNAME}
       - ADMIN_KEY=${API_HUB_ADMIN_KEY}
       - ADMIN_PASSWORD=${API_HUB_ADMIN_PASSWORD}
-      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER_BACKEND}
-      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD_BACKEND}
-      - S3_ENDPOINT_URL=${MINIO_URL_BACKEND}
+      - AWS_ACCESS_KEY_ID=${S3_ROOT_USER_BACKEND}
+      - AWS_SECRET_ACCESS_KEY=${S3_ROOT_PASSWORD_BACKEND}
+      - S3_ENDPOINT_URL=${S3_URL_BACKEND}
       - POSTGRES_USER=${API_HUB_POSTGRES_USER}
       - POSTGRES_PASSWORD=${API_HUB_POSTGRES_PASSWORD}
       - POSTGRES_DB=${API_HUB_POSTGRES_DB}
       - POSTGRES_HOST=${API_HUB_POSTGRES_HOST}
-      - STORAGE_HOST=${MINIO_URL_EXTERNAL}
-      - STORAGE_USERNAME=${MINIO_ROOT_USER_EXTERNAL}
-      - STORAGE_PASSWORD=${MINIO_ROOT_PASSWORD_EXTERNAL}
-      - MANAGE_STORAGE=${API_HUB_MANAGE_STORAGE}
+      - STORAGE_HOST=${s3_URL_EXTERNAL}
+      - STORAGE_USERNAME=${S3_ROOT_USER_EXTERNAL}
+      - STORAGE_PASSWORD=${S3_ROOT_PASSWORD_EXTERNAL}
       - MODEL_NETWORK=${MODEL_NETWORK}
       - DEPLOY_MODE=${API_HUB_DEPLOY_MODE}
       - OLLAMA_HOST=${OLLAMA_HOST}
@@ -79,7 +78,7 @@ services:
       restart_policy:
         condition: any
     networks:
-      - minio_external_network
+      - s3_external_network
       - apihub_network
       - jupyter_network
       - model_network

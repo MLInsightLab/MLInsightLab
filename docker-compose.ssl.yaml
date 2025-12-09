@@ -21,7 +21,7 @@ services:
       restart_policy:
         condition: any
     networks:
-      - minio_external_network
+      - s3_external_network
       - apihub_network
       - jupyter_network
       - mlflow_network

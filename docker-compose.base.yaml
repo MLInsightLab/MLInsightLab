@@ -36,10 +36,10 @@ services:
       - MLFLOW_BACKEND_STORE_URI=${MLFLOW_BACKEND_STORE_URI}
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - MLFLOW_TRACKING_ARTIFACT_STORE=${MLFLOW_TRACKING_ARTIFACT_STORE}
-      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER_BACKEND}
-      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD_BACKEND}
-      - MLFLOW_S3_ENDPOINT_URL=${MINIO_URL_BACKEND}
-    command: /bin/sh -c "echo 'Sleeping to allow for other services to start' && sleep 30 && mlflow db upgrade ${MLFLOW_BACKEND_STORE_URI} || true && mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 5000 --gunicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
+      - AWS_ACCESS_KEY_ID=${S3_ROOT_USER_BACKEND}
+      - AWS_SECRET_ACCESS_KEY=${S3_ROOT_PASSWORD_BACKEND}
+      - MLFLOW_S3_ENDPOINT_URL=${S3_URL_BACKEND}
+    command: /bin/sh -c "echo 'Sleeping to allow for other services to start' && sleep 30 && mlflow db upgrade ${MLFLOW_BACKEND_STORE_URI} || true && mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 5000 --uvicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
     deploy:
       restart_policy:
         condition: any
@@ -93,57 +93,58 @@ services:
     networks:
       - apihub_network
 
-  minio-backend:
+  s3-backend:
     restart: always
-    build: ./minio
+    image: rustfs/rustfs
     volumes:
-      - minio_backend:/data
+      - s3_backend:/data
     environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER_BACKEND}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD_BACKEND}
-    command: minio server /data --console-address ":9001"
+      - RUSTFS_ACCESS_KEY=${S3_ROOT_USER_BACKEND}
+      - RUSTFS_SECRET_KEY=${S3_ROOT_PASSWORD_BACKEND}
     deploy:
       restart_policy:
         condition: any
     networks:
       - mlflow_network
       - apihub_network
-      - minio_backend_network
+      - s3_backend_network
 
-  minio-init-backend:
-    build: ./mc
+  s3-init-backend:
+    image: amazon/aws-cli:latest
     depends_on:
-      - minio-backend
+      - s3-backend
     environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER_BACKEND}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD_BACKEND}
+      - AWS_ACCESS_KEY_ID=${S3_ROOT_USER_BACKEND}
+      - AWS_SECRET_ACCESS_KEY=${S3_ROOT_PASSWORD_BACKEND}
+      - AWS_DEFAULT_REGION=us-east-1
+      - S3_URL=${S3_URL_BACKEND}
     entrypoint: >
-      /bin/sh -c "
-        echo 'Sleeping to allow for other services to start' &&
+      /bin/sh -c '
+        echo "Sleeping to allow for other services to start" &&
         sleep 10 &&
-        mc alias set local ${MINIO_URL_BACKEND} ${MINIO_ROOT_USER_BACKEND} ${MINIO_ROOT_PASSWORD_BACKEND} &&
-        mc mb --ignore-existing local/mlflow &&
-        mc mb --ignore-existing local/predictions &&
-        mc mb --ignore-existing local/model-cache &&
-        mc mb --ignore-existing local/variables
-      "
-    networks:
-      - minio_backend_network
 
-  minio-external:
+        aws --endpoint-url=${S3_URL_BACKEND} s3api create-bucket --bucket mlflow || true
+        aws --endpoint-url=${S3_URL_BACKEND} s3api create-bucket --bucket predictions || true
+        aws --endpoint-url=${S3_URL_BACKEND} s3api create-bucket --bucket model-cache || true
+        aws --endpoint-url=${S3_URL_BACKEND} s3api create-bucket --bucket variables || true
+      '
+    networks:
+      - s3_backend_network
+
+
+  s3-external:
     restart: always
-    build: ./minio
+    image: rustfs/rustfs
     volumes:
-      - minio_external:/data
+      - s3_external:/data
     environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER_EXTERNAL}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD_EXTERNAL}
-    command: minio server /data --console-address ":9001"
+      - RUSTFS_ACCESS_KEY=${S3_ROOT_USER_EXTERNAL}
+      - RUSTFS_SECRET_KEY=${S3_ROOT_PASSWORD_EXTERNAL}
     deploy:
       restart_policy:
         condition: any
     networks:
-      - minio_external_network
+      - s3_external_network
       - model_network
 
   mlil-ui:

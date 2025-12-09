@@ -1,6 +1,6 @@
 networks:
-  minio_external_network:
-  minio_backend_network:
+  s3_external_network:
+  s3_backend_network:
   jupyter_network:
   apihub_network:
   mlflow_network:

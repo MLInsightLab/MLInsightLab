@@ -1,11 +1,19 @@
 volumes:
-  minio_external:
-  minio_backend:
+
+  # S3
+  s3_external:
+  s3_backend:
+
+  # Jupyter
   jupyter_cron:
   jupyter_home:
   jupyter_etc:
   notebooks:
+
+  # PG Services
   pgjupyter:
   pgmlflow:
   pgapihub:
+
+  # Ollama
   ollama:
