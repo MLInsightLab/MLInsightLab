@@ -39,7 +39,7 @@ services:
       - AWS_ACCESS_KEY_ID=${S3_ROOT_USER_BACKEND}
       - AWS_SECRET_ACCESS_KEY=${S3_ROOT_PASSWORD_BACKEND}
       - MLFLOW_S3_ENDPOINT_URL=${S3_URL_BACKEND}
-    command: /bin/sh -c "echo 'Sleeping to allow for other services to start' && sleep 30 && mlflow db upgrade ${MLFLOW_BACKEND_STORE_URI} || true && mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 5000 --uvicorn-opts '-t ${MLFLOW_TIMEOUT_SECONDS}'"
+    command: /bin/sh -c "echo 'Sleeping to allow for other services to start' && sleep 30 && mlflow db upgrade ${MLFLOW_BACKEND_STORE_URI} || true && mlflow server --artifacts-destination ${MLFLOW_TRACKING_ARTIFACT_STORE} --host 0.0.0.0 --port 5000 --uvicorn-opts '--timeout-keep-alive=${MLFLOW_TIMEOUT_SECONDS}'"
     deploy:
       restart_policy:
         condition: any
