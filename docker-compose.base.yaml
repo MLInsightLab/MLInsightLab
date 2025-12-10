@@ -52,7 +52,8 @@ services:
     restart: always
     image: postgres:alpine
     volumes:
-      - pgjupyter:/var/lib/postgresql/data
+      - pg_jupyter_data:/var/lib/postgresql/data
+      - pg_jupyter_root:/var/lib/postgresql
     environment:
       - POSTGRES_USER=${JUPYTER_POSTGRES_USER}
       - POSTGRES_PASSWORD=${JUPYTER_POSTGRES_PASSWORD}
@@ -67,7 +68,8 @@ services:
     restart: always
     image: postgres:alpine
     volumes:
-      - pgmlflow:/var/lib/postgresql/data
+      - pg_mlflow_data:/var/lib/postgresql/data
+      - pg_mlflow_root:/var/lib/postgresql
     environment:
       - POSTGRES_USER=${MLFLOW_POSTGRES_USER}
       - POSTGRES_PASSWORD=${MLFLOW_POSTGRES_PASSWORD}
@@ -82,7 +84,8 @@ services:
     restart: always
     image: postgres:alpine
     volumes:
-      - pgapihub:/var/lib/postgresql/data
+      - pg_apihub_data:/var/lib/postgresql/data
+      - pg_apihub_root:/var/lib/postgresql
     environment:
       - POSTGRES_USER=${API_HUB_POSTGRES_USER}
       - POSTGRES_PASSWORD=${API_HUB_POSTGRES_PASSWORD}
@@ -97,7 +100,8 @@ services:
     restart: always
     image: rustfs/rustfs
     volumes:
-      - s3_backend:/data
+      - s3_backend_data:/data
+      - s3_backend_logs:/logs
     environment:
       - RUSTFS_ACCESS_KEY=${S3_ROOT_USER_BACKEND}
       - RUSTFS_SECRET_KEY=${S3_ROOT_PASSWORD_BACKEND}
@@ -136,7 +140,8 @@ services:
     restart: always
     image: rustfs/rustfs
     volumes:
-      - s3_external:/data
+      - s3_external_data:/data
+      - s3_external_logs:/logs
     environment:
       - RUSTFS_ACCESS_KEY=${S3_ROOT_USER_EXTERNAL}
       - RUSTFS_SECRET_KEY=${S3_ROOT_PASSWORD_EXTERNAL}

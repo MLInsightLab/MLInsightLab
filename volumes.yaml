@@ -1,8 +1,10 @@
 volumes:
 
   # S3
-  s3_external:
-  s3_backend:
+  s3_external_data:
+  s3_external_logs:
+  s3_backend_data:
+  s3_backend_logs:
 
   # Jupyter
   jupyter_cron:
@@ -11,9 +13,12 @@ volumes:
   notebooks:
 
   # PG Services
-  pgjupyter:
-  pgmlflow:
-  pgapihub:
+  pg_jupyter_data:
+  pg_jupyter_root:
+  pg_mlflow_data:
+  pg_mlflow_root:
+  pg_apihub_data:
+  pg_apihub_root:
 
   # Ollama
   ollama:
