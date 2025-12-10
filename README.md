@@ -35,7 +35,7 @@
 
 ## Overview
 
-ML Insight Lab provides a scalable, containerized environment for data scientists and machine learning engineers. It supports distributed computing, experiment tracking, model serving, and inference workflows from development to production—all behind a secure Nginx reverse proxy.
+ML Insight Lab provides a scalable, containerized environment for data scientists and machine learning engineers. It supports distributed computing, experiment tracking, model serving, and inference workflows from development to production—all behind a secure Nginx reverse proxy, authentication, and deployable with TLS.
 
 ML Insight Lab is designed in a modular way so that certain services can be deployed or not at the administrator's discretion.
 
@@ -47,8 +47,8 @@ The platform includes:
 - Distributed computing (Dask)
 - Model serving and user management (API Hub)
    - Serves as a centralized service for user authentication and authorization, as well as a centralized service to deploy models to the platform.
-- Artifact and file storage (MinIO)
-   - Two deployments of MinIO are provided. The first one is accessible only to the internal services in the platform. An external service is also accessible to serve as artifact storage for users of the platform, and the platform's API Hub manages access to this service.
+- S3-compatible artifact and file storage (RustFS)
+   - Two deployments of RustFS are provided. The first one is accessible only to the internal services in the platform. An external service is also accessible to serve as artifact storage for users of the platform, and an initial administrator account is available to manage this service via the console.
 - Independent Postgres backends per service for clean data separation
    - These deployments are only accessible to the internal services in the platform
 
@@ -61,7 +61,7 @@ The platform includes:
 ### 2. **MLflow**
 - Full experiment tracking and model registry
 - Dedicated PostgreSQL backend for metadata
-- Stores artifacts (e.g., models, logs) in **MinIO S3-compatible storage**
+- Stores artifacts (e.g., models, logs) in **RustFS S3-compatible storage**
 - Models can be served directly to the API Hub
 - Accessible to all team members with "admin" or "data scientist" roles
 
@@ -76,7 +76,7 @@ The platform includes:
 - Provides endpoints for prediction, model loading, user authentication, and system management
 - Uses:
   - A dedicated PostgreSQL instance
-  - MinIO for user-uploaded files and model storage
+  - RustFS for user-uploaded files and model storage
 
 ### 5. **Web UI**
 - Unified interface for accessing services and managing tasks
@@ -86,7 +86,7 @@ The platform includes:
 - Automatically detects and routes based on SSL certificate availability
 
 ### 7. **Data Store**
-- An externally-accessible MinIO instance is deployed to serve as file storage within the platform.
+- An externally-accessible RustFS instance is deployed to serve as file storage within the platform.
 - This instance is managed by the platform's API Hub to create, delete, and otherwise manage users.
 - Accessible via API for file upload/download
 
@@ -138,11 +138,9 @@ The platform includes:
     cp env.example .env
     ```
 
-    By its default configuration in the provided `env.example` file, the platform is designed to be deployed locally. If you are deploying to a cloud server, you will need to alter the `HOST` variable in the `env.example` file to ensure that the service knows it is being deployed to another host.
+    If you are deploying the externally-facing S3 (RustFS) services to the platform, the API is deployed at `s3.{HOST}` and the console is deployed at `console.{HOST}`. You will need to ensure that you have the correct DNS records set up to ensure the service is accessible. The Lab's API Hub does not manage users in the S3 service, so you will have to use the administrator account set up for this service to manage it.
 
-    Additionally, if you are deploying the externally-facing MinIO services to the platform, the API is deployed at `s3.{HOST}`. You will need to ensure that you have the correct DNS records set up to ensure the service is accessible. By default, the Lab's API Hub handles user management and authentication for the storage service, and user credentials for the storage service match their credentials for the Lab. If you would like to change that and manage the service yourself, set `API_HUB_MANAGE_STORAGE=false` in your `.env` file.
-
-3. **(Optional) Configure SSL Certificates**
+3. **(Optional) Configure TLS Certificates**
    If you would like the Lab to be deployed using SSL termination, you will need to have your certificate `.pem` files saved to the directory `/{path/to/mlinsightlab}/certs`
 
    This can be accomplished by physically saving the files to this directory, or by having the files saved via a symbolic link.
@@ -205,7 +203,7 @@ The platform relies on environment variables defined in the `.env` file. Below i
 | Variable                           | Default Value                                   | Description                                      |
 |-----------------------------------|-------------------------------------------------|--------------------------------------------------|
 | `MLFLOW_BACKEND_STORE_URI`        | `postgresql://${MLFLOW_POSTGRES_USER}:${MLFLOW_POSTGRES_PASSWORD}@postgres-mlflow:5432/${MLFLOW_POSTGRES_DB}` | MLflow's Postgres URI for metadata |
-| `MLFLOW_TRACKING_ARTIFACT_STORE`  | `s3://mlflow`                                   | MinIO bucket for MLflow artifacts               |
+| `MLFLOW_TRACKING_ARTIFACT_STORE`  | `s3://mlflow`                                   | RustFS bucket for MLflow artifacts               |
 
 #### MLflow Postgres Credentials
 
@@ -227,22 +225,22 @@ The platform relies on environment variables defined in the `.env` file. Below i
 
 ---
 
-### Internal MinIO Configuration
+### Internal RustFS Configuration
 
 | Variable               | Default Value      | Description                                      |
 |------------------------|--------------------|--------------------------------------------------|
-| `MINIO_ROOT_USER_INTERNAL`      | `minioadmin`       | MinIO root username (S3 access key)              |
-| `MINIO_ROOT_PASSWORD_EXTERNAL`  | `minioadmin`       | MinIO root password (S3 secret key)              |
+| `S3_ROOT_USER_INTERNAL`      | `s3endpointadmin`       | RustFS root username (S3 access key)              |
+| `S3_ROOT_PASSWORD_EXTERNAL`  | `s3endpointadmin`       | RustFS root password (S3 secret key)              |
 
 
 ---
 
-### External MinIO Configuration
+### External RustFS Configuration
 
 | Variable               | Default Value      | Description                                      |
 |------------------------|--------------------|--------------------------------------------------|
-| `MINIO_ROOT_USER_EXTERNAL`      | `minioadmin`       | MinIO root username (S3 access key)              |
-| `MINIO_ROOT_PASSWORD_EXTERNAL`  | `minioadmin`       | MinIO root password (S3 secret key)              |
+| `S3_ROOT_USER_EXTERNAL`      | `s3endpointadmin`       | RustFS root username (S3 access key)              |
+| `S3_ROOT_PASSWORD_EXTERNAL`  | `s3endpointadmin`       | RustFS root password (S3 secret key)              |
 
 
 ---
@@ -252,19 +250,19 @@ The platform relies on environment variables defined in the `.env` file. Below i
    To view logs for any service, use the following command:
 
    ```bash
-   docker-compose -f {chosen-docker-compose-file} logs {service-name}
+   docker-compose -f {chosen-docker-compose-files} logs {service-name}
    ```
 
    For example, to view the logs for the JupyterHub service:
 
    ```bash
-   docker-compose -f {chosen-docker-compose-file} logs jupyter
+   docker-compose -f {chosen-docker-compose-files} logs jupyter
    ```
 
 ## Security Considerations
 
    1. **Environment Variables**: Avoid using default passwords and API keys in production. Update them in the `.env` file.
-   2. **SSL/HTTPS**: Ensure SSL certificates are properly configured for secure connections.
+   2. **TLS/HTTPS**: Ensure SSL certificates are properly configured for secure connections.
    3. **User Management**: If deploying JupyterHub for multiple users, ensure appropriate permissions and roles are assigned.
 
 ## Contributing
@@ -288,8 +286,10 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENS
 This project includes third-party components:
 
 - **PostgreSQL** - [PostgreSQL License](https://www.postgresql.org/about/licence/)
-- **MinIO** - [GNU Affero General Public License v3.0 (AGPLv3)](https://www.gnu.org/licenses/agpl-3.0.html)
-- **MinIO Command Line Client (mc)** - [GNU Affero General Publice Licene v3.0 (AGPLv3)](https://www.gnu.org/licenses/agpl-3.0.html)
+- **RustFS** - [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - **Ollama** - [MIT License](https://github.com/ollama/ollama/blob/main/LICENSE)
+- **MLflow** - [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- **Dask** - [BSD 3-Clause](https://opensource.org/license/bsd-3-clause)
+- **JupyterHub** - [BSD 3-Clause](https://opensource.org/license/bsd-3-clause)
 
-MinIO and mc are used "out-of-the-box" with no alterations or adaptations by us. Furthermore, the platform can be easily configured to utilize other S3-compatible storage mechanisms. If you redistribute the platform with modifications to MinIO, please review your obligations under the AGPLv3.
+If you are using this software, please consider your obligations under these licenses.
