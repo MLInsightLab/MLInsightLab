@@ -22,6 +22,7 @@ services:
       - JUPYTER_POSTGRES_HOST=${JUPYTER_POSTGRES_HOST}
       - S3_ENDPOINT_URL=${S3_URL_EXTERNAL}
       - OLLAMA_HOST=${OLLAMA_HOST}
+      - MLFLOW_DISABLE_TELEMETRY=${MLFLOW_DISABLE_TELEMETRY}
     command: /bin/sh -c "echo 'Sleeping to allow for other services to start' && sleep 30 && /bin/sh /code/start_jupyter.sh"
     deploy:
       resources:
