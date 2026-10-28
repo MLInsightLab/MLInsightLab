@@ -86,7 +86,7 @@ services:
 
   ollama:
     restart: always
-    image: ollama/ollama
+    image: ollama/ollama:latest
     volumes:
       - ollama:/root/.ollama
     networks:
